@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnpm/
+.yarn/
+
+# Expo
+.expo/
+.expo-shared/
+expo-env.d.ts
+web-build/
+
+# Build output
+dist/
+build/
+out/
+
+# Native signing & certs
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+*.orig.*
+android/app/debug.keystore
+*.keystore
+
+# Metro
+.metro-health-check*
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.*
+
+# Environment variables
+.env
+.env.*
+
+# TypeScript
+*.tsbuildinfo
+
+# Lock files (keep only one — delete the ones you don't use)
+yarn.lock
+pnpm-lock.yaml
+
+# Test output
+coverage/
+jest-results/
+
+# Appwrite local config
+appwrite.json
+
+# SQLite
+*.db
+
+# Misc
+*.local
