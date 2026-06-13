@@ -4,6 +4,7 @@ import { CheckIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { renderBackdrop, SHEET_SHADOW } from './sheetHelpers';
 
 export type QualityOption = {
   label: string;
@@ -28,6 +29,8 @@ export const QualitySheet = React.forwardRef<
     <BottomSheetModal
       ref={ref}
       enableDynamicSizing
+      backdropComponent={renderBackdrop}
+      style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetView className="px-6 pb-10 pt-3">
