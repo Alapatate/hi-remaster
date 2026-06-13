@@ -18,7 +18,7 @@ export const BIRDS: Bird[] = [
     description:
       'A small, round bird with a bright orange breast, famously bold around gardeners. Robins are highly territorial and sing year-round, even in winter.',
     funFact: 'Robins often follow gardeners to snatch worms turned up by the spade.',
-    xpRequired: 0,
+    xpRequired: 1,
   },
   {
     id: 'kingfisher',
