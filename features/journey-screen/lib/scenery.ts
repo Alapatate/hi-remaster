@@ -58,6 +58,36 @@ function pickKind(r: number): SceneryKind {
   return 'pond';
 }
 
+/** A soft watercolor splotch making up the uneven prairie background. */
+export type Splotch = { x: number; y: number; d: string; tone: number };
+
+/**
+ * Scatter large, overlapping translucent blobs across the whole canvas to fake
+ * an uneven, hand-painted meadow wash. Edges run off-canvas so the colour
+ * bleeds to the borders. `toneCount` is how many tints the caller will cycle.
+ */
+export function scatterMeadow(width: number, height: number, toneCount: number): Splotch[] {
+  const rng = mulberry32(0x4d656164); // "Mead"
+  const out: Splotch[] = [];
+  const step = 104;
+
+  for (let y = -20; y < height + 20; y += step) {
+    const perRow = 2 + (rng() < 0.5 ? 1 : 0);
+    for (let k = 0; k < perRow; k++) {
+      const rx = 60 + rng() * 70;
+      const ry = 46 + rng() * 44;
+      out.push({
+        x: rng() * width,
+        y: y + (rng() - 0.5) * 60,
+        d: blobPath(rx, ry, rng),
+        tone: Math.floor(rng() * toneCount),
+      });
+    }
+  }
+
+  return out;
+}
+
 /** A pebble scattered on the dirt trail. */
 export type Pebble = { x: number; y: number; r: number; dark: boolean };
 
@@ -112,7 +142,7 @@ export type ZoneItem = {
 };
 
 /** Build a smooth, irregular closed blob centred at the origin (Catmull-Rom). */
-function blobPath(rx: number, ry: number, rng: () => number): string {
+export function blobPath(rx: number, ry: number, rng: () => number): string {
   const n = 9;
   const pts: Point[] = [];
   for (let i = 0; i < n; i++) {

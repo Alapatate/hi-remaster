@@ -91,6 +91,10 @@ export const JOURNEY_COLORS = {
     dirtEdgeMuted: '#9c937e',
     pebbleLightMuted: '#cfc8b6',
     pebbleDarkMuted: '#9a9384',
+    meadow: {
+      base: '#e9f1da',
+      blobs: ['#dde9c4', '#e3edcd', '#d2e2b4', '#cfe3c0'],
+    },
     scenery: LIGHT_SCENERY,
     sceneryMuted: LIGHT_SCENERY_MUTED,
   },
@@ -106,6 +110,10 @@ export const JOURNEY_COLORS = {
     dirtEdgeMuted: '#4a4236',
     pebbleLightMuted: '#534b3e',
     pebbleDarkMuted: '#2c271f',
+    meadow: {
+      base: '#161c11',
+      blobs: ['#1f2915', '#1b2412', '#26331a', '#202c18'],
+    },
     scenery: DARK_SCENERY,
     sceneryMuted: DARK_SCENERY_MUTED,
   },

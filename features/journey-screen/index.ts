@@ -3,6 +3,7 @@ export { JourneyScreen } from './screens/JourneyScreen';
 
 // Components
 export { BirdSheet } from './components/BirdSheet';
+export { JourneyBackground } from './components/JourneyBackground';
 export { JourneyHeader } from './components/JourneyHeader';
 export { JourneyPath } from './components/JourneyPath';
 export { JourneyScenery } from './components/JourneyScenery';

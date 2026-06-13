@@ -5,6 +5,7 @@ import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BirdSheet } from '../components/BirdSheet';
+import { JourneyBackground } from '../components/JourneyBackground';
 import { JourneyHeader } from '../components/JourneyHeader';
 import { JourneyPath } from '../components/JourneyPath';
 import { JourneyScenery } from '../components/JourneyScenery';
@@ -44,7 +45,7 @@ export function JourneyScreen() {
   }, []);
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <View className="flex-1" style={{ paddingTop: insets.top, backgroundColor: palette.meadow.base }}>
       <ScrollView
         ref={scrollRef}
         className="flex-1"
@@ -61,6 +62,8 @@ export function JourneyScreen() {
         />
 
         <View style={{ width, height: canvasHeight }}>
+          <JourneyBackground width={width} height={canvasHeight} blobs={palette.meadow.blobs} />
+
           <JourneyScenery
             points={waypoints}
             width={width}
@@ -76,8 +79,6 @@ export function JourneyScreen() {
             width={width}
             height={canvasHeight}
             cutoffY={markerPosition.y}
-            doneColor={palette.accent}
-            todoColor={palette.trailTodo}
             dirt={{
               fill: palette.dirt,
               edge: palette.dirtEdge,

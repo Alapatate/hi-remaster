@@ -4,10 +4,10 @@ import { pathSegments, type Point } from '../lib/layout';
 import { scatterPebbles } from '../lib/scenery';
 
 /**
- * The winding trail behind the waypoints. A wide dirt band runs the full length
- * with pebbles scattered across it; the accent "progress" line is drawn on top,
- * solid up to the furthest unlocked waypoint and dashed beyond it. Everything
- * past the discovered region (`cutoffY`) uses muted earth tones.
+ * The winding dirt trail behind the waypoints. A wide dirt band runs the full
+ * length with pebbles scattered across it. There is no progress line — the
+ * vivid vs. muted earth tones (split at `cutoffY`) carry the progress on their
+ * own: the discovered trail is warm, everything beyond it is muted.
  */
 export function JourneyPath({
   points,
@@ -15,8 +15,6 @@ export function JourneyPath({
   width,
   height,
   cutoffY,
-  doneColor,
-  todoColor,
   dirt,
   dirtMuted,
 }: {
@@ -25,8 +23,6 @@ export function JourneyPath({
   width: number;
   height: number;
   cutoffY: number;
-  doneColor: string;
-  todoColor: string;
   dirt: { fill: string; edge: string; pebbleLight: string; pebbleDark: string };
   dirtMuted: { fill: string; edge: string; pebbleLight: string; pebbleDark: string };
 }) {
@@ -63,23 +59,6 @@ export function JourneyPath({
             cy={pb.y}
             r={pb.r}
             fill={pb.dark ? c.pebbleDark : c.pebbleLight}
-          />
-        );
-      })}
-
-      {/* Accent progress line. */}
-      {segments.map((d, i) => {
-        const done = i + 1 <= frontierIndex;
-        return (
-          <Path
-            key={`a${i}`}
-            d={d}
-            fill="none"
-            stroke={done ? doneColor : todoColor}
-            strokeWidth={done ? 6 : 5}
-            strokeLinecap="round"
-            strokeDasharray={done ? undefined : [2, 14]}
-            opacity={done ? 1 : 0.75}
           />
         );
       })}
