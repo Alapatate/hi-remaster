@@ -1,3 +1,4 @@
+import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { DATABASE_ID, VIDEOS_COLLECTION_ID, databases } from '@/lib/appwrite';
 import { useAuth } from '@/lib/auth';
@@ -94,6 +95,7 @@ function PulsingDot({ color, delay = 0 }: { color: string; delay?: number }) {
 export default function Dashboard() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const dockSpace = useBottomDockSpace();
 
   const firstName = user?.name?.split(' ')[0] ?? 'there';
   const joinDate = user?.$createdAt ? new Date(user.$createdAt).toLocaleDateString() : '—';
@@ -113,7 +115,10 @@ export default function Dashboard() {
   }, [lastVideoId]);
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="p-6 pb-12">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="p-6"
+      contentContainerStyle={{ paddingBottom: dockSpace }}>
       <Animated.View entering={FadeInDown.duration(500).springify()} className="mb-8 mt-4">
         <View className="mb-2 flex-row items-center gap-2">
           <Animated.Text

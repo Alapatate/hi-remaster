@@ -1,0 +1,399 @@
+import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
+import { Text } from '@/components/ui/text';
+import { useAuth } from '@/lib/auth';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  UsersIcon,
+} from 'lucide-react-native';
+import * as React from 'react';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import Animated, { Easing, FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActionButton } from '../components/ActionButton';
+import { ImmersionHeader } from '../components/ImmersionHeader';
+import { LastSessionCard } from '../components/LastSessionCard';
+import { PhaseSection } from '../components/PhaseSection';
+import { SessionSummaryCard } from '../components/SessionSummaryCard';
+import { StepProgressBar } from '../components/StepProgressBar';
+import { SummaryExerciseList } from '../components/SummaryExerciseList';
+import { TeacherHeroCard } from '../components/TeacherHeroCard';
+import { TeacherPickerSheet } from '../components/TeacherPickerSheet';
+import { AboutTeacherSheet } from '../components/player/AboutTeacherSheet';
+import { useTeachers } from '../hooks/useTeachers';
+import { useTeacherVideos } from '../hooks/useTeacherVideos';
+import { IS_CONFIGURED, readLastSession, teacherFullName } from '../lib/data';
+import { totalDuration } from '../lib/format';
+import { orderByPhase, PHASE_ORDER } from '../lib/phases';
+import type { Video } from '../lib/types';
+
+const FOOTER_HEIGHT = 80;
+const FOOTER_LIFT = 4;
+
+/** Shared style: absolute fill so entering/exiting steps overlap during crossfade. */
+const FILL = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
+
+const STEP_DURATION = 280;
+const STEP_SLIDE = 44;
+/** The incoming step waits until the outgoing one has mostly left to avoid overlap. */
+const STEP_ENTER_DELAY = 210;
+
+/**
+ * Custom entering animation: stays invisible during `STEP_ENTER_DELAY` (so the
+ * exiting step leaves first), then slides in from `dx` while fading + scaling up.
+ */
+function makeEnter(dx: number) {
+  return () => {
+    'worklet';
+    const timing = { duration: STEP_DURATION, easing: Easing.out(Easing.cubic) };
+    return {
+      initialValues: { opacity: 0, transform: [{ translateX: dx }, { scale: 0.97 }] },
+      animations: {
+        opacity: withDelay(STEP_ENTER_DELAY, withTiming(1, timing)),
+        transform: [
+          { translateX: withDelay(STEP_ENTER_DELAY, withTiming(0, timing)) },
+          { scale: withDelay(STEP_ENTER_DELAY, withTiming(1, timing)) },
+        ],
+      },
+    };
+  };
+}
+
+/** Custom exiting animation: slide out toward `dx` while fading + scaling down. */
+function makeExit(dx: number) {
+  return () => {
+    'worklet';
+    const timing = { duration: STEP_DURATION, easing: Easing.in(Easing.cubic) };
+    return {
+      initialValues: { opacity: 1, transform: [{ translateX: 0 }, { scale: 1 }] },
+      animations: {
+        opacity: withTiming(0, timing),
+        transform: [{ translateX: withTiming(dx, timing) }, { scale: withTiming(0.97, timing) }],
+      },
+    };
+  };
+}
+
+type Step = 1 | 2 | 3;
+
+export function VideoSessionFlow() {
+  const { t } = useTranslation();
+  const { resetAt } = useLocalSearchParams<{ resetAt?: string }>();
+  const { user, updatePrefs } = useAuth();
+  const dockSpace = useBottomDockSpace();
+  const { teachers, loading, error, reload } = useTeachers();
+  const insets = useSafeAreaInsets();
+
+  const [featuredIndex, setFeaturedIndex] = React.useState(0);
+  const [step, setStep] = React.useState<Step>(1);
+  const [direction, setDirection] = React.useState<'forward' | 'back'>('forward');
+  const [selected, setSelected] = React.useState<Video[]>([]);
+
+  // Navigate between steps while tracking direction so transitions slide the right way.
+  const stepRef = React.useRef<Step>(step);
+  stepRef.current = step;
+  const go = React.useCallback((next: Step) => {
+    setDirection(next >= stepRef.current ? 'forward' : 'back');
+    setStep(next);
+  }, []);
+
+  // Restore last teacher from prefs once the list has loaded.
+  const restoredRef = React.useRef(false);
+  React.useEffect(() => {
+    if (restoredRef.current || teachers.length === 0) return;
+    const lastTeacherId = (user?.prefs as Record<string, unknown>)?.lastTeacherId as
+      | string
+      | undefined;
+    if (lastTeacherId) {
+      const idx = teachers.findIndex((t) => t.$id === lastTeacherId);
+      if (idx !== -1) setFeaturedIndex(idx);
+    }
+    restoredRef.current = true;
+  }, [teachers, user?.prefs]);
+
+  const aboutRef = React.useRef<BottomSheetModal>(null);
+  const pickerRef = React.useRef<BottomSheetModal>(null);
+
+  const teacher = teachers[featuredIndex];
+  const { videos, loading: videosLoading } = useTeacherVideos(step >= 2 ? teacher?.$id : undefined);
+
+  const selectedIds = React.useMemo(() => new Set(selected.map((v) => v.$id)), [selected]);
+  const total = React.useMemo(() => totalDuration(selected), [selected]);
+  const lastSession = React.useMemo(
+    () => readLastSession(user?.prefs as Record<string, unknown>),
+    [user?.prefs]
+  );
+
+  const goHome = React.useCallback(() => {
+    go(1);
+    setSelected([]);
+  }, [go]);
+
+  const lastResetAt = React.useRef<string | null>(null);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!resetAt || resetAt === lastResetAt.current) return;
+      lastResetAt.current = resetAt;
+      goHome();
+    }, [resetAt, goHome])
+  );
+
+  const pickTeacher = React.useCallback(
+    (t: (typeof teachers)[number]) => {
+      const idx = teachers.findIndex((x) => x.$id === t.$id);
+      if (idx !== -1) setFeaturedIndex(idx);
+      setSelected([]);
+      pickerRef.current?.dismiss();
+      updatePrefs({ lastTeacherId: t.$id }).catch(() => {});
+    },
+    [teachers, updatePrefs]
+  );
+
+  const toggleVideo = React.useCallback((video: Video) => {
+    setSelected((prev) =>
+      prev.some((v) => v.$id === video.$id)
+        ? prev.filter((v) => v.$id !== video.$id)
+        : [...prev, video]
+    );
+  }, []);
+
+  const startSession = React.useCallback(() => {
+    const ordered = orderByPhase(selected);
+    if (ordered.length === 0) return;
+    const ids = ordered.map((v) => v.$id).join(',');
+    if (teacher) {
+      updatePrefs({ lastTeacherId: teacher.$id }).catch(() => {});
+    }
+    router.push(`/video/${ordered[0].$id}?session=${ids}`);
+  }, [selected, teacher, updatePrefs]);
+
+  const resumeLastSession = React.useCallback(() => {
+    if (!lastSession) return;
+    const query = lastSession.sessionParam ? `?session=${lastSession.sessionParam}` : '';
+    router.push(`/video/${lastSession.videoId}${query}`);
+  }, [lastSession]);
+
+  if (!IS_CONFIGURED) return <SetupPlaceholder />;
+
+  // Direction-aware step transitions: forward slides in from the right, back from the left.
+  const stepEntering = makeEnter(direction === 'forward' ? STEP_SLIDE : -STEP_SLIDE);
+  const stepExiting = makeExit(direction === 'forward' ? -STEP_SLIDE : STEP_SLIDE);
+
+  return (
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      <View className="pt-2">
+        <ImmersionHeader onHome={goHome} />
+      </View>
+
+      {step > 1 ? (
+        <Animated.View
+          key="progress-bar"
+          className="pt-4"
+          entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}>
+          <StepProgressBar
+            current={step}
+            total={3}
+            sessionDuration={total}
+            onBack={() => go((step === 3 ? 2 : 1) as Step)}
+          />
+        </Animated.View>
+      ) : null}
+
+      {/* Relative container so entering/exiting steps overlap during crossfade */}
+      <View style={{ flex: 1, position: 'relative' }}>
+        {loading ? (
+          <Animated.View key="loading" style={FILL} entering={FadeIn} exiting={FadeOut}>
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color="#bf6e1a" />
+            </View>
+          </Animated.View>
+        ) : error ? (
+          <Animated.View key="error" style={FILL} entering={FadeIn} exiting={FadeOut}>
+            <ErrorState message={error} onRetry={reload} />
+          </Animated.View>
+        ) : !teacher ? (
+          <Animated.View key="empty" style={FILL} entering={FadeIn} exiting={FadeOut}>
+            <EmptyState message={t('noTeachers')} />
+          </Animated.View>
+        ) : step === 1 ? (
+          <Animated.View
+            key="step-1"
+            className="bg-background"
+            style={FILL}
+            entering={stepEntering}
+            exiting={stepExiting}>
+            <View
+              style={{
+                flex: 1,
+                paddingHorizontal: 20,
+                paddingTop: 12,
+                paddingBottom: Math.max(dockSpace + 10, 20),
+                gap: 12,
+              }}>
+              <TeacherHeroCard
+                teacher={teacher}
+                onInfo={() => aboutRef.current?.present()}
+                style={{ flex: 1 }}
+              />
+              <View className="flex-row gap-3">
+                <ActionButton
+                  className="flex-1"
+                  label={t('practice')}
+                  onPress={() => go(2)}
+                  iconRight={<ArrowRightIcon size={18} color="white" />}
+                />
+                <ActionButton
+                  variant="secondary"
+                  label={t('change')}
+                  onPress={() => pickerRef.current?.present()}
+                  iconLeft={<UsersIcon size={16} color="#4a3826" />}
+                />
+              </View>
+              {lastSession ? (
+                <LastSessionCard
+                  teacherName={lastSession.teacherName || teacherFullName(teacher)}
+                  progress={lastSession.progress}
+                  totalSeconds={lastSession.totalSeconds}
+                  onPress={resumeLastSession}
+                />
+              ) : null}
+            </View>
+          </Animated.View>
+        ) : step === 2 ? (
+          <Animated.View
+            key="step-2"
+            className="bg-background"
+            style={[FILL, { flexDirection: 'column' }]}
+            entering={stepEntering}
+            exiting={stepExiting}>
+            {videosLoading ? (
+              <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="large" color="#bf6e1a" />
+              </View>
+            ) : (
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{ padding: 20, paddingBottom: 8 }}>
+                {PHASE_ORDER.map((type) => (
+                  <PhaseSection
+                    key={type}
+                    type={type}
+                    videos={videos.filter((v) => v.type === type)}
+                    selectedIds={selectedIds}
+                    onToggle={toggleVideo}
+                  />
+                ))}
+              </ScrollView>
+            )}
+            <FooterBar insetBottom={dockSpace}>
+              <ActionButton
+                variant="secondary"
+                label={t('back')}
+                onPress={() => go(1)}
+                iconLeft={<ArrowLeftIcon size={18} color="#4a3826" />}
+              />
+              <ActionButton
+                className="flex-1"
+                label={t('nextStep')}
+                disabled={selected.length === 0}
+                onPress={() => go(3)}
+                iconRight={<ArrowRightIcon size={18} color="white" />}
+              />
+            </FooterBar>
+          </Animated.View>
+        ) : (
+          <Animated.View
+            key="step-3"
+            className="bg-background"
+            style={[FILL, { flexDirection: 'column' }]}
+            entering={stepEntering}
+            exiting={stepExiting}>
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 20, paddingBottom: 8, gap: 16 }}>
+              <SessionSummaryCard
+                teacherName={teacherFullName(teacher)}
+                totalDuration={total}
+                exerciseCount={selected.length}
+              />
+              <SummaryExerciseList videos={selected} />
+            </ScrollView>
+            <FooterBar insetBottom={dockSpace}>
+              <ActionButton
+                variant="secondary"
+                label={t('startNewSession')}
+                onPress={goHome}
+                iconLeft={<RotateCcwIcon size={16} color="#4a3826" />}
+              />
+              <ActionButton
+                className="flex-1"
+                label={t('startSession')}
+                onPress={startSession}
+                iconLeft={<PlayIcon size={18} color="white" fill="white" />}
+              />
+            </FooterBar>
+          </Animated.View>
+        )}
+      </View>
+
+      <TeacherPickerSheet
+        ref={pickerRef}
+        teachers={teachers}
+        currentId={teacher?.$id}
+        onSelect={pickTeacher}
+      />
+      {teacher ? (
+        <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
+      ) : null}
+    </View>
+  );
+}
+
+function FooterBar({
+  children,
+  insetBottom = 0,
+}: {
+  children: React.ReactNode;
+  insetBottom?: number;
+}) {
+  return (
+    <View
+      className="mb-3 flex-row gap-3 bg-background px-5 py-3"
+      style={{ paddingBottom: insetBottom + FOOTER_LIFT }}>
+      {children}
+    </View>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <View className="flex-1 items-center justify-center gap-4 px-8">
+      <Text className="text-center text-muted-foreground">{message}</Text>
+      <ActionButton label={t('retry')} onPress={onRetry} />
+    </View>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <View className="flex-1 items-center justify-center px-8">
+      <Text className="text-center text-muted-foreground">{message}</Text>
+    </View>
+  );
+}
+
+function SetupPlaceholder() {
+  return (
+    <View className="flex-1 items-center justify-center px-8">
+      <Text className="text-center leading-6 text-muted-foreground">
+        Configure DATABASE_ID and VIDEOS_COLLECTION_ID in lib/appwrite.ts.
+      </Text>
+    </View>
+  );
+}
