@@ -53,7 +53,9 @@ function ThemedLayout() {
       <BottomSheetModalProvider>
         <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="video/[id]" options={{ animation: 'fade', animationDuration: 280 }} />
+          </Stack>
           <PortalHost />
         </ThemeProvider>
       </BottomSheetModalProvider>

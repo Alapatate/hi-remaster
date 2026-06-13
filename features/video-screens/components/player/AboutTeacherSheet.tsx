@@ -8,6 +8,7 @@ import { teacherFlag, teacherFullName } from '../../lib/data';
 import { formatDuration } from '../../lib/format';
 import type { Teacher } from '../../lib/types';
 import { Pill } from '../Pill';
+import { renderBackdrop, SHEET_SHADOW } from './sheetHelpers';
 
 const SHEET_BG = '#e9e0ce';
 const HANDLE = '#c9bfa6';
@@ -32,6 +33,8 @@ export const AboutTeacherSheet = React.forwardRef<
     <BottomSheetModal
       ref={ref}
       snapPoints={['90%']}
+      backdropComponent={renderBackdrop}
+      style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetScrollView className="px-5 pb-12 pt-2">

@@ -30,7 +30,7 @@ export function ActionButton({
       disabled={disabled}
       activeOpacity={0.85}
       className={cn(
-        'flex-row items-center justify-center gap-2 rounded-2xl px-5 py-4',
+        'flex-row items-center justify-center gap-2 rounded-2xl px-5 py-3',
         isPrimary ? 'bg-primary' : 'bg-secondary',
         disabled && 'opacity-50',
         className

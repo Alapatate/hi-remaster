@@ -1,24 +1,27 @@
 import { Text } from '@/components/ui/text';
 import { InfoIcon } from 'lucide-react-native';
-import { ImageBackground, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleProp, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { teacherFlag, teacherFullName, teacherPhotoSource } from '../lib/data';
 import type { Teacher } from '../lib/types';
 
-/** Large featured-teacher card: photo, name banner, info button, country flag. */
 export function TeacherHeroCard({
   teacher,
   onInfo,
+  style,
 }: {
   teacher: Teacher;
   onInfo?: () => void;
+  style?: StyleProp<ViewStyle>;
 }) {
   const flag = teacherFlag(teacher);
 
   return (
-    <View className="overflow-hidden rounded-3xl bg-card" style={{ elevation: 3 }}>
+    <View
+      className="overflow-hidden rounded-3xl bg-card"
+      style={style}>
       <ImageBackground
         source={teacherPhotoSource(teacher)}
-        style={{ width: '100%', aspectRatio: 0.82 }}
+        style={{ flex: 1, minHeight: 180 }}
         resizeMode="cover">
         {/* Name banner */}
         <View className="absolute left-4 right-4 top-4 items-center rounded-2xl bg-primary py-3">

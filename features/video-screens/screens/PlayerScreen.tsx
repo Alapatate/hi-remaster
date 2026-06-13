@@ -1,12 +1,14 @@
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useEvent } from 'expo';
+import { useEvent, useEventListener } from 'expo';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AboutTeacherSheet } from '../components/player/AboutTeacherSheet';
 import { PlayerControls } from '../components/player/PlayerControls';
 import { PlayerScrubBar } from '../components/player/PlayerScrubBar';
@@ -19,6 +21,15 @@ import { totalDuration } from '../lib/format';
 import type { Video } from '../lib/types';
 
 const SEEK = 15;
+const AUTO_HIDE_MS = 3500;
+
+function buildVideoSource(uri: string, title: string) {
+  return {
+    uri,
+    ...(uri.includes('.m3u8') ? { contentType: 'hls' as const } : {}),
+    metadata: { title },
+  };
+}
 
 export function PlayerScreen() {
   const { id, session } = useLocalSearchParams<{ id: string; session?: string }>();
@@ -71,24 +82,22 @@ export function PlayerScreen() {
         <CenteredMessage message={error} />
       ) : !video?.url ? (
         <CenteredMessage message="No video URL available for this entry." />
-      ) : (
-        focused && (
-          <PlayerView
-            video={video}
-            sessionVideos={sessionVideos}
-            sessionParam={sessionParam}
-            onProgress={(progress, total, teacherName) =>
-              updatePrefs({
-                lastVideoId: video.$id,
-                lastSessionParam: sessionParam,
-                lastSessionTeacher: teacherName,
-                lastSessionProgress: progress,
-                lastSessionTotal: total,
-              }).catch(() => {})
-            }
-          />
-        )
-      )}
+      ) : focused ? (
+        <PlayerView
+          video={video}
+          sessionVideos={sessionVideos}
+          sessionParam={sessionParam}
+          onProgress={(progress, total, teacherName) =>
+            updatePrefs({
+              lastVideoId: video.$id,
+              lastSessionParam: sessionParam,
+              lastSessionTeacher: teacherName,
+              lastSessionProgress: progress,
+              lastSessionTotal: total,
+            }).catch(() => {})
+          }
+        />
+      ) : null}
     </View>
   );
 }
@@ -105,17 +114,18 @@ function PlayerView({
   onProgress: (progress: number, total: number, teacherName: string) => void;
 }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const url = video.url!;
   const title = video.title;
 
   const variants = useHlsVariants(url);
   const [activeQuality, setActiveQuality] = React.useState<string | null>(null);
-  const [qualityOpen, setQualityOpen] = React.useState(false);
   const [viewKey, setViewKey] = React.useState(0);
   const pendingSeek = React.useRef<number | null>(null);
 
   const playlistRef = React.useRef<BottomSheetModal>(null);
   const aboutRef = React.useRef<BottomSheetModal>(null);
+  const qualityRef = React.useRef<BottomSheetModal>(null);
 
   const hasSession = sessionVideos.length > 1;
   const currentIndex = Math.max(
@@ -129,7 +139,7 @@ function PlayerView({
 
   const sessionTotal = hasSession ? totalDuration(sessionVideos) : video.duration ?? 0;
 
-  const player = useVideoPlayer({ uri: url, metadata: { title } }, (p) => {
+  const player = useVideoPlayer(buildVideoSource(url, title), (p) => {
     p.timeUpdateEventInterval = 0.5;
     p.play();
   });
@@ -145,8 +155,67 @@ function PlayerView({
   });
   const currentTime = timeEvent?.currentTime ?? 0;
 
-  const { status, error } = useEvent(player, 'statusChange', { status: player.status });
+  const statusEvent = useEvent(player, 'statusChange', { status: player.status });
+  const status = statusEvent?.status ?? player.status;
+
+  // Adaptive HLS can switch resolution without replacing the source. Remount the
+  // view so contentFit is reapplied (same workaround as manual quality switches).
+  useEventListener(player, 'videoTrackChange', ({ videoTrack, oldVideoTrack }) => {
+    if (activeQuality !== null || !videoTrack || !oldVideoTrack) return;
+    const sizeChanged =
+      videoTrack.size.width !== oldVideoTrack.size.width ||
+      videoTrack.size.height !== oldVideoTrack.size.height;
+    if (sizeChanged) setViewKey((k) => k + 1);
+  });
+  const statusError = (statusEvent as { error?: { message?: string } } | undefined)?.error;
   const duration = player.duration ?? 0;
+  const isBuffering = status === 'loading';
+
+  // ── Controls visibility (tap to toggle, auto-hide while playing) ──
+  const overlay = useSharedValue(1);
+  const [interactive, setInteractive] = React.useState(true);
+  const hideTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHideTimer = React.useCallback(() => {
+    if (hideTimer.current) {
+      clearTimeout(hideTimer.current);
+      hideTimer.current = null;
+    }
+  }, []);
+
+  const hideControls = React.useCallback(() => {
+    clearHideTimer();
+    overlay.value = withTiming(0, { duration: 250 });
+    setInteractive(false);
+  }, [overlay, clearHideTimer]);
+
+  const scheduleHide = React.useCallback(() => {
+    clearHideTimer();
+    hideTimer.current = setTimeout(hideControls, AUTO_HIDE_MS);
+  }, [clearHideTimer, hideControls]);
+
+  const showControls = React.useCallback(
+    (autoHide = true) => {
+      overlay.value = withTiming(1, { duration: 200 });
+      setInteractive(true);
+      if (autoHide && isPlaying) scheduleHide();
+      else clearHideTimer();
+    },
+    [overlay, isPlaying, scheduleHide, clearHideTimer]
+  );
+
+  // Keep controls up while paused; resume auto-hide when playing.
+  React.useEffect(() => {
+    if (isPlaying) scheduleHide();
+    else {
+      clearHideTimer();
+      overlay.value = withTiming(1, { duration: 200 });
+      setInteractive(true);
+    }
+    return clearHideTimer;
+  }, [isPlaying, scheduleHide, clearHideTimer, overlay]);
+
+  const overlayStyle = useAnimatedStyle(() => ({ opacity: overlay.value }));
 
   // Re-seek after a quality swap (source replace) lands.
   React.useEffect(() => {
@@ -169,11 +238,11 @@ function PlayerView({
 
   const switchQuality = React.useCallback(
     (label: string | null) => {
-      setQualityOpen(false);
+      qualityRef.current?.dismiss();
       if (label === activeQuality) return;
       pendingSeek.current = player.currentTime;
       const newUrl = label ? variants.find((v) => v.label === label)?.url ?? url : url;
-      player.replace({ uri: newUrl, metadata: { title } });
+      player.replace(buildVideoSource(newUrl, title));
       setActiveQuality(label);
       setViewKey((k) => k + 1);
     },
@@ -189,7 +258,10 @@ function PlayerView({
   );
 
   const qualityOptions: QualityOption[] = React.useMemo(
-    () => [{ label: t('auto', 'Auto'), value: null }, ...variants.map((v) => ({ label: v.label, value: v.label }))],
+    () => [
+      { label: t('auto', 'Auto'), value: null },
+      ...variants.map((v) => ({ label: v.label, value: v.label })),
+    ],
     [variants, t]
   );
 
@@ -204,62 +276,97 @@ function PlayerView({
         allowsPictureInPicture
       />
 
-      {/* Loading / error overlays */}
-      {status === 'loading' ? (
-        <View className="absolute inset-0 items-center justify-center">
-          <ActivityIndicator size="large" color="white" />
-        </View>
-      ) : null}
-      {status === 'error' ? (
-        <View className="absolute inset-0 items-center justify-center px-6">
-          <Text className="text-center text-white">{error?.message ?? t('playbackError')}</Text>
-        </View>
-      ) : null}
+      {/* Tap layer (below overlay) — shows controls when they are hidden */}
+      <Pressable
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        pointerEvents={interactive ? 'none' : 'auto'}
+        onPress={() => showControls()}
+      />
 
       {/* Controls overlay */}
-      <View className="absolute inset-0 justify-between pb-6 pt-12">
-        <PlayerTopBar
-          onBack={() => router.back()}
-          index={currentIndex}
-          total={sessionVideos.length}
-          hasSession={hasSession}
-          onPlaylist={() => playlistRef.current?.present()}
-          qualityLabel={activeQuality ?? t('auto', 'Auto')}
-          onQuality={() => setQualityOpen(true)}
-          hasVariants={variants.length > 1}
+      <Animated.View
+        style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, overlayStyle]}
+        pointerEvents={interactive ? 'auto' : 'none'}>
+        {/* Scrim — tapping empty space hides controls */}
+        <Pressable
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)' }}
+          onPress={() => hideControls()}
         />
 
-        <View className="px-6">
+        <View
+          pointerEvents="box-none"
+          style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 10, justifyContent: 'space-between' }}>
+          <PlayerTopBar
+            onBack={() =>
+              router.replace({
+                pathname: '/(protected)/videos',
+                params: { resetAt: String(Date.now()) },
+              })
+            }
+            index={currentIndex}
+            total={sessionVideos.length}
+            hasSession={hasSession}
+            onPlaylist={() => playlistRef.current?.present()}
+            qualityLabel={activeQuality ?? t('auto', 'Auto')}
+            onQuality={() => qualityRef.current?.present()}
+            hasVariants={variants.length > 1}
+          />
+
           <PlayerControls
             playing={isPlaying}
-            onPlayPause={() => (isPlaying ? player.pause() : player.play())}
-            onSeekBack={() => (player.currentTime = Math.max(0, player.currentTime - SEEK))}
-            onSeekForward={() => (player.currentTime = player.currentTime + SEEK)}
+            loading={isBuffering}
+            onPlayPause={() => {
+              if (isPlaying) player.pause();
+              else player.play();
+              showControls();
+            }}
+            onSeekBack={() => {
+              player.currentTime = Math.max(0, player.currentTime - SEEK);
+              showControls();
+            }}
+            onSeekForward={() => {
+              player.currentTime = player.currentTime + SEEK;
+              showControls();
+            }}
             onNext={() => nextVideo && goToVideo(nextVideo.$id)}
             hasNext={!!nextVideo}
           />
-        </View>
 
-        <PlayerScrubBar
-          title={title}
-          subtitle={`${teacherFullName(video.teacher)}${
-            duration > 0 ? `  ·  ${formatClock(duration)}` : ''
-          }`}
-          currentTime={currentTime}
-          duration={duration}
-          onSeek={(s) => (player.currentTime = s)}
-          onInfo={() => aboutRef.current?.present()}
-          onPlaylist={() => playlistRef.current?.present()}
-          hasSession={hasSession}
-        />
-      </View>
+          <PlayerScrubBar
+            title={title}
+            subtitle={`${teacherFullName(video.teacher)}${
+              duration > 0 ? `  ·  ${formatClock(duration)}` : ''
+            }`}
+            currentTime={currentTime}
+            duration={duration}
+            onScrubStart={() => showControls(false)}
+            onSeek={(s) => {
+              player.currentTime = s;
+              showControls();
+            }}
+            onInfo={() => aboutRef.current?.present()}
+            onPlaylist={() => playlistRef.current?.present()}
+            hasSession={hasSession}
+          />
+        </View>
+      </Animated.View>
+
+      {/* Playback error (always on top, not tied to controls) */}
+      {status === 'error' ? (
+        <View
+          pointerEvents="none"
+          className="absolute inset-0 items-center justify-center px-6">
+          <Text className="text-center text-white">
+            {statusError?.message ?? t('playbackError')}
+          </Text>
+        </View>
+      ) : null}
 
       <QualitySheet
-        visible={qualityOpen}
+        ref={qualityRef}
         options={qualityOptions}
         active={activeQuality}
         onSelect={switchQuality}
-        onClose={() => setQualityOpen(false)}
       />
 
       {hasSession ? (
@@ -271,12 +378,7 @@ function PlayerView({
         />
       ) : null}
 
-      <AboutTeacherSheet
-        ref={aboutRef}
-        title={title}
-        teacher={video.teacher}
-        duration={video.duration}
-      />
+      <AboutTeacherSheet ref={aboutRef} title={title} teacher={video.teacher} duration={video.duration} />
     </View>
   );
 }

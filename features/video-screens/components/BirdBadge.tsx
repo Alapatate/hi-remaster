@@ -8,9 +8,7 @@ import { View } from 'react-native';
  */
 export function BirdBadge({ name = 'Rouge-gorge' }: { name?: string }) {
   return (
-    <View
-      className="flex-row items-center gap-1.5 rounded-full bg-card px-3.5 py-2"
-      style={{ elevation: 1 }}>
+    <View className="flex-row items-center gap-1.5 rounded-full bg-card px-3 py-2">
       <BirdIcon size={16} color="#bf6e1a" />
       <Text className="text-sm font-semibold text-foreground">{name}</Text>
     </View>

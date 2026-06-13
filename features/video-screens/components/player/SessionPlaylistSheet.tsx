@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { teacherFullName } from '../../lib/data';
 import { formatDuration } from '../../lib/format';
 import type { Video } from '../../lib/types';
+import { renderBackdrop, SHEET_SHADOW } from './sheetHelpers';
 
 const SHEET_BG = '#f4eddd';
 const HANDLE = '#c9bfa6';
@@ -27,6 +28,8 @@ export const SessionPlaylistSheet = React.forwardRef<
     <BottomSheetModal
       ref={ref}
       enableDynamicSizing
+      backdropComponent={renderBackdrop}
+      style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetScrollView className="px-5 pb-10 pt-2">
