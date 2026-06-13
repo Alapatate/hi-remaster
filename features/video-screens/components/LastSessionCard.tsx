@@ -25,10 +25,12 @@ export function LastSessionCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
-      className="flex-row items-center rounded-2xl px-5 py-4"
+      className="flex-row items-center rounded-2xl px-5 py-3"
       style={{ backgroundColor: OLIVE }}>
       <View className="flex-1">
-        <Text className="text-[11px] font-bold uppercase tracking-wider" style={{ color: OLIVE_MUTED }}>
+        <Text
+          className="text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: OLIVE_MUTED }}>
           {t('lastSession')}
         </Text>
         <Text className="mt-0.5 text-base font-bold text-white">{teacherName}</Text>

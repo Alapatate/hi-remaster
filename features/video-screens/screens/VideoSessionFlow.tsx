@@ -13,6 +13,7 @@ import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
 import { LastSessionCard } from '../components/LastSessionCard';
@@ -29,7 +30,7 @@ import { totalDuration } from '../lib/format';
 import { orderByPhase, PHASE_ORDER } from '../lib/phases';
 import type { Video } from '../lib/types';
 
-const BOTTOM_INSET = 120;
+const FOOTER_HEIGHT = 80;
 
 type Step = 1 | 2 | 3;
 
@@ -37,6 +38,7 @@ export function VideoSessionFlow() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { teachers, loading, error, reload } = useTeachers();
+  const insets = useSafeAreaInsets();
 
   const [featuredIndex, setFeaturedIndex] = React.useState(0);
   const [step, setStep] = React.useState<Step>(1);
@@ -45,9 +47,7 @@ export function VideoSessionFlow() {
   const aboutRef = React.useRef<BottomSheetModal>(null);
 
   const teacher = teachers[featuredIndex];
-  const { videos, loading: videosLoading } = useTeacherVideos(
-    step >= 2 ? teacher?.$id : undefined
-  );
+  const { videos, loading: videosLoading } = useTeacherVideos(step >= 2 ? teacher?.$id : undefined);
 
   const selectedIds = React.useMemo(() => new Set(selected.map((v) => v.$id)), [selected]);
   const total = React.useMemo(() => totalDuration(selected), [selected]);
@@ -91,9 +91,10 @@ export function VideoSessionFlow() {
   if (!IS_CONFIGURED) return <SetupPlaceholder />;
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="pt-8" />
-      <ImmersionHeader onHome={goHome} />
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      <View className="pt-2">
+        <ImmersionHeader onHome={goHome} />
+      </View>
 
       {step > 1 ? (
         <View className="pt-4">
@@ -114,12 +115,23 @@ export function VideoSessionFlow() {
       ) : !teacher ? (
         <EmptyState message={t('noTeachers')} />
       ) : step === 1 ? (
+        /* ── Step 1: hero card fills all remaining space, buttons sit below ── */
         <Animated.View key="step-1" entering={FadeIn.duration(250)} className="flex-1">
-          <ScrollView
-            contentContainerStyle={{ padding: 20, paddingBottom: BOTTOM_INSET, gap: 16 }}>
-            <View className="pt-2">
-              <TeacherHeroCard teacher={teacher} onInfo={() => aboutRef.current?.present()} />
-            </View>
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: 20,
+              paddingTop: 12,
+              paddingBottom: Math.max(insets.bottom, 10),
+              gap: 12,
+            }}>
+            {/* Card grows to fill — buttons push it from below */}
+            <TeacherHeroCard
+              teacher={teacher}
+              onInfo={() => aboutRef.current?.present()}
+              style={{ flex: 1 }}
+            />
+
             <View className="flex-row gap-3">
               <ActionButton
                 className="flex-1"
@@ -134,6 +146,7 @@ export function VideoSessionFlow() {
                 iconLeft={<ShuffleIcon size={16} color="#4a3826" />}
               />
             </View>
+
             {lastSession ? (
               <LastSessionCard
                 teacherName={lastSession.teacherName || teacherFullName(teacher)}
@@ -142,7 +155,7 @@ export function VideoSessionFlow() {
                 onPress={resumeLastSession}
               />
             ) : null}
-          </ScrollView>
+          </View>
         </Animated.View>
       ) : step === 2 ? (
         <Animated.View key="step-2" entering={FadeIn.duration(250)} className="flex-1">
@@ -151,7 +164,11 @@ export function VideoSessionFlow() {
               <ActivityIndicator size="large" color="#bf6e1a" />
             </View>
           ) : (
-            <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: BOTTOM_INSET }}>
+            <ScrollView
+              contentContainerStyle={{
+                padding: 20,
+                paddingBottom: FOOTER_HEIGHT + Math.max(insets.bottom, 16),
+              }}>
               {PHASE_ORDER.map((type) => (
                 <PhaseSection
                   key={type}
@@ -163,7 +180,7 @@ export function VideoSessionFlow() {
               ))}
             </ScrollView>
           )}
-          <FooterBar>
+          <FooterBar insetBottom={insets.bottom}>
             <ActionButton
               variant="secondary"
               label={t('back')}
@@ -182,7 +199,11 @@ export function VideoSessionFlow() {
       ) : (
         <Animated.View key="step-3" entering={FadeIn.duration(250)} className="flex-1">
           <ScrollView
-            contentContainerStyle={{ padding: 20, paddingBottom: BOTTOM_INSET, gap: 16 }}>
+            contentContainerStyle={{
+              padding: 20,
+              paddingBottom: FOOTER_HEIGHT + Math.max(insets.bottom, 16),
+              gap: 16,
+            }}>
             <SessionSummaryCard
               teacherName={teacherFullName(teacher)}
               totalDuration={total}
@@ -190,7 +211,7 @@ export function VideoSessionFlow() {
             />
             <SummaryExerciseList videos={selected} />
           </ScrollView>
-          <FooterBar>
+          <FooterBar insetBottom={insets.bottom}>
             <ActionButton
               variant="secondary"
               label={t('startNewSession')}
@@ -207,14 +228,24 @@ export function VideoSessionFlow() {
         </Animated.View>
       )}
 
-      <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
+      {teacher ? (
+        <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
+      ) : null}
     </View>
   );
 }
 
-function FooterBar({ children }: { children: React.ReactNode }) {
+function FooterBar({
+  children,
+  insetBottom = 0,
+}: {
+  children: React.ReactNode;
+  insetBottom?: number;
+}) {
   return (
-    <View className="absolute bottom-0 left-0 right-0 flex-row gap-3 px-5 pb-8 pt-3">
+    <View
+      className="absolute bottom-0 left-0 right-0 flex-row gap-3 bg-background px-5 pt-3"
+      style={{ paddingBottom: Math.max(insetBottom, 16) + 8 }}>
       {children}
     </View>
   );

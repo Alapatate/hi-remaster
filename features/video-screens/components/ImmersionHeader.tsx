@@ -14,9 +14,7 @@ export function ImmersionHeader({ onHome }: { onHome?: () => void }) {
         <RoundIconButton size={48} onPress={onHome} className="bg-card" style={{ elevation: 1 }}>
           <HomeIcon size={22} color="#bf6e1a" />
         </RoundIconButton>
-        <Text
-          className="flex-1 text-2xl font-extrabold leading-7 text-primary"
-          numberOfLines={2}>
+        <Text className="flex-1 text-xl font-extrabold leading-7 text-primary">
           {t('immersionTitle')}
         </Text>
       </View>
