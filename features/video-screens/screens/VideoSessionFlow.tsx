@@ -7,7 +7,7 @@ import {
   ArrowRightIcon,
   PlayIcon,
   RotateCcwIcon,
-  ShuffleIcon,
+  UsersIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
@@ -22,6 +22,7 @@ import { SessionSummaryCard } from '../components/SessionSummaryCard';
 import { StepProgressBar } from '../components/StepProgressBar';
 import { SummaryExerciseList } from '../components/SummaryExerciseList';
 import { TeacherHeroCard } from '../components/TeacherHeroCard';
+import { TeacherPickerSheet } from '../components/TeacherPickerSheet';
 import { AboutTeacherSheet } from '../components/player/AboutTeacherSheet';
 import { useTeachers } from '../hooks/useTeachers';
 import { useTeacherVideos } from '../hooks/useTeacherVideos';
@@ -45,6 +46,7 @@ export function VideoSessionFlow() {
   const [selected, setSelected] = React.useState<Video[]>([]);
 
   const aboutRef = React.useRef<BottomSheetModal>(null);
+  const pickerRef = React.useRef<BottomSheetModal>(null);
 
   const teacher = teachers[featuredIndex];
   const { videos, loading: videosLoading } = useTeacherVideos(step >= 2 ? teacher?.$id : undefined);
@@ -61,11 +63,15 @@ export function VideoSessionFlow() {
     setSelected([]);
   }, []);
 
-  const shuffleTeacher = React.useCallback(() => {
-    if (teachers.length < 2) return;
-    setFeaturedIndex((i) => (i + 1) % teachers.length);
-    setSelected([]);
-  }, [teachers.length]);
+  const pickTeacher = React.useCallback(
+    (t: (typeof teachers)[number]) => {
+      const idx = teachers.findIndex((x) => x.$id === t.$id);
+      if (idx !== -1) setFeaturedIndex(idx);
+      setSelected([]);
+      pickerRef.current?.dismiss();
+    },
+    [teachers]
+  );
 
   const toggleVideo = React.useCallback((video: Video) => {
     setSelected((prev) =>
@@ -142,8 +148,8 @@ export function VideoSessionFlow() {
               <ActionButton
                 variant="secondary"
                 label={t('change')}
-                onPress={shuffleTeacher}
-                iconLeft={<ShuffleIcon size={16} color="#4a3826" />}
+                onPress={() => pickerRef.current?.present()}
+                iconLeft={<UsersIcon size={16} color="#4a3826" />}
               />
             </View>
 
@@ -228,6 +234,12 @@ export function VideoSessionFlow() {
         </Animated.View>
       )}
 
+      <TeacherPickerSheet
+        ref={pickerRef}
+        teachers={teachers}
+        currentId={teacher?.$id}
+        onSelect={pickTeacher}
+      />
       {teacher ? (
         <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
       ) : null}

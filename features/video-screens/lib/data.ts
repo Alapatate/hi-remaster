@@ -50,15 +50,15 @@ const LOCAL_TEACHER_PHOTOS: Record<string, ReturnType<typeof require>> = {
 const FALLBACK_PHOTO = require('@/assets/images/phi.png');
 
 export function teacherPhotoSource(teacher?: Teacher) {
-  const url = teacher?.photoUrl ?? teacher?.photo ?? teacher?.image;
+  const url = teacher?.profilepic;
   if (url && /^https?:\/\//.test(url)) return { uri: url };
   const key = teacher?.firstname?.toLowerCase().trim() ?? '';
   return LOCAL_TEACHER_PHOTOS[key] ?? FALLBACK_PHOTO;
 }
 
-/** Regional flag emoji for a teacher, from `country` if present else `lang`. */
+/** Regional flag emoji derived from `lang`. */
 export function teacherFlag(teacher?: Teacher): string {
-  return flagEmoji(teacher?.country ?? teacher?.lang ?? '');
+  return flagEmoji(teacher?.lang ?? '');
 }
 
 export function teacherFullName(teacher?: Teacher): string {
