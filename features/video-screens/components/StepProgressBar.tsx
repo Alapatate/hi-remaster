@@ -63,7 +63,7 @@ export function StepProgressBar({
   }));
 
   return (
-    <View className="flex-row items-center gap-3 px-5">
+    <View className="mb-3 flex-row items-center gap-3 px-5">
       <RoundIconButton size={44} onPress={onBack} className="bg-muted">
         <ArrowLeftIcon size={18} color="#bf6e1a" />
       </RoundIconButton>
@@ -80,9 +80,7 @@ export function StepProgressBar({
       </View>
       <View className="flex-row items-center gap-1.5 rounded-full bg-primary px-3 py-1">
         <ClockIcon size={14} color="white" />
-        <Text className="min-w-[36px] text-lg font-bold text-primary-foreground">
-          {displayDuration}
-        </Text>
+        <Text className="min-w-[36px] text-lg text-primary-foreground">{displayDuration}</Text>
       </View>
     </View>
   );

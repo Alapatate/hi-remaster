@@ -1,7 +1,8 @@
+import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { router } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -32,6 +33,7 @@ import { orderByPhase, PHASE_ORDER } from '../lib/phases';
 import type { Video } from '../lib/types';
 
 const FOOTER_HEIGHT = 80;
+const FOOTER_LIFT = 4;
 
 /** Shared style: absolute fill so entering/exiting steps overlap during crossfade. */
 const FILL = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
@@ -81,7 +83,9 @@ type Step = 1 | 2 | 3;
 
 export function VideoSessionFlow() {
   const { t } = useTranslation();
+  const { resetAt } = useLocalSearchParams<{ resetAt?: string }>();
   const { user, updatePrefs } = useAuth();
+  const dockSpace = useBottomDockSpace();
   const { teachers, loading, error, reload } = useTeachers();
   const insets = useSafeAreaInsets();
 
@@ -129,6 +133,15 @@ export function VideoSessionFlow() {
     go(1);
     setSelected([]);
   }, [go]);
+
+  const lastResetAt = React.useRef<string | null>(null);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!resetAt || resetAt === lastResetAt.current) return;
+      lastResetAt.current = resetAt;
+      goHome();
+    }, [resetAt, goHome])
+  );
 
   const pickTeacher = React.useCallback(
     (t: (typeof teachers)[number]) => {
@@ -219,7 +232,7 @@ export function VideoSessionFlow() {
                 flex: 1,
                 paddingHorizontal: 20,
                 paddingTop: 12,
-                paddingBottom: Math.max(insets.bottom, 10),
+                paddingBottom: Math.max(dockSpace + 10, 20),
                 gap: 12,
               }}>
               <TeacherHeroCard
@@ -255,7 +268,7 @@ export function VideoSessionFlow() {
           <Animated.View
             key="step-2"
             className="bg-background"
-            style={FILL}
+            style={[FILL, { flexDirection: 'column' }]}
             entering={stepEntering}
             exiting={stepExiting}>
             {videosLoading ? (
@@ -264,10 +277,8 @@ export function VideoSessionFlow() {
               </View>
             ) : (
               <ScrollView
-                contentContainerStyle={{
-                  padding: 20,
-                  paddingBottom: FOOTER_HEIGHT + Math.max(insets.bottom, 16),
-                }}>
+                style={{ flex: 1 }}
+                contentContainerStyle={{ padding: 20, paddingBottom: 8 }}>
                 {PHASE_ORDER.map((type) => (
                   <PhaseSection
                     key={type}
@@ -279,7 +290,7 @@ export function VideoSessionFlow() {
                 ))}
               </ScrollView>
             )}
-            <FooterBar insetBottom={insets.bottom}>
+            <FooterBar insetBottom={dockSpace}>
               <ActionButton
                 variant="secondary"
                 label={t('back')}
@@ -299,15 +310,12 @@ export function VideoSessionFlow() {
           <Animated.View
             key="step-3"
             className="bg-background"
-            style={FILL}
+            style={[FILL, { flexDirection: 'column' }]}
             entering={stepEntering}
             exiting={stepExiting}>
             <ScrollView
-              contentContainerStyle={{
-                padding: 20,
-                paddingBottom: FOOTER_HEIGHT + Math.max(insets.bottom, 16),
-                gap: 16,
-              }}>
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 20, paddingBottom: 8, gap: 16 }}>
               <SessionSummaryCard
                 teacherName={teacherFullName(teacher)}
                 totalDuration={total}
@@ -315,7 +323,7 @@ export function VideoSessionFlow() {
               />
               <SummaryExerciseList videos={selected} />
             </ScrollView>
-            <FooterBar insetBottom={insets.bottom}>
+            <FooterBar insetBottom={dockSpace}>
               <ActionButton
                 variant="secondary"
                 label={t('startNewSession')}
@@ -355,8 +363,8 @@ function FooterBar({
 }) {
   return (
     <View
-      className="absolute bottom-0 left-0 right-0 flex-row gap-3 bg-background px-5 pt-3"
-      style={{ paddingBottom: Math.max(insetBottom, 16) + 8 }}>
+      className="mb-3 flex-row gap-3 bg-background px-5 py-3"
+      style={{ paddingBottom: insetBottom + FOOTER_LIFT }}>
       {children}
     </View>
   );

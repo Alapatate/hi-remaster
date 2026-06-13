@@ -1,3 +1,4 @@
+import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
@@ -32,6 +33,7 @@ export default function Profile() {
   const { user, signOut, updatePrefs } = useAuth();
   const { t } = useTranslation();
   const { setColorScheme } = useColorScheme();
+  const dockSpace = useBottomDockSpace();
   const [langOpen, setLangOpen] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
@@ -88,7 +90,10 @@ export default function Profile() {
     : '?';
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerClassName="p-6 pb-12">
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerClassName="p-6"
+      contentContainerStyle={{ paddingBottom: dockSpace }}>
       <View className="mb-8 mt-4">
         <Text variant="h2" className="border-0 pb-0 text-2xl">
           {t('profile')}

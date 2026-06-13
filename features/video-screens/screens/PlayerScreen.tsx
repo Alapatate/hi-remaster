@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useEvent } from 'expo';
+import { useEvent, useEventListener } from 'expo';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as React from 'react';
@@ -22,6 +22,14 @@ import type { Video } from '../lib/types';
 
 const SEEK = 15;
 const AUTO_HIDE_MS = 3500;
+
+function buildVideoSource(uri: string, title: string) {
+  return {
+    uri,
+    ...(uri.includes('.m3u8') ? { contentType: 'hls' as const } : {}),
+    metadata: { title },
+  };
+}
 
 export function PlayerScreen() {
   const { id, session } = useLocalSearchParams<{ id: string; session?: string }>();
@@ -131,7 +139,7 @@ function PlayerView({
 
   const sessionTotal = hasSession ? totalDuration(sessionVideos) : video.duration ?? 0;
 
-  const player = useVideoPlayer({ uri: url, metadata: { title } }, (p) => {
+  const player = useVideoPlayer(buildVideoSource(url, title), (p) => {
     p.timeUpdateEventInterval = 0.5;
     p.play();
   });
@@ -149,6 +157,16 @@ function PlayerView({
 
   const statusEvent = useEvent(player, 'statusChange', { status: player.status });
   const status = statusEvent?.status ?? player.status;
+
+  // Adaptive HLS can switch resolution without replacing the source. Remount the
+  // view so contentFit is reapplied (same workaround as manual quality switches).
+  useEventListener(player, 'videoTrackChange', ({ videoTrack, oldVideoTrack }) => {
+    if (activeQuality !== null || !videoTrack || !oldVideoTrack) return;
+    const sizeChanged =
+      videoTrack.size.width !== oldVideoTrack.size.width ||
+      videoTrack.size.height !== oldVideoTrack.size.height;
+    if (sizeChanged) setViewKey((k) => k + 1);
+  });
   const statusError = (statusEvent as { error?: { message?: string } } | undefined)?.error;
   const duration = player.duration ?? 0;
   const isBuffering = status === 'loading';
@@ -224,7 +242,7 @@ function PlayerView({
       if (label === activeQuality) return;
       pendingSeek.current = player.currentTime;
       const newUrl = label ? variants.find((v) => v.label === label)?.url ?? url : url;
-      player.replace({ uri: newUrl, metadata: { title } });
+      player.replace(buildVideoSource(newUrl, title));
       setActiveQuality(label);
       setViewKey((k) => k + 1);
     },
@@ -254,7 +272,7 @@ function PlayerView({
         player={player}
         style={{ flex: 1, alignSelf: 'stretch' }}
         nativeControls={false}
-        contentFit="contain"
+        contentFit="cover"
         allowsPictureInPicture
       />
 
@@ -279,7 +297,12 @@ function PlayerView({
           pointerEvents="box-none"
           style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 10, justifyContent: 'space-between' }}>
           <PlayerTopBar
-            onBack={() => router.back()}
+            onBack={() =>
+              router.replace({
+                pathname: '/(protected)/videos',
+                params: { resetAt: String(Date.now()) },
+              })
+            }
             index={currentIndex}
             total={sessionVideos.length}
             hasSession={hasSession}
