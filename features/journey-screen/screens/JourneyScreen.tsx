@@ -25,6 +25,11 @@ export function JourneyScreen() {
   const journey = useJourney(width);
   const { waypoints, frontierIndex, markerPosition, canvasHeight } = journey;
 
+  // Extend the canvas past the last node so the meadow + night veil reach the
+  // very bottom of the screen (behind the floating tab bar) instead of cutting
+  // off at the trail's end.
+  const renderHeight = canvasHeight + dockSpace + 24;
+
   const scrollRef = React.useRef<ScrollView>(null);
   const sheetRef = React.useRef<BottomSheetModal>(null);
   const [selectedBird, setSelectedBird] = React.useState<Bird | null>(null);
@@ -47,11 +52,7 @@ export function JourneyScreen() {
 
   return (
     <View className="flex-1" style={{ paddingTop: insets.top, backgroundColor: palette.meadow.base }}>
-      <ScrollView
-        ref={scrollRef}
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: dockSpace }}>
+      <ScrollView ref={scrollRef} className="flex-1" showsVerticalScrollIndicator={false}>
         <JourneyHeader
           xp={journey.xp}
           unlockedCount={journey.unlockedCount}
@@ -62,13 +63,13 @@ export function JourneyScreen() {
           accent={palette.accent}
         />
 
-        <View style={{ width, height: canvasHeight }}>
-          <JourneyBackground width={width} height={canvasHeight} blobs={palette.meadow.blobs} />
+        <View style={{ width, height: renderHeight }}>
+          <JourneyBackground width={width} height={renderHeight} blobs={palette.meadow.blobs} />
 
           <JourneyScenery
             points={waypoints}
             width={width}
-            height={canvasHeight}
+            height={renderHeight}
             palette={palette.scenery}
             mutedPalette={palette.sceneryMuted}
             cutoffY={markerPosition.y}
@@ -78,7 +79,7 @@ export function JourneyScreen() {
             points={waypoints}
             frontierIndex={frontierIndex}
             width={width}
-            height={canvasHeight}
+            height={renderHeight}
             cutoffY={markerPosition.y}
             dirt={{
               fill: palette.dirt,
@@ -107,7 +108,7 @@ export function JourneyScreen() {
           {/* Night/shadow veil over everything not yet discovered. */}
           <NightOverlay
             width={width}
-            height={canvasHeight}
+            height={renderHeight}
             cutoffY={markerPosition.y}
             stops={palette.night.stops}
             starColor={palette.night.star}
