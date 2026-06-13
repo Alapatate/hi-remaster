@@ -3,7 +3,11 @@ const { hairlineWidth } = require('nativewind/theme');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './features/**/*.{ts,tsx}',
+  ],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
@@ -40,6 +44,16 @@ module.exports = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        // HI brand accents — fixed hues, not theme-driven
+        olive: {
+          DEFAULT: '#4f5d2f',
+          foreground: '#f3efe1',
+          muted: '#7d8a5a',
+        },
+        sand: {
+          DEFAULT: '#e9e0ce',
+          dark: '#d8ccb4',
         },
       },
       borderRadius: {
