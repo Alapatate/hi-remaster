@@ -130,6 +130,13 @@ android {
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
+
+    // Force predictable APK names for local/preview APK builds.
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "HI-${variant.name}.apk"
+        }
+    }
 }
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`

@@ -1,44 +1,46 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "HI",
+    "slug": "hi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "icon": "./assets/AppIcons/appstore.png",
+    "scheme": "hi",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/LOGO HI/4x/HI@4x.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#f8f6f5"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "com.neill.hiremater",
+      "bundleIdentifier": "com.phi.hi",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.neill.hiremater",
+      "package": "com.phi.hi",
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/AppIcons/playstore.png",
+        "backgroundColor": "#f8f6f5"
       },
-      "permissions": []
+      "permissions": [],
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/AppIcons/appstore.png"
     },
     "plugins": [
       "expo-router",
       "expo-video",
       "react-native-video",
-      "react-native-bottom-tabs"
+      "react-native-bottom-tabs",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
@@ -48,6 +50,7 @@
       "eas": {
         "projectId": "d6d4bb2b-c81e-4735-a806-ad163298cb6a"
       }
-    }
+    },
+    "owner": "alapatate"
   }
 }
