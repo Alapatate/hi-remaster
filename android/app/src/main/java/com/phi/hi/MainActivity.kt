@@ -1,4 +1,4 @@
-package com.neill.hiremater
+package com.phi.hi
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
