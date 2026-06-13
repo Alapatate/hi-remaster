@@ -94,6 +94,15 @@ const resources = {
       exercisesCount: '{{count}} exercises',
       newsletter: 'Newsletter',
       newsletterDesc: 'Receive updates and tips by email',
+      // Journey
+      journeyTab: 'Journey',
+      journeyTitle: 'My Journey',
+      journeySubtitle: 'Earn XP and discover birds along the way.',
+      discovered: '{{count}} / {{total}} discovered',
+      xpToUnlock: '{{xp}} XP to unlock {{name}}',
+      allDiscovered: 'All birds discovered!',
+      aboutBird: 'About',
+      funFact: 'Did you know?',
       // Player / sheets
       aboutTeacher: 'About the teacher',
       videosCount: '{{count}} videos',
@@ -189,6 +198,15 @@ const resources = {
       exercisesCount: '{{count}} exercices',
       newsletter: 'Newsletter',
       newsletterDesc: 'Recevoir des mises à jour et conseils par email',
+      // Journey
+      journeyTab: 'Parcours',
+      journeyTitle: 'Mon parcours',
+      journeySubtitle: 'Gagnez de l’XP et découvrez des oiseaux en chemin.',
+      discovered: '{{count}} / {{total}} découverts',
+      xpToUnlock: '{{xp}} XP pour débloquer {{name}}',
+      allDiscovered: 'Tous les oiseaux découverts !',
+      aboutBird: 'À propos',
+      funFact: 'Le saviez-vous ?',
       // Player / sheets
       aboutTeacher: "À propos de l'enseignant",
       videosCount: '{{count}} vidéos',

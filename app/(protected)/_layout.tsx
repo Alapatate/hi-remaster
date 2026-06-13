@@ -19,7 +19,7 @@ export default function ProtectedLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: t('dashboard'),
+          title: t('journeyTab'),
         }}
       />
       <Tabs.Screen
