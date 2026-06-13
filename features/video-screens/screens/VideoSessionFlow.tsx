@@ -12,7 +12,7 @@ import {
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Animated, { FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
@@ -33,7 +33,6 @@ import type { Video } from '../lib/types';
 
 const FOOTER_HEIGHT = 80;
 
-/** Shared style: absolute fill so entering/exiting steps overlap during crossfade. */
 const FILL = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
 
 type Step = 1 | 2 | 3;
@@ -122,33 +121,32 @@ export function VideoSessionFlow() {
       </View>
 
       {step > 1 ? (
-        <Animated.View exiting={FadeOut.duration(180)} className="pt-4">
+        <View className="pt-4">
           <StepProgressBar
             current={step}
             total={3}
             onBack={() => setStep((s) => (s === 3 ? 2 : 1) as Step)}
           />
-        </Animated.View>
+        </View>
       ) : null}
 
-      {/* Relative container so entering/exiting steps overlap during crossfade */}
       <View style={{ flex: 1, position: 'relative' }}>
         {loading ? (
-          <Animated.View key="loading" exiting={FadeOut.duration(180)} style={FILL}>
+          <View key="loading" style={FILL}>
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color="#bf6e1a" />
             </View>
-          </Animated.View>
+          </View>
         ) : error ? (
-          <Animated.View key="error" exiting={FadeOut.duration(180)} style={FILL}>
+          <View key="error" style={FILL}>
             <ErrorState message={error} onRetry={reload} />
-          </Animated.View>
+          </View>
         ) : !teacher ? (
-          <Animated.View key="empty" exiting={FadeOut.duration(180)} style={FILL}>
+          <View key="empty" style={FILL}>
             <EmptyState message={t('noTeachers')} />
-          </Animated.View>
+          </View>
         ) : step === 1 ? (
-          <Animated.View key="step-1" exiting={FadeOut.duration(200)} style={FILL}>
+          <Animated.View key="step-1" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
             <View
               style={{
                 flex: 1,
@@ -187,7 +185,7 @@ export function VideoSessionFlow() {
             </View>
           </Animated.View>
         ) : step === 2 ? (
-          <Animated.View key="step-2" exiting={FadeOut.duration(200)} style={FILL}>
+          <Animated.View key="step-2" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
             {videosLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="large" color="#bf6e1a" />
@@ -226,7 +224,7 @@ export function VideoSessionFlow() {
             </FooterBar>
           </Animated.View>
         ) : (
-          <Animated.View key="step-3" exiting={FadeOut.duration(200)} style={FILL}>
+          <Animated.View key="step-3" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
             <ScrollView
               contentContainerStyle={{
                 padding: 20,
