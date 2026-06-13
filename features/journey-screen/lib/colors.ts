@@ -5,6 +5,10 @@ export const JOURNEY_COLORS = {
     accent: '#bf6e1a',
     trailTodo: '#cbbfa6',
     marker: '#bf6e1a',
+    dirt: '#bfa06a',
+    dirtEdge: '#a6854f',
+    pebbleLight: '#e2d4b2',
+    pebbleDark: '#8f7a55',
     scenery: {
       leaf: '#86a361',
       leafDark: '#6b8a4a',
@@ -24,6 +28,10 @@ export const JOURNEY_COLORS = {
     accent: '#d4a574',
     trailTodo: '#4a3f31',
     marker: '#d4a574',
+    dirt: '#4a3d2a',
+    dirtEdge: '#5c4d36',
+    pebbleLight: '#6e5d42',
+    pebbleDark: '#33291d',
     scenery: {
       leaf: '#4d6b3a',
       leafDark: '#3c5530',

@@ -75,6 +75,10 @@ export function JourneyScreen() {
             height={canvasHeight}
             doneColor={palette.accent}
             todoColor={palette.trailTodo}
+            dirtColor={palette.dirt}
+            dirtEdgeColor={palette.dirtEdge}
+            pebbleLight={palette.pebbleLight}
+            pebbleDark={palette.pebbleDark}
           />
 
           {waypoints.map((w) => (

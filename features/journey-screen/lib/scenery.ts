@@ -46,6 +46,49 @@ function pickKind(r: number): SceneryKind {
   return 'pond';
 }
 
+/** A pebble scattered on the dirt trail. */
+export type Pebble = { x: number; y: number; r: number; dark: boolean };
+
+/** Half-width of the dirt band; pebbles stay within this perpendicular offset. */
+const PEBBLE_OFFSET = 11;
+
+/**
+ * Sprinkle small pebbles roughly along the trail. Sampled per chord between
+ * waypoints (the curve stays close to its chord) and nudged perpendicular so
+ * they sit across the dirt band rather than on the centre line.
+ */
+export function scatterPebbles(points: Point[]): Pebble[] {
+  if (points.length < 2) return [];
+  const rng = mulberry32(0x50656262); // "Pebb"
+  const step = 19;
+  const out: Pebble[] = [];
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const perpX = -dy / len;
+    const perpY = dx / len;
+    const count = Math.max(1, Math.floor(len / step));
+
+    for (let s = 0; s < count; s++) {
+      if (rng() < 0.32) continue; // leave gaps
+      const t = (s + rng()) / count;
+      const off = (rng() * 2 - 1) * PEBBLE_OFFSET;
+      out.push({
+        x: a.x + dx * t + perpX * off,
+        y: a.y + dy * t + perpY * off,
+        r: 1.4 + rng() * 1.8,
+        dark: rng() < 0.45,
+      });
+    }
+  }
+
+  return out;
+}
+
 /** A large background region the trail passes by (water or a grassy clearing). */
 export type ZoneKind = 'lake' | 'grass';
 export type ZoneItem = {
