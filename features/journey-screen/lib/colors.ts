@@ -16,6 +16,8 @@ export const JOURNEY_COLORS = {
       flowerCenter: '#e8c45a',
       pond: '#9cc3cc',
       pondHi: '#bfe0e6',
+      grassZone: '#b9cf94',
+      grassZoneHi: '#cadfa9',
     },
   },
   dark: {
@@ -33,6 +35,8 @@ export const JOURNEY_COLORS = {
       flowerCenter: '#b89a4a',
       pond: '#3a5258',
       pondHi: '#4d6b72',
+      grassZone: '#36482a',
+      grassZoneHi: '#425733',
     },
   },
 } as const;

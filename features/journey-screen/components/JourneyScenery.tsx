@@ -2,7 +2,12 @@ import * as React from 'react';
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Rect } from 'react-native-svg';
 import type { SceneryPalette } from '../lib/colors';
 import type { Point } from '../lib/layout';
-import { scatterScenery, type SceneryItem } from '../lib/scenery';
+import {
+  scatterScenery,
+  scatterZones,
+  type SceneryItem,
+  type ZoneItem,
+} from '../lib/scenery';
 
 /**
  * Flat-design nature layer drawn behind the trail: conifers, bushes, grass
@@ -24,6 +29,10 @@ export function JourneyScenery({
     () => scatterScenery(points, width, height),
     [points, width, height]
   );
+  const zones = React.useMemo(
+    () => scatterZones(points, width, height),
+    [points, width, height]
+  );
 
   return (
     <Svg
@@ -31,6 +40,13 @@ export function JourneyScenery({
       height={height}
       style={{ position: 'absolute', top: 0, left: 0 }}
       pointerEvents="none">
+      {/* Background regions (lakes, grassy clearings) sit behind everything. */}
+      {zones.map((zone, i) => (
+        <G key={`z${i}`} transform={`translate(${zone.x} ${zone.y})`}>
+          <Zone zone={zone} p={palette} />
+        </G>
+      ))}
+
       {items.map((item, i) => (
         <G
           key={i}
@@ -39,6 +55,29 @@ export function JourneyScenery({
         </G>
       ))}
     </Svg>
+  );
+}
+
+function Zone({ zone, p }: { zone: ZoneItem; p: SceneryPalette }) {
+  if (zone.kind === 'lake') {
+    return (
+      <>
+        <Path d={zone.d} fill={p.pond} />
+        <G scale={0.62}>
+          <Path d={zone.d} fill={p.pondHi} />
+        </G>
+        <Ellipse cx={-6} cy={-2} rx={10} ry={2.4} fill={p.pond} opacity={0.6} />
+        <Ellipse cx={8} cy={5} rx={7} ry={1.8} fill={p.pond} opacity={0.6} />
+      </>
+    );
+  }
+  return (
+    <>
+      <Path d={zone.d} fill={p.grassZone} opacity={0.6} />
+      <G scale={0.58}>
+        <Path d={zone.d} fill={p.grassZoneHi} opacity={0.5} />
+      </G>
+    </>
   );
 }
 

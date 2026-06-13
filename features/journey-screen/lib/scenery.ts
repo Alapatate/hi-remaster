@@ -46,6 +46,75 @@ function pickKind(r: number): SceneryKind {
   return 'pond';
 }
 
+/** A large background region the trail passes by (water or a grassy clearing). */
+export type ZoneKind = 'lake' | 'grass';
+export type ZoneItem = {
+  kind: ZoneKind;
+  x: number;
+  y: number;
+  /** Closed organic blob path, centred on the origin (placed via transform). */
+  d: string;
+};
+
+/** Build a smooth, irregular closed blob centred at the origin (Catmull-Rom). */
+function blobPath(rx: number, ry: number, rng: () => number): string {
+  const n = 9;
+  const pts: Point[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const j = 0.76 + rng() * 0.4;
+    pts.push({ x: Math.cos(a) * rx * j, y: Math.sin(a) * ry * j });
+  }
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n];
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % n];
+    const p3 = pts[(i + 2) % n];
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return `${d} Z`;
+}
+
+const ZONE_GUTTER = 92; // minimum open gutter to drop a zone into
+const LAKE_GUTTER = 150; // a lake needs a roomier gutter than a grassy patch
+
+/**
+ * Sparse large background regions — lakes and grassy clearings — dropped into
+ * whichever gutter is widest as the trail winds down. Far fewer than the small
+ * sprites, and drawn behind everything else.
+ */
+export function scatterZones(points: Point[], width: number, height: number): ZoneItem[] {
+  if (points.length < 2) return [];
+  const rng = mulberry32(0x4c616b65); // "Lake"
+  const zones: ZoneItem[] = [];
+
+  let y = TOP_PAD + 50;
+  while (y < height - 70) {
+    const px = pathXAt(points, y);
+    const leftW = px - CLEAR - EDGE;
+    const rightW = width - EDGE - (px + CLEAR);
+    const side: 'left' | 'right' = leftW >= rightW ? 'left' : 'right';
+    const gutter = Math.max(leftW, rightW);
+
+    if (gutter >= ZONE_GUTTER) {
+      const cx = side === 'left' ? EDGE + gutter / 2 : px + CLEAR + gutter / 2;
+      const isLake = gutter >= LAKE_GUTTER && rng() < 0.5;
+      const rx = Math.min(gutter / 2 - 6, isLake ? 66 : 54) * (0.85 + rng() * 0.3);
+      const ry = (isLake ? 24 : 30) * (0.85 + rng() * 0.3);
+      zones.push({ kind: isLake ? 'lake' : 'grass', x: cx, y, d: blobPath(rx, ry, rng) });
+    }
+
+    y += 196 + rng() * 70;
+  }
+
+  return zones;
+}
+
 const ROW_STEP = 74; // vertical spacing between decoration rows
 const EDGE = 16; // keep clear of the screen edges
 const CLEAR = NODE_R + 26; // keep clear of the trail / node on the path side
