@@ -110,12 +110,12 @@ function PlayerView({
 
   const variants = useHlsVariants(url);
   const [activeQuality, setActiveQuality] = React.useState<string | null>(null);
-  const [qualityOpen, setQualityOpen] = React.useState(false);
   const [viewKey, setViewKey] = React.useState(0);
   const pendingSeek = React.useRef<number | null>(null);
 
   const playlistRef = React.useRef<BottomSheetModal>(null);
   const aboutRef = React.useRef<BottomSheetModal>(null);
+  const qualityRef = React.useRef<BottomSheetModal>(null);
 
   const hasSession = sessionVideos.length > 1;
   const currentIndex = Math.max(
@@ -169,7 +169,7 @@ function PlayerView({
 
   const switchQuality = React.useCallback(
     (label: string | null) => {
-      setQualityOpen(false);
+      qualityRef.current?.dismiss();
       if (label === activeQuality) return;
       pendingSeek.current = player.currentTime;
       const newUrl = label ? variants.find((v) => v.label === label)?.url ?? url : url;
@@ -225,7 +225,7 @@ function PlayerView({
           hasSession={hasSession}
           onPlaylist={() => playlistRef.current?.present()}
           qualityLabel={activeQuality ?? t('auto', 'Auto')}
-          onQuality={() => setQualityOpen(true)}
+          onQuality={() => qualityRef.current?.present()}
           hasVariants={variants.length > 1}
         />
 
@@ -255,11 +255,10 @@ function PlayerView({
       </View>
 
       <QualitySheet
-        visible={qualityOpen}
+        ref={qualityRef}
         options={qualityOptions}
         active={activeQuality}
         onSelect={switchQuality}
-        onClose={() => setQualityOpen(false)}
       />
 
       {hasSession ? (
