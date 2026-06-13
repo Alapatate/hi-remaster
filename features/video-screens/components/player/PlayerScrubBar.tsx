@@ -4,7 +4,8 @@ import * as React from 'react';
 import { PanResponder, TouchableOpacity, View } from 'react-native';
 import { formatDuration } from '../../lib/format';
 
-const THUMB = 14;
+const THUMB = 16;
+const TRACK_PAD_V = 14; // vertical touch padding around the thin track
 
 /** Bottom overlay: title, info/playlist actions, and a draggable progress bar. */
 export function PlayerScrubBar({
@@ -13,6 +14,7 @@ export function PlayerScrubBar({
   currentTime,
   duration,
   onSeek,
+  onScrubStart,
   onInfo,
   onPlaylist,
   hasSession,
@@ -22,6 +24,7 @@ export function PlayerScrubBar({
   currentTime: number;
   duration: number;
   onSeek: (seconds: number) => void;
+  onScrubStart?: () => void;
   onInfo: () => void;
   onPlaylist: () => void;
   hasSession: boolean;
@@ -33,8 +36,10 @@ export function PlayerScrubBar({
   const durationRef = React.useRef(duration);
   const dragRef = React.useRef<number | null>(null);
   const onSeekRef = React.useRef(onSeek);
+  const onScrubStartRef = React.useRef(onScrubStart);
   durationRef.current = duration;
   onSeekRef.current = onSeek;
+  onScrubStartRef.current = onScrubStart;
 
   const setFromX = React.useCallback((x: number) => {
     const w = widthRef.current;
@@ -57,27 +62,29 @@ export function PlayerScrubBar({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (e) => setFromX(e.nativeEvent.locationX),
+      onPanResponderGrant: (e) => {
+        onScrubStartRef.current?.();
+        setFromX(e.nativeEvent.locationX);
+      },
       onPanResponderMove: (e) => setFromX(e.nativeEvent.locationX),
       onPanResponderRelease: commit,
       onPanResponderTerminate: commit,
     })
   ).current;
 
-  const ratio =
-    dragRatio != null ? dragRatio : duration > 0 ? currentTime / duration : 0;
+  const ratio = dragRatio != null ? dragRatio : duration > 0 ? currentTime / duration : 0;
   const clamped = Math.min(1, Math.max(0, ratio));
   const displayedTime = dragRatio != null ? dragRatio * duration : currentTime;
 
   return (
-    <View className="px-5 pb-2">
-      {/* Title row */}
-      <View className="mb-3 flex-row items-end justify-between">
+    <View className="px-5">
+      {/* Title + actions row */}
+      <View className="mb-2 flex-row items-end justify-between">
         <View className="flex-1 pr-3">
           <Text className="text-2xl font-bold text-white" numberOfLines={1}>
             {title}
           </Text>
-          <Text className="mt-0.5 text-sm text-white/60" numberOfLines={1}>
+          <Text className="mt-1 text-sm text-white/60" numberOfLines={1}>
             {subtitle}
           </Text>
         </View>
@@ -99,10 +106,10 @@ export function PlayerScrubBar({
         </View>
       </View>
 
-      {/* Draggable track */}
+      {/* Draggable track (tall touch area, thin visible bar, centered thumb) */}
       <View
-        className="justify-center py-3"
         {...pan.panHandlers}
+        style={{ paddingVertical: TRACK_PAD_V, justifyContent: 'center' }}
         onLayout={(e) => {
           const w = e.nativeEvent.layout.width;
           widthRef.current = w;
@@ -119,7 +126,9 @@ export function PlayerScrubBar({
           style={{
             width: THUMB,
             height: THUMB,
-            left: Math.max(0, clamped * trackWidth - THUMB / 2),
+            top: '50%',
+            marginTop: -THUMB / 2,
+            left: Math.max(0, Math.min(trackWidth - THUMB, clamped * trackWidth - THUMB / 2)),
           }}
         />
       </View>
