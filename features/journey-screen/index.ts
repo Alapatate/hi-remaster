@@ -7,6 +7,7 @@ export { JourneyBackground } from './components/JourneyBackground';
 export { JourneyHeader } from './components/JourneyHeader';
 export { JourneyPath } from './components/JourneyPath';
 export { JourneyScenery } from './components/JourneyScenery';
+export { NightOverlay } from './components/NightOverlay';
 export { WaypointNode } from './components/WaypointNode';
 
 // Hook

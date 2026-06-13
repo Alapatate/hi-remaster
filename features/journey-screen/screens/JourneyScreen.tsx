@@ -9,6 +9,7 @@ import { JourneyBackground } from '../components/JourneyBackground';
 import { JourneyHeader } from '../components/JourneyHeader';
 import { JourneyPath } from '../components/JourneyPath';
 import { JourneyScenery } from '../components/JourneyScenery';
+import { NightOverlay } from '../components/NightOverlay';
 import { WaypointNode } from '../components/WaypointNode';
 import { useJourney } from '../hooks/useJourney';
 import { JOURNEY_COLORS } from '../lib/colors';
@@ -102,6 +103,16 @@ export function JourneyScreen() {
               onPress={openBird}
             />
           ))}
+
+          {/* Night/shadow veil over everything not yet discovered. */}
+          <NightOverlay
+            width={width}
+            height={canvasHeight}
+            cutoffY={markerPosition.y}
+            colors={palette.night.colors}
+            locations={palette.night.locations}
+            starColor={palette.night.star}
+          />
 
           {/* "You are here" marker, travelling along the trail toward the next stop. */}
           {journey.progressToNext > 0.02 && nextBird ? (

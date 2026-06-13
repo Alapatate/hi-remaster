@@ -88,6 +88,26 @@ export function scatterMeadow(width: number, height: number, toneCount: number):
   return out;
 }
 
+/** A star in the night sky over the undiscovered region. `b` is base brightness. */
+export type Star = { x: number; y: number; r: number; b: number };
+
+/** Sprinkle a faint starfield across the canvas; only those deep in the unlit
+ *  region are actually shown (the overlay fades them in by depth). */
+export function scatterStars(width: number, height: number): Star[] {
+  const rng = mulberry32(0x53746172); // "Star"
+  const count = Math.floor((width * height) / 8200);
+  const out: Star[] = [];
+  for (let i = 0; i < count; i++) {
+    out.push({
+      x: rng() * width,
+      y: rng() * height,
+      r: 0.6 + rng() * 1.2,
+      b: 0.5 + rng() * 0.5,
+    });
+  }
+  return out;
+}
+
 /** A pebble scattered on the dirt trail. */
 export type Pebble = { x: number; y: number; r: number; dark: boolean };
 
