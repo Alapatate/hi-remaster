@@ -161,7 +161,7 @@ export function FloatingTabBar({
                 key={route.key}
                 accessibilityRole="button"
                 accessibilityState={focused ? { selected: true } : {}}
-                accessibilityLabel={options.tabBarAccessibilityLabel ?? String(label)}
+                accessibilityLabel={String(label)}
                 testID={options.tabBarButtonTestID}
                 onPress={onPress}
                 onLongPress={onLongPress}
