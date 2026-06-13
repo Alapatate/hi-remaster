@@ -109,8 +109,7 @@ export function JourneyScreen() {
             width={width}
             height={canvasHeight}
             cutoffY={markerPosition.y}
-            colors={palette.night.colors}
-            locations={palette.night.locations}
+            stops={palette.night.stops}
             starColor={palette.night.star}
           />
 

@@ -96,8 +96,11 @@ export const JOURNEY_COLORS = {
       blobs: ['#dde9c4', '#e3edcd', '#d2e2b4', '#cfe3c0'],
     },
     night: {
-      colors: ['rgba(24,30,52,0)', 'rgba(20,26,46,0.34)', 'rgba(9,12,30,0.64)'],
-      locations: [0, 0.22, 1],
+      stops: [
+        { offset: 0, color: '#181e34', opacity: 0 },
+        { offset: 0.22, color: '#141a2e', opacity: 0.34 },
+        { offset: 1, color: '#090c1e', opacity: 0.64 },
+      ],
       star: '#f4f5ff',
     },
     scenery: LIGHT_SCENERY,
@@ -120,8 +123,11 @@ export const JOURNEY_COLORS = {
       blobs: ['#1f2915', '#1b2412', '#26331a', '#202c18'],
     },
     night: {
-      colors: ['rgba(4,7,16,0)', 'rgba(4,7,16,0.44)', 'rgba(1,3,10,0.76)'],
-      locations: [0, 0.2, 1],
+      stops: [
+        { offset: 0, color: '#040710', opacity: 0 },
+        { offset: 0.2, color: '#040710', opacity: 0.44 },
+        { offset: 1, color: '#010306', opacity: 0.76 },
+      ],
       star: '#cfe0ff',
     },
     scenery: DARK_SCENERY,
