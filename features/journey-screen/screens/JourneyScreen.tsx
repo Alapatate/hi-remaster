@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BirdSheet } from '../components/BirdSheet';
 import { JourneyHeader } from '../components/JourneyHeader';
 import { JourneyPath } from '../components/JourneyPath';
+import { JourneyScenery } from '../components/JourneyScenery';
 import { WaypointNode } from '../components/WaypointNode';
 import { useJourney } from '../hooks/useJourney';
 import { JOURNEY_COLORS } from '../lib/colors';
@@ -60,6 +61,13 @@ export function JourneyScreen() {
         />
 
         <View style={{ width, height: canvasHeight }}>
+          <JourneyScenery
+            points={waypoints}
+            width={width}
+            height={canvasHeight}
+            palette={palette.scenery}
+          />
+
           <JourneyPath
             points={waypoints}
             frontierIndex={frontierIndex}
