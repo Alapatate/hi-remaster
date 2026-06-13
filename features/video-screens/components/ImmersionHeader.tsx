@@ -11,7 +11,7 @@ export function ImmersionHeader({ onHome }: { onHome?: () => void }) {
   return (
     <View className="flex-row items-center justify-between px-5 pt-2">
       <View className="flex-1 flex-row items-center gap-3 pr-3">
-        <RoundIconButton size={48} onPress={onHome} className="bg-card" style={{ elevation: 1 }}>
+        <RoundIconButton size={48} onPress={onHome} className="bg-card">
           <HomeIcon size={22} color="#bf6e1a" />
         </RoundIconButton>
         <Text className="flex-1 text-xl font-extrabold leading-7 text-primary">

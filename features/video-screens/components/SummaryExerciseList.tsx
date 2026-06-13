@@ -11,7 +11,7 @@ export function SummaryExerciseList({ videos }: { videos: Video[] }) {
   const grouped = groupByPhase(videos);
 
   return (
-    <View className="rounded-2xl bg-card p-5" style={{ elevation: 1 }}>
+    <View className="rounded-2xl bg-card p-5">
       {PHASE_ORDER.map((type) => {
         const items = grouped[type];
         if (items.length === 0) return null;

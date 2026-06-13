@@ -18,7 +18,7 @@ export function TeacherHeroCard({
   return (
     <View
       className="overflow-hidden rounded-3xl bg-card"
-      style={[{ elevation: 3 }, style]}>
+      style={style}>
       <ImageBackground
         source={teacherPhotoSource(teacher)}
         style={{ flex: 1, minHeight: 180 }}

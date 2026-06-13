@@ -12,6 +12,7 @@ import {
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { Easing, FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
@@ -35,6 +36,47 @@ const FOOTER_HEIGHT = 80;
 /** Shared style: absolute fill so entering/exiting steps overlap during crossfade. */
 const FILL = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
 
+const STEP_DURATION = 280;
+const STEP_SLIDE = 44;
+/** The incoming step waits until the outgoing one has mostly left to avoid overlap. */
+const STEP_ENTER_DELAY = 210;
+
+/**
+ * Custom entering animation: stays invisible during `STEP_ENTER_DELAY` (so the
+ * exiting step leaves first), then slides in from `dx` while fading + scaling up.
+ */
+function makeEnter(dx: number) {
+  return () => {
+    'worklet';
+    const timing = { duration: STEP_DURATION, easing: Easing.out(Easing.cubic) };
+    return {
+      initialValues: { opacity: 0, transform: [{ translateX: dx }, { scale: 0.97 }] },
+      animations: {
+        opacity: withDelay(STEP_ENTER_DELAY, withTiming(1, timing)),
+        transform: [
+          { translateX: withDelay(STEP_ENTER_DELAY, withTiming(0, timing)) },
+          { scale: withDelay(STEP_ENTER_DELAY, withTiming(1, timing)) },
+        ],
+      },
+    };
+  };
+}
+
+/** Custom exiting animation: slide out toward `dx` while fading + scaling down. */
+function makeExit(dx: number) {
+  return () => {
+    'worklet';
+    const timing = { duration: STEP_DURATION, easing: Easing.in(Easing.cubic) };
+    return {
+      initialValues: { opacity: 1, transform: [{ translateX: 0 }, { scale: 1 }] },
+      animations: {
+        opacity: withTiming(0, timing),
+        transform: [{ translateX: withTiming(dx, timing) }, { scale: withTiming(0.97, timing) }],
+      },
+    };
+  };
+}
+
 type Step = 1 | 2 | 3;
 
 export function VideoSessionFlow() {
@@ -45,7 +87,16 @@ export function VideoSessionFlow() {
 
   const [featuredIndex, setFeaturedIndex] = React.useState(0);
   const [step, setStep] = React.useState<Step>(1);
+  const [direction, setDirection] = React.useState<'forward' | 'back'>('forward');
   const [selected, setSelected] = React.useState<Video[]>([]);
+
+  // Navigate between steps while tracking direction so transitions slide the right way.
+  const stepRef = React.useRef<Step>(step);
+  stepRef.current = step;
+  const go = React.useCallback((next: Step) => {
+    setDirection(next >= stepRef.current ? 'forward' : 'back');
+    setStep(next);
+  }, []);
 
   // Restore last teacher from prefs once the list has loaded.
   const restoredRef = React.useRef(false);
@@ -75,9 +126,9 @@ export function VideoSessionFlow() {
   );
 
   const goHome = React.useCallback(() => {
-    setStep(1);
+    go(1);
     setSelected([]);
-  }, []);
+  }, [go]);
 
   const pickTeacher = React.useCallback(
     (t: (typeof teachers)[number]) => {
@@ -116,6 +167,10 @@ export function VideoSessionFlow() {
 
   if (!IS_CONFIGURED) return <SetupPlaceholder />;
 
+  // Direction-aware step transitions: forward slides in from the right, back from the left.
+  const stepEntering = makeEnter(direction === 'forward' ? STEP_SLIDE : -STEP_SLIDE);
+  const stepExiting = makeExit(direction === 'forward' ? -STEP_SLIDE : STEP_SLIDE);
+
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       <View className="pt-2">
@@ -123,33 +178,42 @@ export function VideoSessionFlow() {
       </View>
 
       {step > 1 ? (
-        <View className="pt-4">
+        <Animated.View
+          key="progress-bar"
+          className="pt-4"
+          entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}>
           <StepProgressBar
             current={step}
             total={3}
-            onBack={() => setStep((s) => (s === 3 ? 2 : 1) as Step)}
+            sessionDuration={total}
+            onBack={() => go((step === 3 ? 2 : 1) as Step)}
           />
-        </View>
+        </Animated.View>
       ) : null}
 
       {/* Relative container so entering/exiting steps overlap during crossfade */}
       <View style={{ flex: 1, position: 'relative' }}>
         {loading ? (
-          <View key="loading" style={FILL}>
+          <Animated.View key="loading" style={FILL} entering={FadeIn} exiting={FadeOut}>
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color="#bf6e1a" />
             </View>
-          </View>
+          </Animated.View>
         ) : error ? (
-          <View key="error" style={FILL}>
+          <Animated.View key="error" style={FILL} entering={FadeIn} exiting={FadeOut}>
             <ErrorState message={error} onRetry={reload} />
-          </View>
+          </Animated.View>
         ) : !teacher ? (
-          <View key="empty" style={FILL}>
+          <Animated.View key="empty" style={FILL} entering={FadeIn} exiting={FadeOut}>
             <EmptyState message={t('noTeachers')} />
-          </View>
+          </Animated.View>
         ) : step === 1 ? (
-          <View key="step-1" style={FILL}>
+          <Animated.View
+            key="step-1"
+            className="bg-background"
+            style={FILL}
+            entering={stepEntering}
+            exiting={stepExiting}>
             <View
               style={{
                 flex: 1,
@@ -167,7 +231,7 @@ export function VideoSessionFlow() {
                 <ActionButton
                   className="flex-1"
                   label={t('practice')}
-                  onPress={() => setStep(2)}
+                  onPress={() => go(2)}
                   iconRight={<ArrowRightIcon size={18} color="white" />}
                 />
                 <ActionButton
@@ -186,9 +250,14 @@ export function VideoSessionFlow() {
                 />
               ) : null}
             </View>
-          </View>
+          </Animated.View>
         ) : step === 2 ? (
-          <View key="step-2" style={FILL}>
+          <Animated.View
+            key="step-2"
+            className="bg-background"
+            style={FILL}
+            entering={stepEntering}
+            exiting={stepExiting}>
             {videosLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="large" color="#bf6e1a" />
@@ -214,20 +283,25 @@ export function VideoSessionFlow() {
               <ActionButton
                 variant="secondary"
                 label={t('back')}
-                onPress={() => setStep(1)}
+                onPress={() => go(1)}
                 iconLeft={<ArrowLeftIcon size={18} color="#4a3826" />}
               />
               <ActionButton
                 className="flex-1"
                 label={t('nextStep')}
                 disabled={selected.length === 0}
-                onPress={() => setStep(3)}
+                onPress={() => go(3)}
                 iconRight={<ArrowRightIcon size={18} color="white" />}
               />
             </FooterBar>
-          </View>
+          </Animated.View>
         ) : (
-          <View key="step-3" style={FILL}>
+          <Animated.View
+            key="step-3"
+            className="bg-background"
+            style={FILL}
+            entering={stepEntering}
+            exiting={stepExiting}>
             <ScrollView
               contentContainerStyle={{
                 padding: 20,
@@ -255,7 +329,7 @@ export function VideoSessionFlow() {
                 iconLeft={<PlayIcon size={18} color="white" fill="white" />}
               />
             </FooterBar>
-          </View>
+          </Animated.View>
         )}
       </View>
 
