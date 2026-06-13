@@ -12,12 +12,6 @@ import {
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
@@ -38,6 +32,7 @@ import type { Video } from '../lib/types';
 
 const FOOTER_HEIGHT = 80;
 
+/** Shared style: absolute fill so entering/exiting steps overlap during crossfade. */
 const FILL = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
 
 type Step = 1 | 2 | 3;
@@ -79,27 +74,10 @@ export function VideoSessionFlow() {
     [user?.prefs]
   );
 
-  // Single wrapper opacity: fade-out → swap content → fade-in.
-  const opacity = useSharedValue(1);
-  const wrapperStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-  const goStep = React.useCallback(
-    (next: Step) => {
-      opacity.value = withTiming(0, { duration: 140 }, () => {
-        runOnJS(setStep)(next);
-        opacity.value = withTiming(1, { duration: 180 });
-      });
-    },
-    [opacity]
-  );
-
   const goHome = React.useCallback(() => {
+    setStep(1);
     setSelected([]);
-    opacity.value = withTiming(0, { duration: 140 }, () => {
-      runOnJS(setStep)(1);
-      opacity.value = withTiming(1, { duration: 180 });
-    });
-  }, [opacity]);
+  }, []);
 
   const pickTeacher = React.useCallback(
     (t: (typeof teachers)[number]) => {
@@ -154,55 +132,63 @@ export function VideoSessionFlow() {
         </View>
       ) : null}
 
-      {/* Single animated wrapper — opacity fades the whole area, content swaps inside */}
-      <Animated.View style={[FILL, wrapperStyle]}>
+      {/* Relative container so entering/exiting steps overlap during crossfade */}
+      <View style={{ flex: 1, position: 'relative' }}>
         {loading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#bf6e1a" />
+          <View key="loading" style={FILL}>
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color="#bf6e1a" />
+            </View>
           </View>
         ) : error ? (
-          <ErrorState message={error} onRetry={reload} />
+          <View key="error" style={FILL}>
+            <ErrorState message={error} onRetry={reload} />
+          </View>
         ) : !teacher ? (
-          <EmptyState message={t('noTeachers')} />
+          <View key="empty" style={FILL}>
+            <EmptyState message={t('noTeachers')} />
+          </View>
         ) : step === 1 ? (
-          <View
-            style={{
-              flex: 1,
-              paddingHorizontal: 20,
-              paddingTop: 12,
-              paddingBottom: Math.max(insets.bottom, 10),
-              gap: 12,
-            }}>
-            <TeacherHeroCard
-              teacher={teacher}
-              onInfo={() => aboutRef.current?.present()}
-              style={{ flex: 1 }}
-            />
-            <View className="flex-row gap-3">
-              <ActionButton
-                className="flex-1"
-                label={t('practice')}
-                onPress={() => goStep(2)}
-                iconRight={<ArrowRightIcon size={18} color="white" />}
+          <View key="step-1" style={FILL}>
+            <View
+              style={{
+                flex: 1,
+                paddingHorizontal: 20,
+                paddingTop: 12,
+                paddingBottom: Math.max(insets.bottom, 10),
+                gap: 12,
+              }}>
+              <TeacherHeroCard
+                teacher={teacher}
+                onInfo={() => aboutRef.current?.present()}
+                style={{ flex: 1 }}
               />
-              <ActionButton
-                variant="secondary"
-                label={t('change')}
-                onPress={() => pickerRef.current?.present()}
-                iconLeft={<UsersIcon size={16} color="#4a3826" />}
-              />
+              <View className="flex-row gap-3">
+                <ActionButton
+                  className="flex-1"
+                  label={t('practice')}
+                  onPress={() => setStep(2)}
+                  iconRight={<ArrowRightIcon size={18} color="white" />}
+                />
+                <ActionButton
+                  variant="secondary"
+                  label={t('change')}
+                  onPress={() => pickerRef.current?.present()}
+                  iconLeft={<UsersIcon size={16} color="#4a3826" />}
+                />
+              </View>
+              {lastSession ? (
+                <LastSessionCard
+                  teacherName={lastSession.teacherName || teacherFullName(teacher)}
+                  progress={lastSession.progress}
+                  totalSeconds={lastSession.totalSeconds}
+                  onPress={resumeLastSession}
+                />
+              ) : null}
             </View>
-            {lastSession ? (
-              <LastSessionCard
-                teacherName={lastSession.teacherName || teacherFullName(teacher)}
-                progress={lastSession.progress}
-                totalSeconds={lastSession.totalSeconds}
-                onPress={resumeLastSession}
-              />
-            ) : null}
           </View>
         ) : step === 2 ? (
-          <>
+          <View key="step-2" style={FILL}>
             {videosLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="large" color="#bf6e1a" />
@@ -228,20 +214,20 @@ export function VideoSessionFlow() {
               <ActionButton
                 variant="secondary"
                 label={t('back')}
-                onPress={() => goStep(1)}
+                onPress={() => setStep(1)}
                 iconLeft={<ArrowLeftIcon size={18} color="#4a3826" />}
               />
               <ActionButton
                 className="flex-1"
                 label={t('nextStep')}
                 disabled={selected.length === 0}
-                onPress={() => goStep(3)}
+                onPress={() => setStep(3)}
                 iconRight={<ArrowRightIcon size={18} color="white" />}
               />
             </FooterBar>
-          </>
+          </View>
         ) : (
-          <>
+          <View key="step-3" style={FILL}>
             <ScrollView
               contentContainerStyle={{
                 padding: 20,
@@ -269,9 +255,9 @@ export function VideoSessionFlow() {
                 iconLeft={<PlayIcon size={18} color="white" fill="white" />}
               />
             </FooterBar>
-          </>
+          </View>
         )}
-      </Animated.View>
+      </View>
 
       <TeacherPickerSheet
         ref={pickerRef}
