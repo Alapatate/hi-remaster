@@ -105,14 +105,17 @@ export function JourneyScreen() {
             />
           ))}
 
-          {/* Night/shadow veil over everything not yet discovered. */}
-          <NightOverlay
-            width={width}
-            height={renderHeight}
-            cutoffY={markerPosition.y}
-            stops={palette.night.stops}
-            starColor={palette.night.star}
-          />
+          {/* Night/shadow veil over everything not yet discovered.
+              Skipped entirely once the final waypoint is reached. */}
+          {journey.unlockedCount < waypoints.length ? (
+            <NightOverlay
+              width={width}
+              height={renderHeight}
+              cutoffY={markerPosition.y}
+              stops={palette.night.stops}
+              starColor={palette.night.star}
+            />
+          ) : null}
 
           {/* "You are here" marker, travelling along the trail toward the next stop. */}
           {journey.progressToNext > 0.02 && nextBird ? (

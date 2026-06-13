@@ -97,9 +97,9 @@ export const JOURNEY_COLORS = {
     },
     night: {
       stops: [
-        { offset: 0, color: '#181e34', opacity: 0 },
-        { offset: 0.22, color: '#141a2e', opacity: 0.34 },
-        { offset: 1, color: '#090c1e', opacity: 0.64 },
+        { offset: 0, color: '#1e2d5c', opacity: 0 },
+        { offset: 0.22, color: '#182a5a', opacity: 0.36 },
+        { offset: 1, color: '#0a1640', opacity: 0.68 },
       ],
       star: '#f4f5ff',
     },
@@ -124,9 +124,9 @@ export const JOURNEY_COLORS = {
     },
     night: {
       stops: [
-        { offset: 0, color: '#040710', opacity: 0 },
-        { offset: 0.2, color: '#040710', opacity: 0.44 },
-        { offset: 1, color: '#010306', opacity: 0.76 },
+        { offset: 0, color: '#0b1538', opacity: 0 },
+        { offset: 0.2, color: '#0b1538', opacity: 0.48 },
+        { offset: 1, color: '#060e2a', opacity: 0.8 },
       ],
       star: '#cfe0ff',
     },
