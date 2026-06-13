@@ -92,6 +92,8 @@ const resources = {
       // Summary
       enseignant: 'Teacher',
       exercisesCount: '{{count}} exercises',
+      newsletter: 'Newsletter',
+      newsletterDesc: 'Receive updates and tips by email',
       // Player / sheets
       aboutTeacher: 'About the teacher',
       videosCount: '{{count}} videos',
@@ -185,6 +187,8 @@ const resources = {
       // Summary
       enseignant: 'Enseignant',
       exercisesCount: '{{count}} exercices',
+      newsletter: 'Newsletter',
+      newsletterDesc: 'Recevoir des mises à jour et conseils par email',
       // Player / sheets
       aboutTeacher: "À propos de l'enseignant",
       videosCount: '{{count}} vidéos',
@@ -260,6 +264,8 @@ const resources = {
       sessionPlaylist: 'Lista de la sesión',
       nowPlaying: 'Reproduciendo',
       nextVideo: 'Siguiente',
+      newsletter: 'Boletín',
+      newsletterDesc: 'Recibir actualizaciones y consejos por correo',
     },
   },
   de: {
@@ -329,6 +335,8 @@ const resources = {
       sessionPlaylist: 'Sitzungs-Playlist',
       nowPlaying: 'Wird abgespielt',
       nextVideo: 'Weiter',
+      newsletter: 'Newsletter',
+      newsletterDesc: 'Updates und Tipps per E-Mail erhalten',
     },
   },
   it: {
@@ -398,6 +406,8 @@ const resources = {
       sessionPlaylist: 'Playlist sessione',
       nowPlaying: 'In riproduzione',
       nextVideo: 'Successivo',
+      newsletter: 'Newsletter',
+      newsletterDesc: 'Ricevi aggiornamenti e suggerimenti via email',
     },
   },
   pt: {
@@ -467,6 +477,8 @@ const resources = {
       sessionPlaylist: 'Playlist da sessão',
       nowPlaying: 'Reproduzindo',
       nextVideo: 'Próximo',
+      newsletter: 'Newsletter',
+      newsletterDesc: 'Receber atualizações e dicas por email',
     },
   },
   ar: {
@@ -536,6 +548,8 @@ const resources = {
       sessionPlaylist: 'قائمة تشغيل الجلسة',
       nowPlaying: 'قيد التشغيل',
       nextVideo: 'التالي',
+      newsletter: 'النشرة البريدية',
+      newsletterDesc: 'تلقّي التحديثات والنصائح عبر البريد الإلكتروني',
     },
   },
   zh: {
@@ -605,6 +619,8 @@ const resources = {
       sessionPlaylist: '课程播放列表',
       nowPlaying: '正在播放',
       nextVideo: '下一个',
+      newsletter: '电子报',
+      newsletterDesc: '通过电子邮件接收更新和提示',
     },
   },
   ja: {
@@ -674,6 +690,8 @@ const resources = {
       sessionPlaylist: 'セッション再生リスト',
       nowPlaying: '再生中',
       nextVideo: '次へ',
+      newsletter: 'ニュースレター',
+      newsletterDesc: 'メールで更新情報とヒントを受け取る',
     },
   },
   ko: {
@@ -743,6 +761,8 @@ const resources = {
       sessionPlaylist: '세션 재생 목록',
       nowPlaying: '재생 중',
       nextVideo: '다음',
+      newsletter: '뉴스레터',
+      newsletterDesc: '이메일로 업데이트 및 팁 받기',
     },
   },
 };

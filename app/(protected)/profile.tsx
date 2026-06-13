@@ -12,7 +12,7 @@ import {
   SunIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
-import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
 
@@ -37,6 +37,7 @@ export default function Profile() {
   const [langOpen, setLangOpen] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
+  const [savingNewsletter, setSavingNewsletter] = React.useState(false);
   const [signingOut, setSigningOut] = React.useState(false);
 
   const currentLang = (user?.prefs as Record<string, string>)?.language ?? 'en';
@@ -44,6 +45,7 @@ export default function Profile() {
   const currentTheme = ((user?.prefs as Record<string, string>)?.theme ?? 'light') as
     | 'light'
     | 'dark';
+  const newsletterEnabled = (user?.prefs as Record<string, unknown>)?.newsletter === true;
 
   const handleSelectLanguage = async (code: string) => {
     if (code === currentLang) {
@@ -67,6 +69,15 @@ export default function Profile() {
       setColorScheme(theme);
     } finally {
       setSavingTheme(false);
+    }
+  };
+
+  const handleToggleNewsletter = async (value: boolean) => {
+    setSavingNewsletter(true);
+    try {
+      await updatePrefs({ newsletter: value });
+    } finally {
+      setSavingNewsletter(false);
     }
   };
 
@@ -222,6 +233,25 @@ export default function Profile() {
                 );
               })}
             </View>
+          </View>
+
+          <Divider />
+
+          {/* Newsletter row */}
+          <View className="flex-row items-center justify-between px-4 py-3">
+            <View className="flex-1 gap-0.5 pr-4">
+              <Text className="text-sm font-medium">{t('newsletter')}</Text>
+              <Text variant="muted" className="text-xs">
+                {savingNewsletter ? t('saving') : t('newsletterDesc')}
+              </Text>
+            </View>
+            <Switch
+              value={newsletterEnabled}
+              onValueChange={handleToggleNewsletter}
+              disabled={savingNewsletter}
+              trackColor={{ false: '#d4d4d4', true: '#bf6e1a' }}
+              thumbColor="white"
+            />
           </View>
         </View>
       </View>
