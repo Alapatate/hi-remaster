@@ -12,7 +12,12 @@ import {
 import * as React from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
@@ -51,7 +56,9 @@ export function VideoSessionFlow() {
   const restoredRef = React.useRef(false);
   React.useEffect(() => {
     if (restoredRef.current || teachers.length === 0) return;
-    const lastTeacherId = (user?.prefs as Record<string, unknown>)?.lastTeacherId as string | undefined;
+    const lastTeacherId = (user?.prefs as Record<string, unknown>)?.lastTeacherId as
+      | string
+      | undefined;
     if (lastTeacherId) {
       const idx = teachers.findIndex((t) => t.$id === lastTeacherId);
       if (idx !== -1) setFeaturedIndex(idx);
@@ -72,10 +79,27 @@ export function VideoSessionFlow() {
     [user?.prefs]
   );
 
+  // Single wrapper opacity: fade-out → swap content → fade-in.
+  const opacity = useSharedValue(1);
+  const wrapperStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  const goStep = React.useCallback(
+    (next: Step) => {
+      opacity.value = withTiming(0, { duration: 140 }, () => {
+        runOnJS(setStep)(next);
+        opacity.value = withTiming(1, { duration: 180 });
+      });
+    },
+    [opacity]
+  );
+
   const goHome = React.useCallback(() => {
-    setStep(1);
     setSelected([]);
-  }, []);
+    opacity.value = withTiming(0, { duration: 140 }, () => {
+      runOnJS(setStep)(1);
+      opacity.value = withTiming(1, { duration: 180 });
+    });
+  }, [opacity]);
 
   const pickTeacher = React.useCallback(
     (t: (typeof teachers)[number]) => {
@@ -130,62 +154,55 @@ export function VideoSessionFlow() {
         </View>
       ) : null}
 
-      <View style={{ flex: 1, position: 'relative' }}>
+      {/* Single animated wrapper — opacity fades the whole area, content swaps inside */}
+      <Animated.View style={[FILL, wrapperStyle]}>
         {loading ? (
-          <View key="loading" style={FILL}>
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#bf6e1a" />
-            </View>
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#bf6e1a" />
           </View>
         ) : error ? (
-          <View key="error" style={FILL}>
-            <ErrorState message={error} onRetry={reload} />
-          </View>
+          <ErrorState message={error} onRetry={reload} />
         ) : !teacher ? (
-          <View key="empty" style={FILL}>
-            <EmptyState message={t('noTeachers')} />
-          </View>
+          <EmptyState message={t('noTeachers')} />
         ) : step === 1 ? (
-          <Animated.View key="step-1" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
-            <View
-              style={{
-                flex: 1,
-                paddingHorizontal: 20,
-                paddingTop: 12,
-                paddingBottom: Math.max(insets.bottom, 10),
-                gap: 12,
-              }}>
-              <TeacherHeroCard
-                teacher={teacher}
-                onInfo={() => aboutRef.current?.present()}
-                style={{ flex: 1 }}
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: 20,
+              paddingTop: 12,
+              paddingBottom: Math.max(insets.bottom, 10),
+              gap: 12,
+            }}>
+            <TeacherHeroCard
+              teacher={teacher}
+              onInfo={() => aboutRef.current?.present()}
+              style={{ flex: 1 }}
+            />
+            <View className="flex-row gap-3">
+              <ActionButton
+                className="flex-1"
+                label={t('practice')}
+                onPress={() => goStep(2)}
+                iconRight={<ArrowRightIcon size={18} color="white" />}
               />
-              <View className="flex-row gap-3">
-                <ActionButton
-                  className="flex-1"
-                  label={t('practice')}
-                  onPress={() => setStep(2)}
-                  iconRight={<ArrowRightIcon size={18} color="white" />}
-                />
-                <ActionButton
-                  variant="secondary"
-                  label={t('change')}
-                  onPress={() => pickerRef.current?.present()}
-                  iconLeft={<UsersIcon size={16} color="#4a3826" />}
-                />
-              </View>
-              {lastSession ? (
-                <LastSessionCard
-                  teacherName={lastSession.teacherName || teacherFullName(teacher)}
-                  progress={lastSession.progress}
-                  totalSeconds={lastSession.totalSeconds}
-                  onPress={resumeLastSession}
-                />
-              ) : null}
+              <ActionButton
+                variant="secondary"
+                label={t('change')}
+                onPress={() => pickerRef.current?.present()}
+                iconLeft={<UsersIcon size={16} color="#4a3826" />}
+              />
             </View>
-          </Animated.View>
+            {lastSession ? (
+              <LastSessionCard
+                teacherName={lastSession.teacherName || teacherFullName(teacher)}
+                progress={lastSession.progress}
+                totalSeconds={lastSession.totalSeconds}
+                onPress={resumeLastSession}
+              />
+            ) : null}
+          </View>
         ) : step === 2 ? (
-          <Animated.View key="step-2" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
+          <>
             {videosLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="large" color="#bf6e1a" />
@@ -211,20 +228,20 @@ export function VideoSessionFlow() {
               <ActionButton
                 variant="secondary"
                 label={t('back')}
-                onPress={() => setStep(1)}
+                onPress={() => goStep(1)}
                 iconLeft={<ArrowLeftIcon size={18} color="#4a3826" />}
               />
               <ActionButton
                 className="flex-1"
                 label={t('nextStep')}
                 disabled={selected.length === 0}
-                onPress={() => setStep(3)}
+                onPress={() => goStep(3)}
                 iconRight={<ArrowRightIcon size={18} color="white" />}
               />
             </FooterBar>
-          </Animated.View>
+          </>
         ) : (
-          <Animated.View key="step-3" entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)} style={FILL}>
+          <>
             <ScrollView
               contentContainerStyle={{
                 padding: 20,
@@ -252,9 +269,9 @@ export function VideoSessionFlow() {
                 iconLeft={<PlayIcon size={18} color="white" fill="white" />}
               />
             </FooterBar>
-          </Animated.View>
+          </>
         )}
-      </View>
+      </Animated.View>
 
       <TeacherPickerSheet
         ref={pickerRef}
