@@ -6,30 +6,29 @@ import { scatterPebbles } from '../lib/scenery';
 /**
  * The winding trail behind the waypoints. A wide dirt band runs the full length
  * with pebbles scattered across it; the accent "progress" line is drawn on top,
- * solid up to the furthest unlocked waypoint and dashed beyond it.
+ * solid up to the furthest unlocked waypoint and dashed beyond it. Everything
+ * past the discovered region (`cutoffY`) uses muted earth tones.
  */
 export function JourneyPath({
   points,
   frontierIndex,
   width,
   height,
+  cutoffY,
   doneColor,
   todoColor,
-  dirtColor,
-  dirtEdgeColor,
-  pebbleLight,
-  pebbleDark,
+  dirt,
+  dirtMuted,
 }: {
   points: Point[];
   frontierIndex: number;
   width: number;
   height: number;
+  cutoffY: number;
   doneColor: string;
   todoColor: string;
-  dirtColor: string;
-  dirtEdgeColor: string;
-  pebbleLight: string;
-  pebbleDark: string;
+  dirt: { fill: string; edge: string; pebbleLight: string; pebbleDark: string };
+  dirtMuted: { fill: string; edge: string; pebbleLight: string; pebbleDark: string };
 }) {
   const segments = React.useMemo(() => pathSegments(points), [points]);
   const pebbles = React.useMemo(() => scatterPebbles(points), [points]);
@@ -40,20 +39,33 @@ export function JourneyPath({
       height={height}
       style={{ position: 'absolute', top: 0, left: 0 }}
       pointerEvents="none">
-      {/* Dirt band — darker edge then lighter fill for a soft border. */}
-      <G fill="none" strokeLinecap="round" strokeLinejoin="round">
-        {segments.map((d, i) => (
-          <Path key={`e${i}`} d={d} stroke={dirtEdgeColor} strokeWidth={30} />
-        ))}
-        {segments.map((d, i) => (
-          <Path key={`d${i}`} d={d} stroke={dirtColor} strokeWidth={24} />
-        ))}
+      {/* Dirt band — darker edge then lighter fill; vivid on the discovered side. */}
+      <G strokeLinecap="round" strokeLinejoin="round" fill="none">
+        {segments.map((d, i) => {
+          const done = i + 1 <= frontierIndex;
+          const c = done ? dirt : dirtMuted;
+          return <Path key={`e${i}`} d={d} stroke={c.edge} strokeWidth={30} />;
+        })}
+        {segments.map((d, i) => {
+          const done = i + 1 <= frontierIndex;
+          const c = done ? dirt : dirtMuted;
+          return <Path key={`f${i}`} d={d} stroke={c.fill} strokeWidth={24} />;
+        })}
       </G>
 
-      {/* Scattered pebbles sitting on the dirt. */}
-      {pebbles.map((p, i) => (
-        <Circle key={`p${i}`} cx={p.x} cy={p.y} r={p.r} fill={p.dark ? pebbleDark : pebbleLight} />
-      ))}
+      {/* Pebbles, coloured by whether they sit in the discovered region. */}
+      {pebbles.map((pb, i) => {
+        const c = pb.y <= cutoffY ? dirt : dirtMuted;
+        return (
+          <Circle
+            key={`p${i}`}
+            cx={pb.x}
+            cy={pb.y}
+            r={pb.r}
+            fill={pb.dark ? c.pebbleDark : c.pebbleLight}
+          />
+        );
+      })}
 
       {/* Accent progress line. */}
       {segments.map((d, i) => {

@@ -66,6 +66,8 @@ export function JourneyScreen() {
             width={width}
             height={canvasHeight}
             palette={palette.scenery}
+            mutedPalette={palette.sceneryMuted}
+            cutoffY={markerPosition.y}
           />
 
           <JourneyPath
@@ -73,12 +75,21 @@ export function JourneyScreen() {
             frontierIndex={frontierIndex}
             width={width}
             height={canvasHeight}
+            cutoffY={markerPosition.y}
             doneColor={palette.accent}
             todoColor={palette.trailTodo}
-            dirtColor={palette.dirt}
-            dirtEdgeColor={palette.dirtEdge}
-            pebbleLight={palette.pebbleLight}
-            pebbleDark={palette.pebbleDark}
+            dirt={{
+              fill: palette.dirt,
+              edge: palette.dirtEdge,
+              pebbleLight: palette.pebbleLight,
+              pebbleDark: palette.pebbleDark,
+            }}
+            dirtMuted={{
+              fill: palette.dirtMuted,
+              edge: palette.dirtEdgeMuted,
+              pebbleLight: palette.pebbleLightMuted,
+              pebbleDark: palette.pebbleDarkMuted,
+            }}
           />
 
           {waypoints.map((w) => (

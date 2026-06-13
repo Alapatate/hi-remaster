@@ -3,7 +3,16 @@
 
 import { NODE_R, SEGMENT_H, TOP_PAD, type Point } from './layout';
 
-export type SceneryKind = 'pine' | 'bush' | 'grass' | 'rock' | 'flower' | 'pond';
+export type SceneryKind =
+  | 'pine'
+  | 'tree'
+  | 'bush'
+  | 'grass'
+  | 'rock'
+  | 'flower'
+  | 'mushroom'
+  | 'butterfly'
+  | 'pond';
 
 export type SceneryItem = {
   kind: SceneryKind;
@@ -38,11 +47,14 @@ function pathXAt(points: Point[], y: number): number {
 
 /** Pick a decoration kind from a weighted table. */
 function pickKind(r: number): SceneryKind {
-  if (r < 0.3) return 'grass';
-  if (r < 0.52) return 'bush';
-  if (r < 0.72) return 'pine';
-  if (r < 0.86) return 'rock';
-  if (r < 0.96) return 'flower';
+  if (r < 0.2) return 'grass';
+  if (r < 0.34) return 'bush';
+  if (r < 0.46) return 'pine';
+  if (r < 0.58) return 'tree';
+  if (r < 0.7) return 'flower';
+  if (r < 0.79) return 'rock';
+  if (r < 0.86) return 'mushroom';
+  if (r < 0.92) return 'butterfly';
   return 'pond';
 }
 
