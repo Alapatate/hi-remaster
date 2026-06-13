@@ -37,13 +37,25 @@ type Step = 1 | 2 | 3;
 
 export function VideoSessionFlow() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, updatePrefs } = useAuth();
   const { teachers, loading, error, reload } = useTeachers();
   const insets = useSafeAreaInsets();
 
   const [featuredIndex, setFeaturedIndex] = React.useState(0);
   const [step, setStep] = React.useState<Step>(1);
   const [selected, setSelected] = React.useState<Video[]>([]);
+
+  // Restore last teacher from prefs once the list has loaded.
+  const restoredRef = React.useRef(false);
+  React.useEffect(() => {
+    if (restoredRef.current || teachers.length === 0) return;
+    const lastTeacherId = (user?.prefs as Record<string, unknown>)?.lastTeacherId as string | undefined;
+    if (lastTeacherId) {
+      const idx = teachers.findIndex((t) => t.$id === lastTeacherId);
+      if (idx !== -1) setFeaturedIndex(idx);
+    }
+    restoredRef.current = true;
+  }, [teachers, user?.prefs]);
 
   const aboutRef = React.useRef<BottomSheetModal>(null);
   const pickerRef = React.useRef<BottomSheetModal>(null);
@@ -69,8 +81,9 @@ export function VideoSessionFlow() {
       if (idx !== -1) setFeaturedIndex(idx);
       setSelected([]);
       pickerRef.current?.dismiss();
+      updatePrefs({ lastTeacherId: t.$id }).catch(() => {});
     },
-    [teachers]
+    [teachers, updatePrefs]
   );
 
   const toggleVideo = React.useCallback((video: Video) => {
@@ -85,8 +98,11 @@ export function VideoSessionFlow() {
     const ordered = orderByPhase(selected);
     if (ordered.length === 0) return;
     const ids = ordered.map((v) => v.$id).join(',');
+    if (teacher) {
+      updatePrefs({ lastTeacherId: teacher.$id }).catch(() => {});
+    }
     router.push(`/video/${ordered[0].$id}?session=${ids}`);
-  }, [selected]);
+  }, [selected, teacher, updatePrefs]);
 
   const resumeLastSession = React.useCallback(() => {
     if (!lastSession) return;
