@@ -29,12 +29,12 @@ export type JourneyState = {
 };
 
 /** Reads `xpPoints` from the signed-in user and derives the whole journey layout. */
-export function useJourney(width: number): JourneyState {
+export function useJourney(width: number, topOffset = 0): JourneyState {
   const { user } = useAuth();
   const xp = Number((user?.prefs as Record<string, unknown>)?.xpPoints ?? 0) || 0;
 
   return React.useMemo(() => {
-    const positions = journeyPositions(BIRDS.length, width);
+    const positions = journeyPositions(BIRDS.length, width, topOffset);
     const waypoints: Waypoint[] = BIRDS.map((bird, index) => ({
       bird,
       index,
@@ -68,7 +68,7 @@ export function useJourney(width: number): JourneyState {
       progressToNext,
       xpToNext,
       markerPosition,
-      canvasHeight: journeyHeight(BIRDS.length),
+      canvasHeight: journeyHeight(BIRDS.length, topOffset),
     };
-  }, [xp, width]);
+  }, [xp, width, topOffset]);
 }

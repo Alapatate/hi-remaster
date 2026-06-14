@@ -36,11 +36,7 @@ export function useBottomDockSpace(): number {
   return insets.bottom + BAR_MARGIN + BAR_HEIGHT;
 }
 
-export function FloatingTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps) {
+export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -84,7 +80,7 @@ export function FloatingTabBar({
       <View
         style={{
           height: BAR_HEIGHT,
-          borderRadius: 28,
+          borderRadius: 9999,
           backgroundColor: barBg,
           paddingHorizontal: BAR_PADDING,
           justifyContent: 'center',
@@ -110,14 +106,14 @@ export function FloatingTabBar({
                   top: 0,
                   bottom: 0,
                   width: tabWidth,
-                  paddingHorizontal: 6,
+                  paddingHorizontal: 0,
                 },
                 highlightStyle,
               ]}>
               <View
                 style={{
                   flex: 1,
-                  borderRadius: 18,
+                  borderRadius: 99999,
                   backgroundColor: activeBg,
                 }}
               />

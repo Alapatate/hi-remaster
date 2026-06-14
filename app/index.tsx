@@ -22,7 +22,7 @@ export default function Splash() {
   }, [loading]);
 
   const navigate = useCallback(() => {
-    router.replace(user ? '/(protected)/dashboard' : '/(auth)/sign-in');
+    router.replace(user ? '/(protected)/videos' : '/(auth)/sign-in');
   }, [user]);
 
   const handleAnimationFinish = useCallback(

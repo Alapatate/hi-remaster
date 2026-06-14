@@ -17,15 +17,15 @@ export default function ProtectedLayout() {
   return (
     <Tabs tabBar={(props) => <FloatingTabBar {...props} />}>
       <Tabs.Screen
-        name="dashboard"
+        name="videos"
         options={{
-          title: t('journeyTab'),
+          title: t('sessionsTab'),
         }}
       />
       <Tabs.Screen
-        name="videos"
+        name="dashboard"
         options={{
-          title: t('videos'),
+          title: t('journeyTab'),
         }}
       />
       <Tabs.Screen

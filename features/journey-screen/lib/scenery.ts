@@ -35,9 +35,9 @@ function mulberry32(seed: number) {
 }
 
 /** Path x at an arbitrary y, linearly interpolated between waypoints. */
-function pathXAt(points: Point[], y: number): number {
+function pathXAt(points: Point[], y: number, topOffset = 0): number {
   if (points.length === 0) return 0;
-  const raw = (y - TOP_PAD) / SEGMENT_H;
+  const raw = (y - TOP_PAD - topOffset) / SEGMENT_H;
   const i = Math.max(0, Math.min(points.length - 2, Math.floor(raw)));
   const a = points[i];
   const b = points[i + 1] ?? a;
@@ -193,14 +193,14 @@ const LAKE_GUTTER = 150; // a lake needs a roomier gutter than a grassy patch
  * whichever gutter is widest as the trail winds down. Far fewer than the small
  * sprites, and drawn behind everything else.
  */
-export function scatterZones(points: Point[], width: number, height: number): ZoneItem[] {
+export function scatterZones(points: Point[], width: number, height: number, topOffset = 0): ZoneItem[] {
   if (points.length < 2) return [];
   const rng = mulberry32(0x4c616b65); // "Lake"
   const zones: ZoneItem[] = [];
 
-  let y = TOP_PAD + 50;
+  let y = TOP_PAD + topOffset + 50;
   while (y < height - 70) {
-    const px = pathXAt(points, y);
+    const px = pathXAt(points, y, topOffset);
     const leftW = px - CLEAR - EDGE;
     const rightW = width - EDGE - (px + CLEAR);
     const side: 'left' | 'right' = leftW >= rightW ? 'left' : 'right';
@@ -229,13 +229,13 @@ const MIN_GUTTER = 48; // need at least this much room to place anything
  * Walk down the canvas placing 1–2 decorations per row in whichever gutter the
  * winding path leaves open, so greenery hugs the trail like a real walk.
  */
-export function scatterScenery(points: Point[], width: number, height: number): SceneryItem[] {
+export function scatterScenery(points: Point[], width: number, height: number, topOffset = 0): SceneryItem[] {
   if (points.length < 2) return [];
   const rng = mulberry32(0x4a6f7572); // "Jour"
   const items: SceneryItem[] = [];
 
-  for (let y = TOP_PAD - 6; y < height - 40; y += ROW_STEP) {
-    const px = pathXAt(points, y);
+  for (let y = TOP_PAD + topOffset - 6; y < height - 40; y += ROW_STEP) {
+    const px = pathXAt(points, y, topOffset);
     const leftGutter = px - CLEAR - EDGE;
     const rightGutter = width - EDGE - (px + CLEAR);
 

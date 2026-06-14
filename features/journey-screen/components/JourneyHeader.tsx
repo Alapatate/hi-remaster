@@ -9,6 +9,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
+import { useColorScheme } from 'nativewind';
 
 /** Top card: current XP, an animated bar toward the next waypoint, and a tally. */
 export function JourneyHeader({
@@ -29,6 +31,7 @@ export function JourneyHeader({
   accent: string;
 }) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
   const fill = useSharedValue(0);
 
   React.useEffect(() => {
@@ -39,16 +42,16 @@ export function JourneyHeader({
     width: `${Math.max(4, fill.value * 100)}%`,
   }));
 
-  return (
-    <View className="px-6 pb-2 pt-4">
-      <Text variant="h2" className="border-0 pb-0 text-2xl">
-        {t('journeyTitle')}
-      </Text>
-      <Text variant="muted" className="mb-4 mt-1 text-sm">
-        {t('journeySubtitle')}
-      </Text>
+  const cardBg = colorScheme === 'dark' ? 'rgba(40, 35, 31, 0.72)' : 'rgba(242, 232, 214, 0.72)';
 
-      <View className="rounded-2xl border border-border bg-card p-4">
+  return (
+    <BlurView
+      intensity={0}
+      tint={colorScheme === 'dark' ? 'dark' : 'light'}
+      className="flex-row gap-3 px-6 pb-2 pt-10">
+      <View
+        className="flex-1 rounded-2xl border border-border p-4"
+        style={{ backgroundColor: cardBg }}>
         <View className="mb-3 flex-row items-center gap-2">
           <View
             className="h-9 w-9 items-center justify-center rounded-full"
@@ -66,7 +69,9 @@ export function JourneyHeader({
         </View>
 
         <View className="h-2.5 overflow-hidden rounded-full bg-muted">
-          <Animated.View style={[{ height: '100%', borderRadius: 999, backgroundColor: accent }, fillStyle]} />
+          <Animated.View
+            style={[{ height: '100%', borderRadius: 999, backgroundColor: accent }, fillStyle]}
+          />
         </View>
 
         <Text className="mt-2 text-xs text-muted-foreground">
@@ -75,6 +80,6 @@ export function JourneyHeader({
             : t('allDiscovered')}
         </Text>
       </View>
-    </View>
+    </BlurView>
   );
 }

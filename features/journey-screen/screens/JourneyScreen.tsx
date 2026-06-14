@@ -22,7 +22,9 @@ export function JourneyScreen() {
   const { colorScheme } = useColorScheme();
   const palette = JOURNEY_COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
-  const journey = useJourney(width);
+  const [headerHeight, setHeaderHeight] = React.useState(0);
+
+  const journey = useJourney(width, headerHeight);
   const { waypoints, frontierIndex, markerPosition, canvasHeight } = journey;
 
   // Extend the canvas past the last node so the meadow + night veil reach the
@@ -42,8 +44,9 @@ export function JourneyScreen() {
   }, []);
 
   // Drop the user near their current position rather than at the very top.
+  // Offset by headerHeight so the marker isn't hidden behind the fixed XP card.
   React.useEffect(() => {
-    const target = Math.max(0, markerPosition.y - height * 0.4);
+    const target = Math.max(0, markerPosition.y - height * 0.4 + headerHeight);
     const id = setTimeout(() => scrollRef.current?.scrollTo({ y: target, animated: true }), 450);
     return () => clearTimeout(id);
     // Run once on mount; marker position is stable for a given XP value.
@@ -51,18 +54,10 @@ export function JourneyScreen() {
   }, []);
 
   return (
-    <View className="flex-1" style={{ paddingTop: insets.top, backgroundColor: palette.meadow.base }}>
+    <View
+      className="flex-1"
+      style={{ paddingTop: insets.top, backgroundColor: palette.meadow.base }}>
       <ScrollView ref={scrollRef} className="flex-1" showsVerticalScrollIndicator={false}>
-        <JourneyHeader
-          xp={journey.xp}
-          unlockedCount={journey.unlockedCount}
-          total={waypoints.length}
-          progressToNext={journey.progressToNext}
-          xpToNext={journey.xpToNext}
-          nextBirdName={nextBird?.name ?? null}
-          accent={palette.accent}
-        />
-
         <View style={{ width, height: renderHeight }}>
           <JourneyBackground width={width} height={renderHeight} blobs={palette.meadow.blobs} />
 
@@ -73,6 +68,7 @@ export function JourneyScreen() {
             palette={palette.scenery}
             mutedPalette={palette.sceneryMuted}
             cutoffY={markerPosition.y}
+            topOffset={headerHeight}
           />
 
           <JourneyPath
@@ -141,6 +137,21 @@ export function JourneyScreen() {
           ) : null}
         </View>
       </ScrollView>
+
+      {/* Fixed XP header — stays pinned at the top while the map scrolls beneath */}
+      <View
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}
+        onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}>
+        <JourneyHeader
+          xp={journey.xp}
+          unlockedCount={journey.unlockedCount}
+          total={waypoints.length}
+          progressToNext={journey.progressToNext}
+          xpToNext={journey.xpToNext}
+          nextBirdName={nextBird?.name ?? null}
+          accent={palette.accent}
+        />
+      </View>
 
       <BirdSheet ref={sheetRef} bird={selectedBird} />
     </View>
