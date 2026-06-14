@@ -34,8 +34,10 @@ export function JourneyHeader({
   const { colorScheme } = useColorScheme();
   const fill = useSharedValue(0);
 
+  // Short follow so the bar tracks the reveal's animated XP closely (and softens
+  // the snap back to empty each time a waypoint threshold is crossed).
   React.useEffect(() => {
-    fill.value = withTiming(progressToNext, { duration: 700, easing: Easing.out(Easing.cubic) });
+    fill.value = withTiming(progressToNext, { duration: 250, easing: Easing.out(Easing.cubic) });
   }, [progressToNext, fill]);
 
   const fillStyle = useAnimatedStyle(() => ({

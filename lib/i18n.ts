@@ -106,6 +106,8 @@ const resources = {
       allDiscovered: 'All birds discovered!',
       aboutBird: 'About',
       funFact: 'Did you know?',
+      birdDiscovered: 'New bird discovered!',
+      birdDiscoveredCta: 'Wonderful!',
       // Player / sheets
       aboutTeacher: 'About the teacher',
       videosCount: '{{count}} videos',
@@ -218,6 +220,8 @@ const resources = {
       allDiscovered: 'Tous les oiseaux découverts !',
       aboutBird: 'À propos',
       funFact: 'Le saviez-vous ?',
+      birdDiscovered: 'Nouvel oiseau découvert !',
+      birdDiscoveredCta: 'Magnifique !',
       // Player / sheets
       aboutTeacher: "À propos de l'enseignant",
       videosCount: '{{count}} vidéos',
@@ -330,6 +334,8 @@ const resources = {
       allDiscovered: '¡Todas las aves descubiertas!',
       aboutBird: 'Acerca de',
       funFact: '¿Sabías que?',
+      birdDiscovered: '¡Nueva ave descubierta!',
+      birdDiscoveredCta: '¡Maravilloso!',
       // Player / sheets
       aboutTeacher: 'Sobre el profesor',
       videosCount: '{{count}} vídeos',
@@ -442,6 +448,8 @@ const resources = {
       allDiscovered: 'Alle Vögel entdeckt!',
       aboutBird: 'Über',
       funFact: 'Wusstest du schon?',
+      birdDiscovered: 'Neuer Vogel entdeckt!',
+      birdDiscoveredCta: 'Wunderbar!',
       // Player / sheets
       aboutTeacher: 'Über den Lehrer',
       videosCount: '{{count}} Videos',
@@ -554,6 +562,8 @@ const resources = {
       allDiscovered: 'Tutti gli uccelli scoperti!',
       aboutBird: 'Informazioni',
       funFact: 'Lo sapevi?',
+      birdDiscovered: 'Nuovo uccello scoperto!',
+      birdDiscoveredCta: 'Meraviglioso!',
       // Player / sheets
       aboutTeacher: "Informazioni sull'insegnante",
       videosCount: '{{count}} video',
@@ -666,6 +676,8 @@ const resources = {
       allDiscovered: 'Todas as aves descobertas!',
       aboutBird: 'Sobre',
       funFact: 'Você sabia?',
+      birdDiscovered: 'Nova ave descoberta!',
+      birdDiscoveredCta: 'Maravilhoso!',
       // Player / sheets
       aboutTeacher: 'Sobre o professor',
       videosCount: '{{count}} vídeos',
@@ -778,6 +790,8 @@ const resources = {
       allDiscovered: 'تم اكتشاف جميع الطيور!',
       aboutBird: 'حول',
       funFact: 'هل تعلم؟',
+      birdDiscovered: 'تم اكتشاف طائر جديد!',
+      birdDiscoveredCta: 'رائع!',
       // Player / sheets
       aboutTeacher: 'عن المعلم',
       videosCount: '{{count}} مقاطع فيديو',
@@ -890,6 +904,8 @@ const resources = {
       allDiscovered: '已发现所有鸟类！',
       aboutBird: '关于',
       funFact: '你知道吗？',
+      birdDiscovered: '发现新鸟类！',
+      birdDiscoveredCta: '太棒了！',
       // Player / sheets
       aboutTeacher: '关于老师',
       videosCount: '{{count}} 个视频',
@@ -1002,6 +1018,8 @@ const resources = {
       allDiscovered: 'すべての鳥を発見しました！',
       aboutBird: '詳細',
       funFact: '知っていましたか？',
+      birdDiscovered: '新しい鳥を発見！',
+      birdDiscoveredCta: '素晴らしい！',
       // Player / sheets
       aboutTeacher: '先生について',
       videosCount: '{{count}} 本の動画',
@@ -1114,6 +1132,8 @@ const resources = {
       allDiscovered: '모든 새를 발견했습니다!',
       aboutBird: '정보',
       funFact: '알고 계셨나요?',
+      birdDiscovered: '새로운 새 발견!',
+      birdDiscoveredCta: '멋져요!',
       // Player / sheets
       aboutTeacher: '선생님 소개',
       videosCount: '동영상 {{count}}개',

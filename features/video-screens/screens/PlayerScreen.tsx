@@ -38,7 +38,21 @@ export function PlayerScreen() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [focused, setFocused] = React.useState(true);
-  const { updatePrefs } = useAuth();
+  const { user, updatePrefs } = useAuth();
+  // Keep a ref so the XP callback always reads the latest user without being
+  // recreated on every prefs update (which would restart the accumulator effect).
+  const userRef = React.useRef(user);
+  React.useEffect(() => { userRef.current = user; }, [user]);
+
+  const handleXpEarned = React.useCallback(
+    (minutes: number) => {
+      const currentXp = Number(
+        (userRef.current?.prefs as Record<string, unknown>)?.xpPoints ?? 0
+      );
+      updatePrefs({ xpPoints: currentXp + minutes }).catch(() => {});
+    },
+    [updatePrefs]
+  );
 
   const sessionParam = session ?? '';
 
@@ -96,6 +110,7 @@ export function PlayerScreen() {
               lastSessionTotal: total,
             }).catch(() => {})
           }
+          onXpEarned={handleXpEarned}
         />
       ) : null}
     </View>
@@ -107,11 +122,13 @@ function PlayerView({
   sessionVideos,
   sessionParam,
   onProgress,
+  onXpEarned,
 }: {
   video: Video;
   sessionVideos: Video[];
   sessionParam: string;
   onProgress: (progress: number, total: number, teacherName: string) => void;
+  onXpEarned?: (minutes: number) => void;
 }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -235,6 +252,31 @@ function PlayerView({
     const progress = Math.min(100, Math.round((currentTime / duration) * 100));
     onProgress(progress, sessionTotal, teacherFullName(video.teacher));
   }, [currentTime, duration, sessionTotal, onProgress, video.teacher]);
+
+  // XP: +1 per minute of actual playback (not scrubbed time).
+  // Compares consecutive timeUpdate deltas while playing; >2 s delta = seek → skip.
+  const xpLastTimeRef = React.useRef<number | null>(null);
+  const xpWatchedSecsRef = React.useRef(0);
+  const xpAwardedMinutesRef = React.useRef(0);
+  React.useEffect(() => {
+    if (!isPlaying) {
+      xpLastTimeRef.current = null;
+      return;
+    }
+    const prev = xpLastTimeRef.current;
+    xpLastTimeRef.current = currentTime;
+    if (prev === null) return;
+    const delta = currentTime - prev;
+    // Skip negative deltas and scrubs (a 0.5 s tick can't advance > 2 s normally).
+    if (delta <= 0 || delta > 2) return;
+    xpWatchedSecsRef.current += delta;
+    const minutesEarned = Math.floor(xpWatchedSecsRef.current / 60);
+    if (minutesEarned > xpAwardedMinutesRef.current) {
+      const toAward = minutesEarned - xpAwardedMinutesRef.current;
+      xpAwardedMinutesRef.current = minutesEarned;
+      onXpEarned?.(toAward);
+    }
+  }, [currentTime, isPlaying, onXpEarned]);
 
   const switchQuality = React.useCallback(
     (label: string | null) => {
