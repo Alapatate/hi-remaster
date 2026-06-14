@@ -2,7 +2,7 @@ import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from 'expo-router';
 import * as React from 'react';
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { InteractionManager, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BirdSheet } from '../components/BirdSheet';
@@ -52,6 +52,14 @@ export function JourneyScreen() {
 
   const nextBird = waypoints[frontierIndex + 1]?.bird ?? null;
 
+  // Defer heavy SVG mount until the navigation transition animation is done,
+  // so the tab switch stays smooth on first visit.
+  const [mapReady, setMapReady] = React.useState(false);
+  React.useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => setMapReady(true));
+    return () => task.cancel();
+  }, []);
+
   const openBird = React.useCallback((w: Waypoint) => {
     setSelectedBird(w.bird);
     sheetRef.current?.present();
@@ -74,15 +82,19 @@ export function JourneyScreen() {
       className="flex-1"
       style={{ paddingTop: insets.top, backgroundColor: palette.meadow.base }}>
       <ScrollView ref={scrollRef} className="flex-1" showsVerticalScrollIndicator={false}>
-        <JourneyMap
-          journey={journey}
-          width={width}
-          renderHeight={renderHeight}
-          palette={palette}
-          topOffset={headerHeight}
-          nextBird={nextBird}
-          onBird={openBird}
-        />
+        {mapReady ? (
+          <JourneyMap
+            journey={journey}
+            width={width}
+            renderHeight={renderHeight}
+            palette={palette}
+            topOffset={headerHeight}
+            nextBird={nextBird}
+            onBird={openBird}
+          />
+        ) : (
+          <View style={{ width, height: renderHeight }} />
+        )}
       </ScrollView>
 
       {/* Fixed XP header — stays pinned at the top while the map scrolls beneath */}
