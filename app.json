@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "HI",
-    "slug": "hi",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/AppIcons/appstore.png",

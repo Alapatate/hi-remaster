@@ -2,7 +2,7 @@ import { Account, Client, Databases } from 'react-native-appwrite';
 
 const client = new Client()
   .setProject('69c2756f00254a9853ce')
-  .setEndpoint('http://212.227.52.231:6677/v1');
+  .setEndpoint('https://hi-admin.phi-apps.fr/v1');
 
 const account = new Account(client);
 const databases = new Databases(client);
