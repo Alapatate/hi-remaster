@@ -11,8 +11,9 @@ import {
   MoonIcon,
   SunIcon,
 } from 'lucide-react-native';
+import { useJourney } from '@/features/journey-screen/hooks/useJourney';
 import * as React from 'react';
-import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
 
@@ -34,6 +35,9 @@ export default function Profile() {
   const { t } = useTranslation();
   const { setColorScheme } = useColorScheme();
   const dockSpace = useBottomDockSpace();
+  const { width } = useWindowDimensions();
+  const { waypoints, frontierIndex } = useJourney(width);
+  const birdEmoji = waypoints[frontierIndex]?.bird.emoji ?? '🐦';
   const [langOpen, setLangOpen] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
@@ -91,15 +95,6 @@ export default function Profile() {
     }
   };
 
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '?';
-
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -113,8 +108,8 @@ export default function Profile() {
 
       {/* Avatar + name */}
       <View className="mb-6 items-center gap-3">
-        <View className="h-20 w-20 items-center justify-center rounded-full bg-primary">
-          <Text className="text-2xl font-bold text-primary-foreground">{initials}</Text>
+        <View className="h-20 w-20 items-center justify-center rounded-full bg-card border border-border">
+          <Text style={{ fontSize: 40 }}>{birdEmoji}</Text>
         </View>
         <View className="items-center gap-0.5">
           <Text className="text-lg font-semibold">{user?.name}</Text>
@@ -124,24 +119,12 @@ export default function Profile() {
         </View>
       </View>
 
-      {/* Account details */}
-      <View className="mb-6">
-        <Text variant="h4" className="mb-3">
-          {t('account')}
-        </Text>
-        <View className="overflow-hidden rounded-xl border border-border bg-card">
-          <Row label={t('userId')} value={user?.$id ?? '—'} />
-          <Divider />
-          <Row
-            label={t('emailVerifiedLabel')}
-            value={user?.emailVerification ? t('yes') : t('no')}
-          />
-          <Divider />
-          <Row
-            label={t('memberSinceLabel')}
-            value={user?.$createdAt ? new Date(user.$createdAt).toLocaleDateString() : '—'}
-          />
-        </View>
+      {/* Member since */}
+      <View className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
+        <Row
+          label={t('memberSinceLabel')}
+          value={user?.$createdAt ? new Date(user.$createdAt).toLocaleDateString() : '—'}
+        />
       </View>
 
       {/* Preferences */}

@@ -17,8 +17,11 @@ export const SIDE_PAD = 28;
  * Two sine waves of different frequencies are summed so the path looks like a
  * real winding trail rather than a perfect, repeating S-curve. The horizontal
  * position is clamped so nodes never clip the screen edges.
+ *
+ * `topOffset` shifts every node down by that many pixels (used to push the
+ * first node below a fixed header).
  */
-export function journeyPositions(count: number, width: number): Point[] {
+export function journeyPositions(count: number, width: number, topOffset = 0): Point[] {
   const centerX = width / 2;
   const maxSwing = Math.max(0, centerX - SIDE_PAD - NODE_R);
   const a1 = maxSwing * 0.72;
@@ -28,16 +31,16 @@ export function journeyPositions(count: number, width: number): Point[] {
   for (let i = 0; i < count; i++) {
     const raw = centerX + a1 * Math.sin(i * 0.9 + 0.6) + a2 * Math.sin(i * 2.3 + 1.7);
     const x = Math.min(width - SIDE_PAD - NODE_R, Math.max(SIDE_PAD + NODE_R, raw));
-    const y = TOP_PAD + i * SEGMENT_H;
+    const y = TOP_PAD + topOffset + i * SEGMENT_H;
     points.push({ x, y });
   }
   return points;
 }
 
 /** Total height the scrollable journey canvas needs. */
-export function journeyHeight(count: number): number {
-  if (count === 0) return TOP_PAD + BOTTOM_PAD;
-  return TOP_PAD + (count - 1) * SEGMENT_H + BOTTOM_PAD;
+export function journeyHeight(count: number, topOffset = 0): number {
+  if (count === 0) return TOP_PAD + topOffset + BOTTOM_PAD;
+  return TOP_PAD + topOffset + (count - 1) * SEGMENT_H + BOTTOM_PAD;
 }
 
 /** Linear interpolation between two points (used for the progress marker). */

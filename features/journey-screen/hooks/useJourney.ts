@@ -28,13 +28,18 @@ export type JourneyState = {
   canvasHeight: number;
 };
 
-/** Reads `xpPoints` from the signed-in user and derives the whole journey layout. */
-export function useJourney(width: number): JourneyState {
+/**
+ * Reads `xpPoints` from the signed-in user and derives the whole journey layout.
+ * `xpOverride` lets a caller drive the derivation from an animated value (used by
+ * the header during the reveal) instead of the live prefs value.
+ */
+export function useJourney(width: number, topOffset = 0, xpOverride?: number): JourneyState {
   const { user } = useAuth();
-  const xp = Number((user?.prefs as Record<string, unknown>)?.xpPoints ?? 0) || 0;
+  const contextXp = Number((user?.prefs as Record<string, unknown>)?.xpPoints ?? 0) || 0;
+  const xp = xpOverride ?? contextXp;
 
   return React.useMemo(() => {
-    const positions = journeyPositions(BIRDS.length, width);
+    const positions = journeyPositions(BIRDS.length, width, topOffset);
     const waypoints: Waypoint[] = BIRDS.map((bird, index) => ({
       bird,
       index,
@@ -68,7 +73,7 @@ export function useJourney(width: number): JourneyState {
       progressToNext,
       xpToNext,
       markerPosition,
-      canvasHeight: journeyHeight(BIRDS.length),
+      canvasHeight: journeyHeight(BIRDS.length, topOffset),
     };
-  }, [xp, width]);
+  }, [xp, width, topOffset]);
 }

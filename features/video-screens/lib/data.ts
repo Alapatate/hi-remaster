@@ -4,7 +4,7 @@ import {
   VIDEOS_COLLECTION_ID,
   databases,
 } from '@/lib/appwrite';
-import { flagEmoji } from '@/lib/langFlags';
+import { flagEmoji, languageName } from '@/lib/langFlags';
 import { Query } from 'react-native-appwrite';
 import type { Teacher, Video } from './types';
 
@@ -59,6 +59,11 @@ export function teacherPhotoSource(teacher?: Teacher) {
 /** Regional flag emoji derived from `lang`. */
 export function teacherFlag(teacher?: Teacher): string {
   return flagEmoji(teacher?.lang ?? '');
+}
+
+/** Readable language name (no country code) derived from `lang`. */
+export function teacherLanguage(teacher?: Teacher): string {
+  return languageName(teacher?.lang ?? '');
 }
 
 export function teacherFullName(teacher?: Teacher): string {

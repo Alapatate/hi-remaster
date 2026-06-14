@@ -23,6 +23,7 @@ export function JourneyScenery({
   palette,
   mutedPalette,
   cutoffY,
+  topOffset = 0,
 }: {
   points: Point[];
   width: number;
@@ -30,14 +31,15 @@ export function JourneyScenery({
   palette: SceneryPalette;
   mutedPalette: SceneryPalette;
   cutoffY: number;
+  topOffset?: number;
 }) {
   const items = React.useMemo(
-    () => scatterScenery(points, width, height),
-    [points, width, height]
+    () => scatterScenery(points, width, height, topOffset),
+    [points, width, height, topOffset]
   );
   const zones = React.useMemo(
-    () => scatterZones(points, width, height),
-    [points, width, height]
+    () => scatterZones(points, width, height, topOffset),
+    [points, width, height, topOffset]
   );
 
   const palFor = (y: number) => (y <= cutoffY ? palette : mutedPalette);
