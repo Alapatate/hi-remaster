@@ -32,7 +32,8 @@ export const AboutTeacherSheet = React.forwardRef<
   return (
     <BottomSheetModal
       ref={ref}
-      snapPoints={['90%']}
+      topInset={100}
+      snapPoints={['50%', '80%']}
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
@@ -42,10 +43,7 @@ export const AboutTeacherSheet = React.forwardRef<
 
         <View className="mb-5 flex-row flex-wrap items-center gap-2">
           {teacher ? (
-            <Pill
-              icon={<UserIcon size={15} color="#7a6a52" />}
-              label={teacherFullName(teacher)}
-            />
+            <Pill icon={<UserIcon size={15} color="#7a6a52" />} label={teacherFullName(teacher)} />
           ) : null}
           {duration != null && duration > 0 ? (
             <Pill icon={<ClockIcon size={15} color="#7a6a52" />} label={formatDuration(duration)} />

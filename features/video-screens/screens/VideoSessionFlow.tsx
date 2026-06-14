@@ -1,6 +1,7 @@
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
+import { languageBase } from '@/lib/langFlags';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
@@ -11,7 +12,7 @@ import {
   UsersIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { Easing, FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,7 +30,7 @@ import { useTeachers } from '../hooks/useTeachers';
 import { useTeacherVideos } from '../hooks/useTeacherVideos';
 import { IS_CONFIGURED, readLastSession, teacherFullName } from '../lib/data';
 import { totalDuration } from '../lib/format';
-import { orderByPhase, PHASE_ORDER } from '../lib/phases';
+import { orderByPhase, PHASES, PHASE_ORDER } from '../lib/phases';
 import type { Video } from '../lib/types';
 
 const FOOTER_HEIGHT = 80;
@@ -93,6 +94,7 @@ export function VideoSessionFlow() {
   const [step, setStep] = React.useState<Step>(1);
   const [direction, setDirection] = React.useState<'forward' | 'back'>('forward');
   const [selected, setSelected] = React.useState<Video[]>([]);
+  const [incompleteVisible, setIncompleteVisible] = React.useState(false);
 
   // Navigate between steps while tracking direction so transitions slide the right way.
   const stepRef = React.useRef<Step>(step);
@@ -153,6 +155,43 @@ export function VideoSessionFlow() {
     },
     [teachers, updatePrefs]
   );
+
+  // Teachers sharing the current teacher's language — the swipe loops within this set.
+  const sameLangTeachers = React.useMemo(() => {
+    if (!teacher) return [];
+    const base = languageBase(teacher.lang ?? '');
+    return teachers.filter((x) => languageBase(x.lang ?? '') === base);
+  }, [teachers, teacher]);
+
+  // Switch to a specific teacher (driven by the hero pager's swipe).
+  const selectTeacher = React.useCallback(
+    (target: (typeof teachers)[number]) => {
+      const idx = teachers.findIndex((x) => x.$id === target.$id);
+      if (idx === -1) return;
+      setFeaturedIndex(idx);
+      setSelected([]);
+      updatePrefs({ lastTeacherId: target.$id }).catch(() => {});
+    },
+    [teachers, updatePrefs]
+  );
+
+  // Phases that have available videos but no selection — triggers the warning popup.
+  const missingPhases = React.useMemo(
+    () =>
+      PHASE_ORDER.filter(
+        (type) =>
+          videos.some((v) => v.type === type) && !selected.some((v) => v.type === type)
+      ),
+    [videos, selected]
+  );
+
+  const handleNextStep = React.useCallback(() => {
+    if (missingPhases.length > 0) {
+      setIncompleteVisible(true);
+    } else {
+      go(3);
+    }
+  }, [missingPhases, go]);
 
   const toggleVideo = React.useCallback((video: Video) => {
     setSelected((prev) =>
@@ -237,7 +276,9 @@ export function VideoSessionFlow() {
               }}>
               <TeacherHeroCard
                 teacher={teacher}
+                langTeachers={sameLangTeachers}
                 onInfo={() => aboutRef.current?.present()}
+                onSelect={selectTeacher}
                 style={{ flex: 1 }}
               />
               <View className="flex-row gap-3">
@@ -301,7 +342,7 @@ export function VideoSessionFlow() {
                 className="flex-1"
                 label={t('nextStep')}
                 disabled={selected.length === 0}
-                onPress={() => go(3)}
+                onPress={handleNextStep}
                 iconRight={<ArrowRightIcon size={18} color="white" />}
               />
             </FooterBar>
@@ -340,6 +381,64 @@ export function VideoSessionFlow() {
           </Animated.View>
         )}
       </View>
+
+      <Modal
+        visible={incompleteVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIncompleteVisible(false)}>
+        <Pressable
+          onPress={() => setIncompleteVisible(false)}
+          className="flex-1 items-center justify-center px-8"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <Pressable
+            onPress={() => {}}
+            className="w-full max-w-sm rounded-3xl bg-card p-6"
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.2,
+              shadowRadius: 16,
+              elevation: 8,
+            }}>
+            <Text className="mb-1 text-xl font-bold text-foreground">
+              {t('incompleteSessionTitle')}
+            </Text>
+            <Text className="mb-3 text-base text-muted-foreground">
+              {t('incompleteSessionMessage')}
+            </Text>
+            <View className="mb-6 gap-1.5">
+              {missingPhases.map((type) => (
+                <View key={type} className="flex-row items-center gap-2">
+                  <Text style={{ fontSize: 16 }}>{PHASES[type].emoji}</Text>
+                  <Text className="text-base font-semibold text-foreground">
+                    {t(PHASES[type].titleKey)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={() => setIncompleteVisible(false)}
+                activeOpacity={0.85}
+                className="flex-1 items-center justify-center rounded-2xl bg-secondary px-4 py-3">
+                <Text className="text-sm font-bold text-secondary-foreground">
+                  {t('incompleteSessionBack')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { setIncompleteVisible(false); go(3); }}
+                activeOpacity={0.85}
+                className="flex-1 items-center justify-center rounded-2xl px-4 py-3"
+                style={{ backgroundColor: '#bf6e1a' }}>
+                <Text className="text-sm font-bold text-white">
+                  {t('incompleteSessionContinue')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <TeacherPickerSheet
         ref={pickerRef}
