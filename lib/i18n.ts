@@ -112,6 +112,11 @@ const resources = {
       quality: 'Quality',
       noVideoUrl: 'No video URL available for this entry.',
       playbackError: 'Playback error.',
+      // Quit dialog
+      quitTitle: 'Leave the app?',
+      quitMessage: 'Are you sure you want to close the app?',
+      quitConfirm: 'Quit',
+      quitCancel: 'Cancel',
     },
   },
   fr: {
@@ -219,6 +224,11 @@ const resources = {
       quality: 'Qualité',
       noVideoUrl: 'Aucune URL vidéo disponible pour cette entrée.',
       playbackError: 'Erreur de lecture.',
+      // Quit dialog
+      quitTitle: "Quitter l'application ?",
+      quitMessage: 'Êtes-vous sûr de vouloir fermer l’application ?',
+      quitConfirm: 'Quitter',
+      quitCancel: 'Annuler',
     },
   },
   es: {
@@ -326,6 +336,11 @@ const resources = {
       quality: 'Calidad',
       noVideoUrl: 'No hay URL de vídeo disponible para esta entrada.',
       playbackError: 'Error de reproducción.',
+      // Quit dialog
+      quitTitle: '¿Salir de la app?',
+      quitMessage: '¿Seguro que quieres cerrar la aplicación?',
+      quitConfirm: 'Salir',
+      quitCancel: 'Cancelar',
     },
   },
   de: {
@@ -433,6 +448,11 @@ const resources = {
       quality: 'Qualität',
       noVideoUrl: 'Für diesen Eintrag ist keine Video-URL verfügbar.',
       playbackError: 'Wiedergabefehler.',
+      // Quit dialog
+      quitTitle: 'App verlassen?',
+      quitMessage: 'Möchten Sie die App wirklich schließen?',
+      quitConfirm: 'Beenden',
+      quitCancel: 'Abbrechen',
     },
   },
   it: {
@@ -540,6 +560,11 @@ const resources = {
       quality: 'Qualità',
       noVideoUrl: 'Nessun URL video disponibile per questo elemento.',
       playbackError: 'Errore di riproduzione.',
+      // Quit dialog
+      quitTitle: "Uscire dall'app?",
+      quitMessage: "Sei sicuro di voler chiudere l'app?",
+      quitConfirm: 'Esci',
+      quitCancel: 'Annulla',
     },
   },
   pt: {
@@ -647,6 +672,11 @@ const resources = {
       quality: 'Qualidade',
       noVideoUrl: 'Nenhum URL de vídeo disponível para esta entrada.',
       playbackError: 'Erro de reprodução.',
+      // Quit dialog
+      quitTitle: 'Sair do app?',
+      quitMessage: 'Tem certeza de que deseja fechar o app?',
+      quitConfirm: 'Sair',
+      quitCancel: 'Cancelar',
     },
   },
   ar: {
@@ -754,6 +784,11 @@ const resources = {
       quality: 'الجودة',
       noVideoUrl: 'لا يوجد رابط فيديو متاح لهذا العنصر.',
       playbackError: 'خطأ في التشغيل.',
+      // Quit dialog
+      quitTitle: 'الخروج من التطبيق؟',
+      quitMessage: 'هل أنت متأكد أنك تريد إغلاق التطبيق؟',
+      quitConfirm: 'خروج',
+      quitCancel: 'إلغاء',
     },
   },
   zh: {
@@ -861,6 +896,11 @@ const resources = {
       quality: '画质',
       noVideoUrl: '此条目没有可用的视频链接。',
       playbackError: '播放错误。',
+      // Quit dialog
+      quitTitle: '退出应用？',
+      quitMessage: '确定要关闭应用吗？',
+      quitConfirm: '退出',
+      quitCancel: '取消',
     },
   },
   ja: {
@@ -968,6 +1008,11 @@ const resources = {
       quality: '画質',
       noVideoUrl: 'この項目で利用できる動画URLがありません。',
       playbackError: '再生エラー。',
+      // Quit dialog
+      quitTitle: 'アプリを終了しますか？',
+      quitMessage: 'アプリを閉じてもよろしいですか？',
+      quitConfirm: '終了',
+      quitCancel: 'キャンセル',
     },
   },
   ko: {
@@ -1075,6 +1120,11 @@ const resources = {
       quality: '화질',
       noVideoUrl: '이 항목에 사용할 수 있는 동영상 URL이 없습니다.',
       playbackError: '재생 오류.',
+      // Quit dialog
+      quitTitle: '앱을 종료할까요?',
+      quitMessage: '정말 앱을 닫으시겠어요?',
+      quitConfirm: '종료',
+      quitCancel: '취소',
     },
   },
 };

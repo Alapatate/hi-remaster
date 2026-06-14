@@ -1,6 +1,7 @@
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
+import { languageBase } from '@/lib/langFlags';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
@@ -154,6 +155,25 @@ export function VideoSessionFlow() {
     [teachers, updatePrefs]
   );
 
+  // Teachers sharing the current teacher's language — the swipe loops within this set.
+  const sameLangTeachers = React.useMemo(() => {
+    if (!teacher) return [];
+    const base = languageBase(teacher.lang ?? '');
+    return teachers.filter((x) => languageBase(x.lang ?? '') === base);
+  }, [teachers, teacher]);
+
+  // Switch to a specific teacher (driven by the hero pager's swipe).
+  const selectTeacher = React.useCallback(
+    (target: (typeof teachers)[number]) => {
+      const idx = teachers.findIndex((x) => x.$id === target.$id);
+      if (idx === -1) return;
+      setFeaturedIndex(idx);
+      setSelected([]);
+      updatePrefs({ lastTeacherId: target.$id }).catch(() => {});
+    },
+    [teachers, updatePrefs]
+  );
+
   const toggleVideo = React.useCallback((video: Video) => {
     setSelected((prev) =>
       prev.some((v) => v.$id === video.$id)
@@ -237,7 +257,9 @@ export function VideoSessionFlow() {
               }}>
               <TeacherHeroCard
                 teacher={teacher}
+                langTeachers={sameLangTeachers}
                 onInfo={() => aboutRef.current?.present()}
+                onSelect={selectTeacher}
                 style={{ flex: 1 }}
               />
               <View className="flex-row gap-3">

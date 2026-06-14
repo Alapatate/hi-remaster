@@ -2,16 +2,18 @@ import '@/global.css';
 import 'react-native-url-polyfill/auto';
 import '@/lib/i18n';
 
+import { QuitDialog } from '@/components/QuitDialog';
 import { client } from '@/lib/appwrite';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { NAV_THEME } from '@/lib/theme';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { BackHandler, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export { ErrorBoundary } from 'expo-router';
@@ -40,6 +42,7 @@ export default function RootLayout() {
 function ThemedLayout() {
   const { user } = useAuth();
   const { colorScheme, setColorScheme } = useColorScheme();
+  const [quitVisible, setQuitVisible] = useState(false);
 
   useEffect(() => {
     const theme = (user?.prefs as Record<string, string>)?.theme;
@@ -47,6 +50,18 @@ function ThemedLayout() {
       setColorScheme(theme);
     }
   }, [user?.prefs]);
+
+  // Android hardware back: when a normal back would leave the app (nothing left
+  // to pop), intercept it and ask for confirmation instead of quitting outright.
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (router.canGoBack()) return false; // let the navigator pop as usual
+      setQuitVisible(true);
+      return true; // block the default exit
+    });
+    return () => sub.remove();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -56,6 +71,14 @@ function ThemedLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="video/[id]" options={{ animation: 'fade', animationDuration: 280 }} />
           </Stack>
+          <QuitDialog
+            visible={quitVisible}
+            onCancel={() => setQuitVisible(false)}
+            onConfirm={() => {
+              setQuitVisible(false);
+              BackHandler.exitApp();
+            }}
+          />
           <PortalHost />
         </ThemeProvider>
       </BottomSheetModalProvider>
