@@ -32,7 +32,7 @@ export const AboutTeacherSheet = React.forwardRef<
   return (
     <BottomSheetModal
       ref={ref}
-      snapPoints={['90%']}
+      snapPoints={['80%']}
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
