@@ -2,7 +2,7 @@ import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from 'expo-router';
 import * as React from 'react';
-import { InteractionManager, ScrollView, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, InteractionManager, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BirdSheet } from '../components/BirdSheet';
@@ -93,7 +93,9 @@ export function JourneyScreen() {
             onBird={openBird}
           />
         ) : (
-          <View style={{ width, height: renderHeight }} />
+          <View style={{ width, height: renderHeight, alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator size="small" color={palette.accent} />
+          </View>
         )}
       </ScrollView>
 
