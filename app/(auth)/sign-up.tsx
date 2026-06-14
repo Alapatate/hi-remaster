@@ -1,30 +1,26 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { AuthButton, AuthField, AuthFooterLink, AuthScreen, EyeToggle } from '@/components/auth/AuthScaffold';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import * as React from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 export default function SignUp() {
   const { signUp } = useAuth();
   const { t } = useTranslation();
+
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [showPw, setShowPw] = React.useState(false);
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
   const handleSignUp = async () => {
-    if (!name || !email || !password) {
-      setError(t('fillAllFields'));
-      return;
-    }
-    if (password.length < 8) {
-      setError(t('passwordTooShort'));
-      return;
-    }
+    if (!name || !email || !password) { setError(t('fillAllFields')); return; }
+    if (password.length < 8) { setError(t('passwordTooShort')); return; }
     setError('');
     setLoading(true);
     try {
@@ -38,62 +34,59 @@ export default function SignUp() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-background">
-      <View className="flex-1 justify-center px-6">
-        <View className="mb-10">
-          <Text variant="h1" className="mb-2 text-left text-3xl">
-            {t('createAccount')}
-          </Text>
-          <Text variant="muted">{t('signUpSubtitle')}</Text>
-        </View>
-
-        <View className="gap-4">
-          <Input
-            placeholder={t('fullName')}
-            value={name}
-            onChangeText={setName}
-            autoComplete="name"
-          />
-          <Input
-            placeholder={t('email')}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-          />
-          <Input
-            placeholder={t('passwordHint')}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="new-password"
-          />
-
-          {error ? (
-            <Text className="text-sm text-destructive">{error}</Text>
-          ) : null}
-
-          <Button onPress={handleSignUp} disabled={loading} className="mt-2">
-            {loading ? (
-              <ActivityIndicator color="white" size="small" />
-            ) : (
-              <Text>{t('createAccountBtn')}</Text>
-            )}
-          </Button>
-        </View>
-
-        <View className="mt-8 flex-row items-center justify-center gap-1">
-          <Text variant="muted">{t('alreadyAccount')}</Text>
-          <Link href="/(auth)/sign-in" asChild>
-            <Button variant="link" className="h-auto p-0">
-              <Text className="text-sm font-medium text-foreground underline">{t('signIn')}</Text>
-            </Button>
-          </Link>
-        </View>
+    <AuthScreen title={t('createAccount')} subtitle={t('signUpSubtitle')} heroRatio={0.32}>
+      <View style={{ gap: 16 }}>
+        <AuthField
+          entering={FadeInDown.delay(200).duration(500)}
+          label={t('fullName')}
+          value={name}
+          onChangeText={setName}
+          autoComplete="name"
+          autoCapitalize="words"
+          returnKeyType="next"
+        />
+        <AuthField
+          entering={FadeInDown.delay(260).duration(500)}
+          label={t('email')}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+          returnKeyType="next"
+        />
+        <AuthField
+          entering={FadeInDown.delay(320).duration(500)}
+          label={t('passwordHint')}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPw}
+          autoComplete="new-password"
+          returnKeyType="done"
+          onSubmitEditing={handleSignUp}
+          right={<EyeToggle show={showPw} onToggle={() => setShowPw((v) => !v)} />}
+        />
       </View>
-    </KeyboardAvoidingView>
+
+      {error ? (
+        <Animated.Text entering={FadeIn} className="mt-3 text-sm text-destructive">
+          {error}
+        </Animated.Text>
+      ) : null}
+
+      <AuthButton
+        entering={FadeInDown.delay(400).duration(500)}
+        label={t('createAccountBtn')}
+        loading={loading}
+        onPress={handleSignUp}
+      />
+
+      <AuthFooterLink
+        entering={FadeInDown.delay(480).duration(500)}
+        prompt={t('alreadyAccount')}
+        action={t('signIn')}
+        href="/(auth)/sign-in"
+      />
+    </AuthScreen>
   );
 }
