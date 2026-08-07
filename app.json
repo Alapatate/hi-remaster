@@ -47,6 +47,15 @@
           "color": "#bf6e1a",
           "defaultChannel": "reminders"
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/LOGO HI/4x/HI@4x.png",
+          "imageWidth": 120,
+          "resizeMode": "contain",
+          "backgroundColor": "#f8f6f5"
+        }
       ]
     ],
     "experiments": {
