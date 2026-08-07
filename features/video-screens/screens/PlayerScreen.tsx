@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useEvent, useEventListener } from 'expo';
+import { useEvent } from 'expo';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as React from 'react';
@@ -175,15 +175,6 @@ function PlayerView({
   const statusEvent = useEvent(player, 'statusChange', { status: player.status });
   const status = statusEvent?.status ?? player.status;
 
-  // Adaptive HLS can switch resolution without replacing the source. Remount the
-  // view so contentFit is reapplied (same workaround as manual quality switches).
-  useEventListener(player, 'videoTrackChange', ({ videoTrack, oldVideoTrack }) => {
-    if (activeQuality !== null || !videoTrack || !oldVideoTrack) return;
-    const sizeChanged =
-      videoTrack.size.width !== oldVideoTrack.size.width ||
-      videoTrack.size.height !== oldVideoTrack.size.height;
-    if (sizeChanged) setViewKey((k) => k + 1);
-  });
   const statusError = (statusEvent as { error?: { message?: string } } | undefined)?.error;
   const duration = player.duration ?? 0;
   const isBuffering = status === 'loading';
@@ -314,7 +305,7 @@ function PlayerView({
         player={player}
         style={{ flex: 1, alignSelf: 'stretch' }}
         nativeControls={false}
-        contentFit="cover"
+        contentFit="contain"
         allowsPictureInPicture
       />
 
