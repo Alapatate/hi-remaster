@@ -1,18 +1,13 @@
 import { Text } from '@/components/ui/text';
-import {
-  PauseIcon,
-  PlayIcon,
-  RotateCcwIcon,
-  RotateCwIcon,
-  SkipForwardIcon,
-} from 'lucide-react-native';
+import { ChevronsLeftIcon, ChevronsRightIcon, PauseIcon, PlayIcon } from 'lucide-react-native';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+import { PLAYER } from './playerTheme';
 
 const SEEK_SECONDS = 15;
 
 /**
- * Center transport row: -15s, play/pause, +15s, and (when in a session) skip
- * to next. All controls sit on a single evenly-spaced row, matching the mockup.
+ * Centre transport: -15s, play/pause, +15s. Skipping to the next exercise lives
+ * on the up-next card rather than here, matching the comp.
  */
 export function PlayerControls({
   playing,
@@ -20,58 +15,50 @@ export function PlayerControls({
   onPlayPause,
   onSeekBack,
   onSeekForward,
-  onNext,
-  hasNext,
 }: {
   playing: boolean;
   loading: boolean;
   onPlayPause: () => void;
   onSeekBack: () => void;
   onSeekForward: () => void;
-  onNext: () => void;
-  hasNext: boolean;
 }) {
   return (
-    <View
-      className="w-full flex-row items-center px-6"
-      style={{ justifyContent: hasNext ? 'space-between' : 'center', gap: hasNext ? 0 : 28 }}>
+    <View className="w-full flex-row items-center justify-center" style={{ gap: 30 }}>
       <SeekButton direction="back" onPress={onSeekBack} />
 
       <TouchableOpacity
         onPress={onPlayPause}
         activeOpacity={0.85}
         disabled={loading}
-        className="h-[76px] w-[76px] items-center justify-center rounded-full bg-primary"
+        className="items-center justify-center"
         style={{
-          shadowColor: '#bf6e1a',
-          shadowOpacity: 0.65,
-          shadowRadius: 18,
-          shadowOffset: { width: 0, height: 0 },
+          // Explicit rather than arbitrary utility classes: bracket sizes were
+          // not being applied here, leaving the button a third of its size.
+          width: 84,
+          height: 84,
+          borderRadius: 42,
+          backgroundColor: PLAYER.accent,
+          shadowColor: '#000',
+          shadowOpacity: 0.4,
+          shadowRadius: 30,
+          shadowOffset: { width: 0, height: 10 },
           elevation: 12,
         }}>
         {loading ? (
-          <ActivityIndicator color="white" />
+          <ActivityIndicator color={PLAYER.text} />
         ) : playing ? (
-          <PauseIcon size={30} color="white" fill="white" />
+          <PauseIcon size={30} color="#f5ead8" fill="#f5ead8" />
         ) : (
-          <PlayIcon size={30} color="white" fill="white" style={{ marginLeft: 3 }} />
+          <PlayIcon size={30} color="#f5ead8" fill="#f5ead8" style={{ marginLeft: 3 }} />
         )}
       </TouchableOpacity>
 
       <SeekButton direction="forward" onPress={onSeekForward} />
-
-      {hasNext ? (
-        <TouchableOpacity
-          onPress={onNext}
-          activeOpacity={0.7}
-          className="h-14 w-14 items-center justify-center rounded-full bg-white/10">
-          <SkipForwardIcon size={22} color="white" fill="white" />
-        </TouchableOpacity>
-      ) : null}
     </View>
   );
 }
 
+/** Unfilled seek control: a double chevron with the step size beneath it. */
 function SeekButton({
   direction,
   onPress,
@@ -79,14 +66,16 @@ function SeekButton({
   direction: 'back' | 'forward';
   onPress: () => void;
 }) {
-  const Icon = direction === 'back' ? RotateCcwIcon : RotateCwIcon;
+  const Icon = direction === 'back' ? ChevronsLeftIcon : ChevronsRightIcon;
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="h-14 w-14 items-center justify-center rounded-full bg-white/10">
-      <Icon size={26} color="white" />
-      <Text className="absolute text-[10px] font-bold text-white" style={{ marginTop: 2 }}>
+      hitSlop={10}
+      className="items-center justify-center"
+      style={{ width: 52, height: 52 }}>
+      <Icon size={26} color={PLAYER.text} />
+      <Text className="font-body-bold" style={{ color: PLAYER.text, fontSize: 10 }}>
         {SEEK_SECONDS}
       </Text>
     </TouchableOpacity>

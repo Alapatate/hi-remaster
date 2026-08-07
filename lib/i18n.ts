@@ -118,6 +118,8 @@ const resources = {
       quality: 'Quality',
       noVideoUrl: 'No video URL available for this entry.',
       playbackError: 'Playback error.',
+      exerciseOf: 'Exercise {{index}} of {{total}}',
+      upNext: 'Up next',
       // Quit dialog
       quitTitle: 'Leave the app?',
       quitMessage: 'Are you sure you want to close the app?',
@@ -271,6 +273,8 @@ const resources = {
       quality: 'Qualité',
       noVideoUrl: 'Aucune URL vidéo disponible pour cette entrée.',
       playbackError: 'Erreur de lecture.',
+      exerciseOf: 'Exercice {{index}} sur {{total}}',
+      upNext: 'À suivre',
       // Quit dialog
       quitTitle: "Quitter l'application ?",
       quitMessage: 'Êtes-vous sûr de vouloir fermer l’application ?',
@@ -424,6 +428,8 @@ const resources = {
       quality: 'Calidad',
       noVideoUrl: 'No hay URL de vídeo disponible para esta entrada.',
       playbackError: 'Error de reproducción.',
+      exerciseOf: 'Ejercicio {{index}} de {{total}}',
+      upNext: 'A continuación',
       // Quit dialog
       quitTitle: '¿Salir de la app?',
       quitMessage: '¿Seguro que quieres cerrar la aplicación?',
@@ -577,6 +583,8 @@ const resources = {
       quality: 'Qualität',
       noVideoUrl: 'Für diesen Eintrag ist keine Video-URL verfügbar.',
       playbackError: 'Wiedergabefehler.',
+      exerciseOf: 'Übung {{index}} von {{total}}',
+      upNext: 'Als Nächstes',
       // Quit dialog
       quitTitle: 'App verlassen?',
       quitMessage: 'Möchten Sie die App wirklich schließen?',
@@ -730,6 +738,8 @@ const resources = {
       quality: 'Qualità',
       noVideoUrl: 'Nessun URL video disponibile per questo elemento.',
       playbackError: 'Errore di riproduzione.',
+      exerciseOf: 'Esercizio {{index}} di {{total}}',
+      upNext: 'A seguire',
       // Quit dialog
       quitTitle: "Uscire dall'app?",
       quitMessage: "Sei sicuro di voler chiudere l'app?",
@@ -883,6 +893,8 @@ const resources = {
       quality: 'Qualidade',
       noVideoUrl: 'Nenhum URL de vídeo disponível para esta entrada.',
       playbackError: 'Erro de reprodução.',
+      exerciseOf: 'Exercício {{index}} de {{total}}',
+      upNext: 'A seguir',
       // Quit dialog
       quitTitle: 'Sair do app?',
       quitMessage: 'Tem certeza de que deseja fechar o app?',
@@ -1036,6 +1048,8 @@ const resources = {
       quality: 'الجودة',
       noVideoUrl: 'لا يوجد رابط فيديو متاح لهذا العنصر.',
       playbackError: 'خطأ في التشغيل.',
+      exerciseOf: 'التمرين {{index}} من {{total}}',
+      upNext: 'التالي',
       // Quit dialog
       quitTitle: 'الخروج من التطبيق؟',
       quitMessage: 'هل أنت متأكد أنك تريد إغلاق التطبيق؟',
@@ -1189,6 +1203,8 @@ const resources = {
       quality: '画质',
       noVideoUrl: '此条目没有可用的视频链接。',
       playbackError: '播放错误。',
+      exerciseOf: '第 {{index}} / {{total}} 个练习',
+      upNext: '接下来',
       // Quit dialog
       quitTitle: '退出应用？',
       quitMessage: '确定要关闭应用吗？',
@@ -1342,6 +1358,8 @@ const resources = {
       quality: '画質',
       noVideoUrl: 'この項目で利用できる動画URLがありません。',
       playbackError: '再生エラー。',
+      exerciseOf: 'エクササイズ {{index}} / {{total}}',
+      upNext: '次は',
       // Quit dialog
       quitTitle: 'アプリを終了しますか？',
       quitMessage: 'アプリを閉じてもよろしいですか？',
@@ -1495,6 +1513,8 @@ const resources = {
       quality: '화질',
       noVideoUrl: '이 항목에 사용할 수 있는 동영상 URL이 없습니다.',
       playbackError: '재생 오류.',
+      exerciseOf: '운동 {{index}} / {{total}}',
+      upNext: '다음',
       // Quit dialog
       quitTitle: '앱을 종료할까요?',
       quitMessage: '정말 앱을 닫으시겠어요?',

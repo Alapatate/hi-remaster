@@ -1,17 +1,19 @@
 import { Text } from '@/components/ui/text';
-import { ArrowLeftIcon, ListMusicIcon, SettingsIcon } from 'lucide-react-native';
+import { ListMusicIcon, SettingsIcon, XIcon } from 'lucide-react-native';
 import { TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { RoundIconButton } from '../RoundIconButton';
+import { PLAYER } from './playerTheme';
 
-/** Top overlay of the player: back, playlist position, quality selector. */
+/**
+ * Top overlay: close on the left, the session position and title centred, and
+ * the playlist / quality controls on the right.
+ */
 export function PlayerTopBar({
   onBack,
   index,
   total,
   hasSession,
   onPlaylist,
-  qualityLabel,
   onQuality,
   hasVariants,
 }: {
@@ -20,39 +22,54 @@ export function PlayerTopBar({
   total: number;
   hasSession: boolean;
   onPlaylist: () => void;
-  qualityLabel: string;
   onQuality: () => void;
   hasVariants: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <View className="flex-row items-center justify-between px-4 pt-2">
-      <RoundIconButton size={40} onPress={onBack} className="bg-white/15">
-        <ArrowLeftIcon size={20} color="white" />
-      </RoundIconButton>
+    <View className="flex-row items-center justify-between px-5 pt-2">
+      <CircleButton onPress={onBack}>
+        <XIcon size={19} color={PLAYER.text} />
+      </CircleButton>
+
+      {/* Position only. The comp puts an exercise name here and the video title
+          below, but a video carries one title, so showing it twice is noise —
+          the title block owns it. */}
+      <View className="flex-1 items-center px-2">
+        {hasSession ? (
+          <Text
+            className="font-body-bold uppercase tracking-widest"
+            style={{ color: PLAYER.eyebrow, fontSize: 11 }}>
+            {t('exerciseOf', { index: index + 1, total })}
+          </Text>
+        ) : null}
+      </View>
 
       <View className="flex-row items-center gap-2">
         {hasSession ? (
-          <TouchableOpacity
-            onPress={onPlaylist}
-            activeOpacity={0.7}
-            className="flex-row items-center gap-1.5 rounded-full bg-white/15 px-3 py-2">
-            <ListMusicIcon size={16} color="white" />
-            <Text className="text-sm font-medium text-white">
-              {index + 1}/{total}
-            </Text>
-          </TouchableOpacity>
+          <CircleButton onPress={onPlaylist}>
+            <ListMusicIcon size={19} color={PLAYER.text} />
+          </CircleButton>
         ) : null}
-
         {hasVariants ? (
-          <TouchableOpacity
-            onPress={onQuality}
-            activeOpacity={0.7}
-            className="flex-row items-center gap-1.5 rounded-full bg-white/15 px-3 py-2">
-            <SettingsIcon size={16} color="white" />
-            <Text className="text-sm font-medium text-white">{qualityLabel}</Text>
-          </TouchableOpacity>
+          <CircleButton onPress={onQuality}>
+            <SettingsIcon size={19} color={PLAYER.text} />
+          </CircleButton>
         ) : null}
       </View>
     </View>
+  );
+}
+
+function CircleButton({ onPress, children }: { onPress: () => void; children: React.ReactNode }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      className="items-center justify-center"
+      style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: PLAYER.chip }}>
+      {children}
+    </TouchableOpacity>
   );
 }
