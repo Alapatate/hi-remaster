@@ -1,153 +1,125 @@
 import { Text } from '@/components/ui/text';
-import { Link } from 'expo-router';
-import { EyeIcon, EyeOffIcon } from 'lucide-react-native';
+import { ArrowLeftIcon, EyeIcon, EyeOffIcon, LeafIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
   type TextInputProps,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import Animated, {
-  Easing,
-  FadeInDown,
+  useAnimatedKeyboard,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ORANGE = '#bf6e1a';
+const BRAND = 'Harmony Immersion';
+
 /** Reanimated `entering` values are loosely typed; alias it once for our props. */
 type Entering = React.ComponentProps<typeof Animated.View>['entering'];
 
 /**
- * Shared shell for the auth screens: an animated warm hero with the "HI"
- * wordmark, then a cream card that slides up over it holding the form.
+ * Shell shared by sign-in and register: the page colour, the soft decorative
+ * discs bleeding off the corners, and a keyboard-aware scroll area whose
+ * content can push its footer to the bottom.
  */
 export function AuthScreen({
-  title,
-  subtitle,
-  heroRatio = 0.4,
+  discs = 'signIn',
   children,
 }: {
-  title: string;
-  subtitle: string;
-  heroRatio?: number;
+  /** Which corner treatment to draw — the two screens differ in the comp. */
+  discs?: 'signIn' | 'register';
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
-  const heroHeight = height * heroRatio + insets.top;
+
+  // KeyboardAvoidingView is a no-op on Android here: `behavior` has no sensible
+  // Android value, and with edge-to-edge enabled the window no longer resizes
+  // for `adjustResize`, so a focused field can end up behind the keyboard.
+  // Shrinking the scroll area by the live keyboard height fixes both platforms,
+  // and lets the native scroll view bring the focused input into view.
+  const keyboard = useAnimatedKeyboard();
+  const keyboardInset = useAnimatedStyle(() => ({ marginBottom: keyboard.height.value }));
 
   return (
-    <View style={{ flex: 1, backgroundColor: ORANGE }}>
-      <AuthHero height={heroHeight} />
+    <View className="flex-1 bg-background">
+      {/* Decorative only, and never interactive. */}
+      <View pointerEvents="none" className="absolute inset-0 overflow-hidden">
+        {discs === 'signIn' ? (
+          <>
+            <View
+              className="absolute h-[260px] w-[260px] rounded-full bg-primary/10"
+              style={{ left: -70, top: -60 }}
+            />
+          </>
+        ) : (
+          <View
+            className="absolute h-[250px] w-[250px] rounded-full bg-olive/10"
+            style={{ right: -80, top: -70 }}
+          />
+        )}
+      </View>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1, marginTop: -28 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <View
-          style={{ flex: 1, borderTopLeftRadius: 32, borderTopRightRadius: 32, overflow: 'hidden' }}
-          className="bg-card">
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 28,
-              paddingTop: 36,
-              paddingBottom: Math.max(insets.bottom + 24, 32),
-            }}>
-            <Animated.Text
-              entering={FadeInDown.delay(80).duration(500)}
-              style={{ fontSize: 26, fontWeight: '700', marginBottom: 4 }}
-              className="text-foreground">
-              {title}
-            </Animated.Text>
-            <Animated.Text
-              entering={FadeInDown.delay(140).duration(500)}
-              className="mb-7 text-base text-muted-foreground">
-              {subtitle}
-            </Animated.Text>
-
-            {children}
-          </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
+      <Animated.View style={[{ flex: 1 }, keyboardInset]}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: 28,
+            paddingTop: insets.top + 12,
+            paddingBottom: Math.max(insets.bottom, 16) + 12,
+          }}>
+          {children}
+        </ScrollView>
+      </Animated.View>
     </View>
   );
 }
 
-/** Warm hero: drifting orbs, a slow breathing ring, and the wordmark. */
-function AuthHero({ height }: { height: number }) {
-  const breath = useSharedValue(0);
-  const floatA = useSharedValue(0);
-  const floatB = useSharedValue(0);
-
-  React.useEffect(() => {
-    const loop = (v: typeof breath, d: number) =>
-      (v.value = withRepeat(withTiming(1, { duration: d, easing: Easing.inOut(Easing.ease) }), -1, true));
-    loop(breath, 3800);
-    loop(floatA, 5200);
-    loop(floatB, 6400);
-  }, [breath, floatA, floatB]);
-
-  const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + breath.value * 0.18 }],
-    opacity: 0.5 - breath.value * 0.32,
-  }));
-  const orbA = useAnimatedStyle(() => ({
-    transform: [{ translateY: -16 + floatA.value * 32 }, { translateX: floatA.value * 12 }],
-  }));
-  const orbB = useAnimatedStyle(() => ({
-    transform: [{ translateY: 16 - floatB.value * 28 }, { translateX: -floatB.value * 10 }],
-  }));
+/**
+ * The wordmark: a filled accent disc with a leaf, next to the name. `stacked`
+ * breaks the name over two lines for the sign-in header; `inline` is the
+ * compact version that sits in the register screen's top bar.
+ */
+export function BrandMark({ variant = 'stacked' }: { variant?: 'stacked' | 'inline' }) {
+  const stacked = variant === 'stacked';
+  const size = stacked ? 46 : 26;
 
   return (
-    <View style={{ height }} className="items-center justify-center overflow-hidden">
-      {/* Soft drifting orbs for depth + life */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          { position: 'absolute', top: '14%', left: '12%', width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,238,214,0.22)' },
-          orbA,
-        ]}
-      />
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          { position: 'absolute', bottom: '16%', right: '10%', width: 190, height: 190, borderRadius: 95, backgroundColor: 'rgba(140,74,12,0.20)' },
-          orbB,
-        ]}
-      />
-
-      {/* Breathing ring behind the wordmark */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          { position: 'absolute', width: 150, height: 150, borderRadius: 75, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.55)', backgroundColor: 'rgba(255,255,255,0.06)' },
-          ringStyle,
-        ]}
-      />
-
-      <Animated.Text
-        entering={FadeInDown.duration(800)}
-        style={{ fontSize: 66, fontWeight: '700', color: 'white', letterSpacing: 8, lineHeight: 74, paddingLeft: 8 }}>
-        HI
-      </Animated.Text>
+    <View className="flex-row items-center" style={{ gap: stacked ? 12 : 8 }}>
+      <View
+        className="items-center justify-center rounded-full bg-primary"
+        style={{ width: size, height: size }}>
+        <LeafIcon size={stacked ? 24 : 14} color="#f5ead8" />
+      </View>
+      <Text className={`font-heading ${stacked ? 'text-[22px] leading-tight' : 'text-[14.5px]'}`}>
+        {stacked ? BRAND.replace(' ', '\n') : BRAND}
+      </Text>
     </View>
   );
 }
 
-/** Labelled text field with optional trailing adornment and an entrance. */
+/** Large display headline, set in the heading face. */
+export function AuthHeadline({ children, size = 60 }: { children: string; size?: number }) {
+  return (
+    <Text className="font-heading" style={{ fontSize: size, lineHeight: size * 1.06 }}>
+      {children}
+    </Text>
+  );
+}
+
+/**
+ * Pill text field with an uppercase label. The border thickens to the accent
+ * colour on focus, which is the only state change in the comp.
+ */
 export function AuthField({
   label,
   right,
@@ -155,21 +127,39 @@ export function AuthField({
   ...props
 }: TextInputProps & { label: string; right?: React.ReactNode; entering?: Entering }) {
   const { colorScheme } = useColorScheme();
+  const [focused, setFocused] = React.useState(false);
   const placeholderColor = colorScheme === 'dark' ? '#8a7a6a' : '#a89880';
 
   return (
     <Animated.View entering={entering}>
-      <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 6 }} className="text-foreground">
+      <Text className="mb-1.5 font-body-semibold text-[12px] uppercase tracking-widest text-muted-foreground">
         {label}
       </Text>
-      <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center' }}>
+      <View className="relative flex-row items-center">
         <TextInput
-          style={{ flex: 1, height: 52, borderRadius: 14, paddingHorizontal: 16, paddingRight: right ? 48 : 16, fontSize: 15 }}
-          className="border border-border bg-background text-foreground"
+          onFocus={(e) => {
+            setFocused(true);
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            props.onBlur?.(e);
+          }}
+          style={{
+            flex: 1,
+            height: 54,
+            borderRadius: 999,
+            paddingHorizontal: 20,
+            paddingRight: right ? 52 : 20,
+            fontSize: 15.5,
+            fontFamily: 'Figtree_400Regular',
+            borderWidth: focused ? 2 : 1,
+          }}
+          className={`bg-card text-foreground ${focused ? 'border-primary' : 'border-border'}`}
           placeholderTextColor={placeholderColor}
           {...props}
         />
-        {right ? <View style={{ position: 'absolute', right: 14 }}>{right}</View> : null}
+        {right ? <View className="absolute right-5">{right}</View> : null}
       </View>
     </Animated.View>
   );
@@ -177,15 +167,15 @@ export function AuthField({
 
 export function EyeToggle({ show, onToggle }: { show: boolean; onToggle: () => void }) {
   const { colorScheme } = useColorScheme();
-  const color = colorScheme === 'dark' ? '#8a7a6a' : '#a89880';
+  const color = colorScheme === 'dark' ? '#8a7a6a' : '#645c50';
   return (
     <TouchableOpacity onPress={onToggle} activeOpacity={0.7} hitSlop={8}>
-      {show ? <EyeOffIcon size={20} color={color} /> : <EyeIcon size={20} color={color} />}
+      {show ? <EyeOffIcon size={19} color={color} /> : <EyeIcon size={19} color={color} />}
     </TouchableOpacity>
   );
 }
 
-/** Primary submit button with a gentle press-scale. */
+/** Primary pill action with a gentle press-scale. */
 export function AuthButton({
   label,
   loading,
@@ -201,49 +191,66 @@ export function AuthButton({
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <Animated.View entering={entering} style={[{ marginTop: 28 }, style]}>
+    <Animated.View entering={entering} style={style}>
       <Pressable
         onPress={onPress}
         disabled={loading}
         onPressIn={() => (scale.value = withTiming(0.97, { duration: 120 }))}
         onPressOut={() => (scale.value = withTiming(1, { duration: 160 }))}
-        style={{
-          height: 54,
-          borderRadius: 16,
-          backgroundColor: loading ? '#d4a46a' : ORANGE,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+        className="h-14 items-center justify-center rounded-full bg-primary"
+        style={{ opacity: loading ? 0.7 : 1 }}>
         {loading ? (
           <ActivityIndicator color="white" size="small" />
         ) : (
-          <Text style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>{label}</Text>
+          <Text className="font-heading text-[18px] text-primary-foreground">{label}</Text>
         )}
       </Pressable>
     </Animated.View>
   );
 }
 
-/** "Don't have an account? Sign up" style footer with a link. */
+/** Circular back control used in the register screen's top bar. */
+export function AuthBackButton({ onPress }: { onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      hitSlop={8}
+      className="h-11 w-11 items-center justify-center rounded-full bg-secondary">
+      {/* An icon, not a "←" glyph — text centres on its baseline, which left the
+          arrow visibly high in the circle. */}
+      <ArrowLeftIcon size={20} className="text-foreground" />
+    </TouchableOpacity>
+  );
+}
+
+/** "New here? Create an account" footer. */
 export function AuthFooterLink({
   prompt,
   action,
-  href,
+  onPress,
   entering,
 }: {
   prompt: string;
   action: string;
-  href: string;
+  onPress: () => void;
   entering?: Entering;
 }) {
   return (
-    <Animated.View entering={entering} className="mt-8 flex-row items-center justify-center gap-1.5">
-      <Text className="text-sm text-muted-foreground">{prompt}</Text>
-      <Link href={href as never} asChild>
-        <TouchableOpacity activeOpacity={0.7}>
-          <Text style={{ color: ORANGE, fontSize: 14, fontWeight: '700' }}>{action}</Text>
-        </TouchableOpacity>
-      </Link>
+    <Animated.View
+      entering={entering}
+      className="mt-1 flex-row items-center justify-center gap-1.5">
+      <Text className="font-body text-[14.5px] text-muted-foreground">{prompt}</Text>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <Text className="font-body-semibold text-[14.5px]" style={{ color: ORANGE }}>
+          {action}
+        </Text>
+      </TouchableOpacity>
     </Animated.View>
   );
+}
+
+/** Inline validation / server error line. */
+export function AuthError({ message }: { message: string }) {
+  return <Text className="mt-3 px-1 font-body text-sm text-destructive">{message}</Text>;
 }

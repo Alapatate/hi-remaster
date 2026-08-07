@@ -6,7 +6,7 @@ const resources = {
     translation: {
       // Auth
       welcomeBack: 'Welcome back',
-      signInSubtitle: 'Sign in to continue to your account.',
+      signInSubtitle: 'Your journey and streak are waiting where you left them.',
       email: 'Email',
       password: 'Password',
       signIn: 'Sign In',
@@ -143,6 +143,8 @@ const resources = {
       xpToNextLabel: 'XP to next',
       deleteAccount: 'Delete account',
       deleteAccountDesc: 'Permanently removes your account and all of its data. This cannot be undone.',
+      listeningLanguage: 'Listening language',
+      termsNotice: 'By continuing you agree to the Terms and Privacy Notice.',
       reminderTime: 'Time',
       reminderDays: 'Days',
       reminderDone: 'Done',
@@ -161,7 +163,7 @@ const resources = {
   fr: {
     translation: {
       welcomeBack: 'Bon retour',
-      signInSubtitle: 'Connectez-vous pour continuer.',
+      signInSubtitle: 'Votre parcours et votre série vous attendent là où vous les avez laissés.',
       email: 'Email',
       password: 'Mot de passe',
       signIn: 'Se connecter',
@@ -294,6 +296,8 @@ const resources = {
       xpToNextLabel: 'XP restant',
       deleteAccount: 'Supprimer le compte',
       deleteAccountDesc: 'Supprime définitivement votre compte et toutes ses données. Action irréversible.',
+      listeningLanguage: 'Langue d’écoute',
+      termsNotice: 'En continuant, vous acceptez les conditions et la politique de confidentialité.',
       reminderTime: 'Heure',
       reminderDays: 'Jours',
       reminderDone: 'Terminé',
@@ -312,7 +316,7 @@ const resources = {
   es: {
     translation: {
       welcomeBack: 'Bienvenido de nuevo',
-      signInSubtitle: 'Inicia sesión para continuar.',
+      signInSubtitle: 'Tu recorrido y tu racha te esperan donde los dejaste.',
       email: 'Correo electrónico',
       password: 'Contraseña',
       signIn: 'Iniciar sesión',
@@ -445,6 +449,8 @@ const resources = {
       xpToNextLabel: 'XP siguiente',
       deleteAccount: 'Eliminar la cuenta',
       deleteAccountDesc: 'Elimina permanentemente tu cuenta y todos sus datos. No se puede deshacer.',
+      listeningLanguage: 'Idioma de escucha',
+      termsNotice: 'Al continuar, aceptas los términos y el aviso de privacidad.',
       reminderTime: 'Hora',
       reminderDays: 'Días',
       reminderDone: 'Listo',
@@ -463,7 +469,7 @@ const resources = {
   de: {
     translation: {
       welcomeBack: 'Willkommen zurück',
-      signInSubtitle: 'Melden Sie sich an, um fortzufahren.',
+      signInSubtitle: 'Deine Reise und deine Serie warten dort, wo du sie gelassen hast.',
       email: 'E-Mail',
       password: 'Passwort',
       signIn: 'Anmelden',
@@ -596,6 +602,8 @@ const resources = {
       xpToNextLabel: 'XP bis Level',
       deleteAccount: 'Konto löschen',
       deleteAccountDesc: 'Löscht dein Konto und alle Daten endgültig. Dies kann nicht rückgängig gemacht werden.',
+      listeningLanguage: 'Hörsprache',
+      termsNotice: 'Mit dem Fortfahren akzeptierst du die Bedingungen und die Datenschutzhinweise.',
       reminderTime: 'Uhrzeit',
       reminderDays: 'Tage',
       reminderDone: 'Fertig',
@@ -614,7 +622,7 @@ const resources = {
   it: {
     translation: {
       welcomeBack: 'Bentornato',
-      signInSubtitle: 'Accedi per continuare.',
+      signInSubtitle: 'Il tuo percorso e la tua serie ti aspettano dove li hai lasciati.',
       email: 'Email',
       password: 'Password',
       signIn: 'Accedi',
@@ -747,6 +755,8 @@ const resources = {
       xpToNextLabel: 'XP al prossimo',
       deleteAccount: 'Elimina account',
       deleteAccountDesc: 'Elimina definitivamente il tuo account e tutti i dati. Operazione irreversibile.',
+      listeningLanguage: 'Lingua di ascolto',
+      termsNotice: 'Continuando accetti i termini e l’informativa sulla privacy.',
       reminderTime: 'Ora',
       reminderDays: 'Giorni',
       reminderDone: 'Fatto',
@@ -765,7 +775,7 @@ const resources = {
   pt: {
     translation: {
       welcomeBack: 'Bem-vindo de volta',
-      signInSubtitle: 'Entre para continuar.',
+      signInSubtitle: 'Sua jornada e sua sequência esperam onde você parou.',
       email: 'Email',
       password: 'Senha',
       signIn: 'Entrar',
@@ -898,6 +908,8 @@ const resources = {
       xpToNextLabel: 'XP p/ próximo',
       deleteAccount: 'Excluir conta',
       deleteAccountDesc: 'Remove permanentemente sua conta e todos os dados. Não pode ser desfeito.',
+      listeningLanguage: 'Idioma de escuta',
+      termsNotice: 'Ao continuar, você aceita os termos e o aviso de privacidade.',
       reminderTime: 'Hora',
       reminderDays: 'Dias',
       reminderDone: 'Concluído',
@@ -916,7 +928,7 @@ const resources = {
   ar: {
     translation: {
       welcomeBack: 'مرحباً بعودتك',
-      signInSubtitle: 'سجّل دخولك للمتابعة.',
+      signInSubtitle: 'رحلتك وسلسلتك في انتظارك حيث توقفت.',
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
       signIn: 'تسجيل الدخول',
@@ -1049,6 +1061,8 @@ const resources = {
       xpToNextLabel: 'نقاط للتالي',
       deleteAccount: 'حذف الحساب',
       deleteAccountDesc: 'يحذف حسابك وجميع بياناته نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
+      listeningLanguage: 'لغة الاستماع',
+      termsNotice: 'بالمتابعة فإنك توافق على الشروط وإشعار الخصوصية.',
       reminderTime: 'الوقت',
       reminderDays: 'الأيام',
       reminderDone: 'تم',
@@ -1067,7 +1081,7 @@ const resources = {
   zh: {
     translation: {
       welcomeBack: '欢迎回来',
-      signInSubtitle: '登录以继续。',
+      signInSubtitle: '你的旅程和连续记录正等着你，从上次的地方继续。',
       email: '邮箱',
       password: '密码',
       signIn: '登录',
@@ -1200,6 +1214,8 @@ const resources = {
       xpToNextLabel: '距下一级',
       deleteAccount: '删除账号',
       deleteAccountDesc: '将永久删除你的账号及全部数据，此操作无法撤销。',
+      listeningLanguage: '收听语言',
+      termsNotice: '继续即表示你同意条款和隐私声明。',
       reminderTime: '时间',
       reminderDays: '日期',
       reminderDone: '完成',
@@ -1218,7 +1234,7 @@ const resources = {
   ja: {
     translation: {
       welcomeBack: 'おかえりなさい',
-      signInSubtitle: 'サインインして続けてください。',
+      signInSubtitle: 'あなたの歩みと連続記録は、前回の続きから待っています。',
       email: 'メールアドレス',
       password: 'パスワード',
       signIn: 'サインイン',
@@ -1351,6 +1367,8 @@ const resources = {
       xpToNextLabel: '次まで',
       deleteAccount: 'アカウントを削除',
       deleteAccountDesc: 'アカウントとすべてのデータを完全に削除します。元に戻せません。',
+      listeningLanguage: '再生言語',
+      termsNotice: '続行すると、利用規約とプライバシー通知に同意したものとみなされます。',
       reminderTime: '時刻',
       reminderDays: '曜日',
       reminderDone: '完了',
@@ -1369,7 +1387,7 @@ const resources = {
   ko: {
     translation: {
       welcomeBack: '다시 오신 걸 환영합니다',
-      signInSubtitle: '계속하려면 로그인하세요.',
+      signInSubtitle: '당신의 여정과 연속 기록이 멈춘 곳에서 기다리고 있어요.',
       email: '이메일',
       password: '비밀번호',
       signIn: '로그인',
@@ -1502,6 +1520,8 @@ const resources = {
       xpToNextLabel: '다음까지',
       deleteAccount: '계정 삭제',
       deleteAccountDesc: '계정과 모든 데이터가 영구적으로 삭제됩니다. 되돌릴 수 없습니다.',
+      listeningLanguage: '청취 언어',
+      termsNotice: '계속하면 이용약관 및 개인정보 처리방침에 동의하게 됩니다.',
       reminderTime: '시간',
       reminderDays: '요일',
       reminderDone: '완료',

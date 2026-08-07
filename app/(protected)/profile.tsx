@@ -12,6 +12,7 @@ import {
 } from 'lucide-react-native';
 import { useJourney } from '@/features/journey-screen/hooks/useJourney';
 import { RemindersSection } from '@/features/reminders';
+import { LANGUAGES } from '@/lib/languages';
 import * as React from 'react';
 import {
   ActivityIndicator,
@@ -24,19 +25,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
-
-const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Français' },
-  { code: 'es', label: 'Español' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'it', label: 'Italiano' },
-  { code: 'pt', label: 'Português' },
-  { code: 'ar', label: 'العربية' },
-  { code: 'zh', label: '中文' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
-];
 
 export default function Profile() {
   const { user, updatePrefs } = useAuth();
