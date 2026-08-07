@@ -56,6 +56,15 @@ module.exports = {
           dark: '#d8ccb4',
         },
       },
+      // Design-system faces from Claude Design. Android will not synthesize
+      // weights for a custom family, so each weight is its own entry.
+      fontFamily: {
+        heading: ['Caprasimo_400Regular'],
+        body: ['Figtree_400Regular'],
+        'body-medium': ['Figtree_500Medium'],
+        'body-semibold': ['Figtree_600SemiBold'],
+        'body-bold': ['Figtree_700Bold'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@bottom-tabs/react-navigation": "^1.1.0",
+    "@expo-google-fonts/caprasimo": "^0.4.0",
+    "@expo-google-fonts/figtree": "^0.4.1",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.0.0",
@@ -25,6 +27,7 @@
     "expo-dev-client": "~6.0.20",
     "expo-linear-gradient": "~15.0.8",
     "expo-linking": "~8.0.10",
+    "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.19",
     "expo-splash-screen": "~31.0.12",
     "expo-status-bar": "~3.0.9",

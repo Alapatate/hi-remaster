@@ -40,7 +40,14 @@
       "expo-video",
       "react-native-video",
       "react-native-bottom-tabs",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "color": "#bf6e1a",
+          "defaultChannel": "reminders"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

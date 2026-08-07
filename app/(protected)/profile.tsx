@@ -1,20 +1,28 @@
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
-import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { router } from 'expo-router';
 import {
   CheckIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   ChevronUpIcon,
-  LogOutIcon,
   MoonIcon,
   SunIcon,
 } from 'lucide-react-native';
 import { useJourney } from '@/features/journey-screen/hooks/useJourney';
+import { RemindersSection } from '@/features/reminders';
 import * as React from 'react';
-import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Switch,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 
 const LANGUAGES = [
@@ -31,18 +39,19 @@ const LANGUAGES = [
 ];
 
 export default function Profile() {
-  const { user, signOut, updatePrefs } = useAuth();
+  const { user, updatePrefs } = useAuth();
   const { t } = useTranslation();
   const { setColorScheme } = useColorScheme();
   const dockSpace = useBottomDockSpace();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { waypoints, frontierIndex } = useJourney(width);
-  const birdEmoji = waypoints[frontierIndex]?.bird.emoji ?? '🐦';
+  const { xp, waypoints, frontierIndex, unlockedCount, xpToNext } = useJourney(width);
+  const frontierBird = waypoints[frontierIndex]?.bird;
+  const birdEmoji = frontierBird?.emoji ?? '🐦';
   const [langOpen, setLangOpen] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
   const [savingNewsletter, setSavingNewsletter] = React.useState(false);
-  const [signingOut, setSigningOut] = React.useState(false);
 
   const currentLang = (user?.prefs as Record<string, string>)?.language ?? 'en';
   const currentLangLabel = LANGUAGES.find((l) => l.code === currentLang)?.label ?? 'English';
@@ -85,66 +94,71 @@ export default function Profile() {
     }
   };
 
-  const handleSignOut = async () => {
-    setSigningOut(true);
-    try {
-      await signOut();
-      router.replace('/(auth)/sign-in');
-    } finally {
-      setSigningOut(false);
-    }
-  };
+  const memberSince = user?.$createdAt ? new Date(user.$createdAt).getFullYear() : null;
 
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerClassName="p-6"
-      contentContainerStyle={{ paddingBottom: dockSpace }}>
-      <View className="mb-8 mt-4">
-        <Text variant="h2" className="border-0 pb-0 text-2xl">
-          {t('profile')}
-        </Text>
-      </View>
-
-      {/* Avatar + name */}
-      <View className="mb-6 items-center gap-3">
-        <View className="h-20 w-20 items-center justify-center rounded-full bg-card border border-border">
-          <Text style={{ fontSize: 40 }}>{birdEmoji}</Text>
+      contentContainerClassName="px-6"
+      // flexGrow + centre so the page sits balanced between the status bar and
+      // the dock when it is shorter than the viewport, and still scrolls when not.
+      contentContainerStyle={{
+        paddingTop: insets.top,
+        paddingBottom: dockSpace,
+        flexGrow: 1,
+        justifyContent: 'center',
+      }}>
+      {/* Identity — portrait, name, membership line and level pill, over an
+          accent disc bleeding off the top-right corner. */}
+      {/* No overflow clip here — the disc is meant to bleed past the corner and
+          be cut by the screen edge, not squared off by its own container. */}
+      <View className="-mx-6 mb-6 px-6 pb-2 pt-5">
+        <View className="flex-row items-center gap-4">
+          <View className="h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
+            <Text style={{ fontSize: 42, lineHeight: 50, textAlign: 'center' }}>{birdEmoji}</Text>
+          </View>
+          <View className="flex-1 gap-1">
+            <Text className="font-heading text-[26px] leading-tight" numberOfLines={1}>
+              {user?.name}
+            </Text>
+            <Text className="font-body text-sm text-muted-foreground" numberOfLines={1}>
+              {memberSince ? t('memberSinceLabel') + ' ' + memberSince : user?.email}
+            </Text>
+            {frontierBird ? (
+              <View className="mt-1 self-start rounded-full bg-primary/15 px-3 py-1">
+                <Text className="font-body-semibold text-xs text-primary">
+                  {t('levelLabel', { level: frontierIndex + 1 })} — {frontierBird.name}
+                </Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-        <View className="items-center gap-0.5">
-          <Text className="text-lg font-semibold">{user?.name}</Text>
-          <Text variant="muted" className="text-sm">
-            {user?.email}
-          </Text>
-        </View>
       </View>
 
-      {/* Member since */}
-      <View className="mb-6 overflow-hidden rounded-xl border border-border bg-card">
-        <Row
-          label={t('memberSinceLabel')}
-          value={user?.$createdAt ? new Date(user.$createdAt).toLocaleDateString() : '—'}
-        />
+      {/* Stat tiles */}
+      <View className="mb-4 flex-row gap-3">
+        <Stat value={xp.toLocaleString()} label={t('minutesLabel')} />
+        <Stat value={`${unlockedCount}/${waypoints.length}`} label={t('birdsLabel')} />
+        <Stat value={xpToNext > 0 ? String(xpToNext) : '—'} label={t('xpToNextLabel')} accent />
       </View>
 
-      {/* Preferences */}
-      <View className="mb-8">
-        <Text variant="h4" className="mb-3">
-          {t('preferences')}
-        </Text>
-        <View className="overflow-hidden rounded-xl border border-border bg-card">
+      {/* Reminders */}
+      <RemindersSection />
+
+      {/* Settings */}
+      <View>
+        <SectionTitle>{t('preferences')}</SectionTitle>
+        <Card>
           <TouchableOpacity
             onPress={() => setLangOpen((v) => !v)}
             activeOpacity={0.7}
-            className="flex-row items-center justify-between px-4 py-3">
-            <View className="gap-0.5">
-              <Text className="text-sm font-medium">{t('preferredLanguage')}</Text>
-              <Text variant="muted" className="text-xs">
-                {savingLang ? t('saving') : currentLangLabel}
-              </Text>
-            </View>
+            className="flex-row items-center justify-between px-4 py-4">
+            <Text className="flex-1 font-body-medium text-[15px]">{t('preferredLanguage')}</Text>
             <View className="flex-row items-center gap-2">
               {savingLang && <ActivityIndicator size="small" />}
+              <Text className="font-body text-[13px] text-muted-foreground">
+                {savingLang ? t('saving') : currentLangLabel}
+              </Text>
               {langOpen ? (
                 <ChevronUpIcon size={16} className="text-muted-foreground" />
               ) : (
@@ -162,8 +176,8 @@ export default function Profile() {
                   <TouchableOpacity
                     onPress={() => handleSelectLanguage(lang.code)}
                     activeOpacity={0.7}
-                    className="flex-row items-center justify-between px-4 py-3">
-                    <Text className="text-sm">{lang.label}</Text>
+                    className="flex-row items-center justify-between px-4 py-3.5">
+                    <Text className="font-body text-[15px]">{lang.label}</Text>
                     {lang.code === currentLang && (
                       <CheckIcon size={16} className="text-foreground" />
                     )}
@@ -176,10 +190,10 @@ export default function Profile() {
           <Divider />
 
           {/* Appearance row */}
-          <View className="flex-row items-center justify-between px-4 py-3">
-            <View className="gap-0.5">
-              <Text className="text-sm font-medium">{t('appearance')}</Text>
-              <Text variant="muted" className="text-xs">
+          <View className="flex-row items-center justify-between px-4 py-4">
+            <View className="flex-1 gap-0.5 pr-3">
+              <Text className="font-body-medium text-[15px]">{t('appearance')}</Text>
+              <Text className="font-body text-[13px] text-muted-foreground">
                 {savingTheme
                   ? t('saving')
                   : t(currentTheme === 'dark' ? 'darkTheme' : 'lightTheme')}
@@ -194,7 +208,7 @@ export default function Profile() {
                     key={mode}
                     onPress={() => handleSelectTheme(mode)}
                     activeOpacity={0.7}
-                    className={`flex-row items-center gap-1 rounded-lg px-3 py-1.5 ${isSelected ? 'bg-primary' : 'bg-secondary'}`}>
+                    className={`flex-row items-center gap-1 rounded-full px-3 py-1.5 ${isSelected ? 'bg-primary' : 'bg-secondary'}`}>
                     {mode === 'light' ? (
                       <SunIcon
                         color={isSelected ? 'white' : 'black'}
@@ -209,7 +223,7 @@ export default function Profile() {
                       />
                     )}
                     <Text
-                      className={`text-xs font-medium ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}>
+                      className={`font-body-medium text-xs ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}>
                       {t(mode === 'light' ? 'lightTheme' : 'darkTheme')}
                     </Text>
                   </TouchableOpacity>
@@ -221,10 +235,10 @@ export default function Profile() {
           <Divider />
 
           {/* Newsletter row */}
-          <View className="flex-row items-center justify-between px-4 py-3">
+          <View className="flex-row items-center justify-between px-4 py-4">
             <View className="flex-1 gap-0.5 pr-4">
-              <Text className="text-sm font-medium">{t('newsletter')}</Text>
-              <Text variant="muted" className="text-xs">
+              <Text className="font-body-medium text-[15px]">{t('newsletter')}</Text>
+              <Text className="font-body text-[13px] text-muted-foreground">
                 {savingNewsletter ? t('saving') : t('newsletterDesc')}
               </Text>
             </View>
@@ -236,34 +250,56 @@ export default function Profile() {
               thumbColor="white"
             />
           </View>
-        </View>
-      </View>
 
-      {/* Sign out */}
-      <Button variant="destructive" onPress={handleSignOut} disabled={signingOut}>
-        {signingOut ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          <>
-            <LogOutIcon size={16} color="white" />
-            <Text>{t('signOut')}</Text>
-          </>
-        )}
-      </Button>
+          <Divider />
+
+          {/* Account row — opens the pushed screen holding sign-out and deletion */}
+          <TouchableOpacity
+            onPress={() => router.push('/account')}
+            activeOpacity={0.7}
+            className="flex-row items-center justify-between px-4 py-4">
+            <Text className="flex-1 font-body-medium text-[15px]">{t('account')}</Text>
+            <ChevronRightIcon size={18} className="text-muted-foreground" />
+          </TouchableOpacity>
+        </Card>
+      </View>
     </ScrollView>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+/** One of the three figures under the identity block. */
+function Stat({ value, label, accent }: { value: string; label: string; accent?: boolean }) {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3">
-      <Text variant="muted" className="text-sm">
-        {label}
-      </Text>
-      <Text className="max-w-[55%] text-right text-sm font-medium" numberOfLines={1}>
+    <View
+      className={`flex-1 rounded-2xl border px-3 py-4 ${
+        accent ? 'border-primary/30 bg-primary/10' : 'border-border bg-card'
+      }`}>
+      <Text
+        className={`font-heading text-2xl leading-none ${accent ? 'text-primary' : 'text-foreground'}`}
+        numberOfLines={1}
+        adjustsFontSizeToFit>
         {value}
       </Text>
+      <Text
+        className={`mt-1.5 font-body-semibold text-[11px] uppercase tracking-wider ${
+          accent ? 'text-primary' : 'text-muted-foreground'
+        }`}
+        numberOfLines={1}>
+        {label}
+      </Text>
     </View>
+  );
+}
+
+/** Section label above each grouped card. */
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <Text className="mb-3 font-heading text-lg">{children}</Text>;
+}
+
+/** Grouped list container shared by every section on this screen. */
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <View className="overflow-hidden rounded-2xl border border-border bg-card">{children}</View>
   );
 }
 

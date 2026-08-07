@@ -3,7 +3,18 @@ import 'react-native-url-polyfill/auto';
 import '@/lib/i18n';
 
 import { QuitDialog } from '@/components/QuitDialog';
+// Registers the foreground notification handler and is the single import that
+// pulls the reminder scheduling code in at startup.
+import { ensureChannel } from '@/features/reminders';
 import { client } from '@/lib/appwrite';
+import { Caprasimo_400Regular } from '@expo-google-fonts/caprasimo';
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+} from '@expo-google-fonts/figtree';
+import { useFonts } from 'expo-font';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { NAV_THEME } from '@/lib/theme';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -19,6 +30,22 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 export { ErrorBoundary } from 'expo-router';
 
 export default function RootLayout() {
+  // Design-system faces used by the profile screen. Held behind the splash so
+  // text never renders in the system font first and reflows.
+  const [fontsLoaded, fontError] = useFonts({
+    Caprasimo_400Regular,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+  });
+
+  // Create the Android channel up front: a notification posted to a channel that
+  // does not exist yet is silently dropped.
+  useEffect(() => {
+    ensureChannel().catch(() => {});
+  }, []);
+
   useEffect(() => {
     client
       .call('GET', new URL(client.config.endpoint + '/health'))
@@ -31,6 +58,9 @@ export default function RootLayout() {
         }
       });
   }, []);
+
+  // A font failure must not black-hole the app — fall back to system faces.
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <AuthProvider>
