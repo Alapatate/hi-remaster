@@ -34,7 +34,7 @@ export const QualitySheet = React.forwardRef<
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetView className="px-6 pb-10 pt-3">
-        <Text className="mb-3 text-xl font-bold text-foreground">{t('quality')}</Text>
+        <Text className="mb-3 font-heading text-xl text-foreground">{t('quality')}</Text>
         {options.map((option) => (
           <TouchableOpacity
             key={option.label}

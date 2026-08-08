@@ -39,7 +39,7 @@ export const AboutTeacherSheet = React.forwardRef<
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetScrollView className="px-5 pb-12 pt-2">
-        <Text className="mb-4 text-3xl font-bold text-foreground">{title}</Text>
+        <Text className="mb-4 font-heading text-3xl text-foreground">{title}</Text>
 
         <View className="mb-5 flex-row flex-wrap items-center gap-2">
           {teacher ? (
@@ -53,7 +53,7 @@ export const AboutTeacherSheet = React.forwardRef<
 
         {teacher?.presentation ? (
           <View className="rounded-2xl bg-card p-5">
-            <Text className="mb-3 text-lg font-bold text-foreground">{t('aboutTeacher')}</Text>
+            <Text className="mb-3 font-heading text-lg text-foreground">{t('aboutTeacher')}</Text>
             <Text className="text-base leading-7 text-muted-foreground">
               {teacher.presentation}
             </Text>

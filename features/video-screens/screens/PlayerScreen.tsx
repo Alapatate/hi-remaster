@@ -176,10 +176,10 @@ function PlayerView({
   const statusEvent = useEvent(player, 'statusChange', { status: player.status });
   const status = statusEvent?.status ?? player.status;
 
-  // Adaptive HLS can swap rendition mid-playback. With contentFit="contain" a
-  // pure resolution change needs nothing, but if the *aspect ratio* changes the
-  // Android surface can keep the old one and render the frame distorted. Remount
-  // only in that case, so the common resolution swap stays flicker-free.
+  // Adaptive HLS can swap rendition mid-playback. A pure resolution change needs
+  // nothing, but if the *aspect ratio* changes the Android surface can keep the
+  // old one and render the frame distorted. Remount only in that case, so the
+  // common resolution swap stays flicker-free.
   useEventListener(player, 'videoTrackChange', ({ videoTrack, oldVideoTrack }) => {
     const next = videoTrack?.size;
     const prev = oldVideoTrack?.size;
@@ -318,7 +318,7 @@ function PlayerView({
         player={player}
         style={{ flex: 1, alignSelf: 'stretch' }}
         nativeControls={false}
-        contentFit="contain"
+        contentFit="cover"
         allowsPictureInPicture
       />
 

@@ -1,5 +1,6 @@
+import { HiLogo } from '@/components/brand/HiLogo';
 import { Text } from '@/components/ui/text';
-import { ArrowLeftIcon, EyeIcon, EyeOffIcon, LeafIcon } from 'lucide-react-native';
+import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import {
@@ -85,21 +86,16 @@ export function AuthScreen({
 }
 
 /**
- * The wordmark: a filled accent disc with a leaf, next to the name. `stacked`
- * breaks the name over two lines for the sign-in header; `inline` is the
- * compact version that sits in the register screen's top bar.
+ * The wordmark: the HI SVG mark next to the name. `stacked` breaks the name
+ * over two lines for the sign-in header; `inline` is the compact version that
+ * sits in the register screen's top bar.
  */
 export function BrandMark({ variant = 'stacked' }: { variant?: 'stacked' | 'inline' }) {
   const stacked = variant === 'stacked';
-  const size = stacked ? 46 : 26;
 
   return (
     <View className="flex-row items-center" style={{ gap: stacked ? 12 : 8 }}>
-      <View
-        className="items-center justify-center rounded-full bg-primary"
-        style={{ width: size, height: size }}>
-        <LeafIcon size={stacked ? 24 : 14} color="#f5ead8" />
-      </View>
+      <HiLogo height={stacked ? 46 : 26} color="#000" />
       <Text className={`font-heading ${stacked ? 'text-[22px] leading-tight' : 'text-[14.5px]'}`}>
         {stacked ? BRAND.replace(' ', '\n') : BRAND}
       </Text>

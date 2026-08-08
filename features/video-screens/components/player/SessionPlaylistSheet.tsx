@@ -34,7 +34,7 @@ export const SessionPlaylistSheet = React.forwardRef<
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
       <BottomSheetScrollView className="px-5 pb-10 pt-2">
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-2xl font-bold text-foreground">{t('sessionPlaylist')}</Text>
+          <Text className="font-heading text-2xl text-foreground">{t('sessionPlaylist')}</Text>
           <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: '#f3e0c2' }}>
             <Text className="text-sm font-semibold text-primary">
               {t('videosCount', { count: videos.length })}

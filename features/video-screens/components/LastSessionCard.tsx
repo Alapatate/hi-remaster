@@ -35,7 +35,7 @@ export function LastSessionCard({
             style={{ color: OLIVE_MUTED }}>
             {t('lastSession')}
           </Text>
-          <Text className="mt-0.5 text-base font-bold text-white">{teacherName}</Text>
+          <Text className="mt-0.5 font-heading text-base text-white">{teacherName}</Text>
           <Text className="text-xs" style={{ color: OLIVE_MUTED }}>
             {t('percentComplete', { percent: Math.round(pct) })}
             {totalSeconds > 0 ? `  ·  ${formatDuration(totalSeconds)}` : ''}

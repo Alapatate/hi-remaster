@@ -54,7 +54,10 @@ export function TeacherHeroCard({
     return [langTeachers[n - 1], ...langTeachers, langTeachers[0]];
   }, [langTeachers, canSwipe, n]);
 
-  const realIndex = Math.max(0, langTeachers.findIndex((t) => t.$id === teacher.$id));
+  const realIndex = Math.max(
+    0,
+    langTeachers.findIndex((t) => t.$id === teacher.$id)
+  );
   /** Scroll x for a real teacher index (leading clone shifts everything by one). */
   const offsetFor = (ri: number) => (canSwipe ? ri + 1 : ri) * stride;
 
@@ -75,7 +78,8 @@ export function TeacherHeroCard({
     if (!canSwipe || w === 0) return;
     const page = Math.round(e.nativeEvent.contentOffset.x / stride); // 0..n+1
     let ri = page - 1;
-    if (page === 0) ri = n - 1; // leading clone (last)
+    if (page === 0)
+      ri = n - 1; // leading clone (last)
     else if (page === n + 1) ri = 0; // trailing clone (first)
     // Silent jump from a clone to its real counterpart (same photo → invisible).
     if (page === 0 || page === n + 1) {
@@ -131,8 +135,8 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
         style={{ flex: 1, minHeight: 180 }}
         resizeMode="cover">
         {/* Name banner */}
-        <View className="absolute left-4 right-4 top-4 items-center rounded-2xl bg-primary py-3">
-          <Text className="text-base font-bold uppercase tracking-wide text-primary-foreground">
+        <View className="absolute left-4 right-4 top-4 items-center py-3">
+          <Text className="font-heading text-3xl uppercase tracking-wide text-white">
             {teacherFullName(teacher)}
           </Text>
         </View>

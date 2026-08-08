@@ -9,10 +9,25 @@ import { Pressable, useWindowDimensions } from 'react-native';
  * bird journey (the furthest bird reached) and taps through to the journey
  * screen. The bird shown is derived from `xpPoints`, so it stays in sync.
  */
-export function BirdBadge() {
+export function BirdBadge({ compact = false }: { compact?: boolean }) {
   const { width } = useWindowDimensions();
   const { waypoints, frontierIndex } = useJourney(width);
   const bird = waypoints[frontierIndex]?.bird;
+
+  // Compact drops the name and sits in a 44pt circle, so it fits the stepper's
+  // single header row without unbalancing the centred wordmark.
+  if (compact) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={bird?.name}
+        onPress={() => router.push('/dashboard')}
+        className="items-center justify-center rounded-full bg-card active:opacity-70"
+        style={{ width: 44, height: 44 }}>
+        <BirdIcon size={19} color="#bf6e1a" />
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable

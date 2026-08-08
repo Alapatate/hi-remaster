@@ -12,7 +12,15 @@ import {
   UsersIcon,
 } from 'lucide-react-native';
 import * as React from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { Easing, FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,14 +28,16 @@ import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
 import { LastSessionCard } from '../components/LastSessionCard';
 import { PhaseSection } from '../components/PhaseSection';
-import { SessionSummaryCard } from '../components/SessionSummaryCard';
-import { StepProgressBar } from '../components/StepProgressBar';
-import { SummaryExerciseList } from '../components/SummaryExerciseList';
+import { FooterTally, PillButton } from '../components/PillButton';
+import { SessionRecapCard } from '../components/SessionRecapCard';
+import { StepHeader } from '../components/StepHeader';
 import { TeacherHeroCard } from '../components/TeacherHeroCard';
+import { XpRewardNote } from '../components/XpRewardNote';
 import { TeacherPickerSheet } from '../components/TeacherPickerSheet';
 import { AboutTeacherSheet } from '../components/player/AboutTeacherSheet';
 import { useTeachers } from '../hooks/useTeachers';
 import { useTeacherVideos } from '../hooks/useTeacherVideos';
+import { useJourney } from '@/features/journey-screen/hooks/useJourney';
 import { IS_CONFIGURED, readLastSession, teacherFullName } from '../lib/data';
 import { totalDuration } from '../lib/format';
 import { orderByPhase, PHASES, PHASE_ORDER } from '../lib/phases';
@@ -131,6 +141,15 @@ export function VideoSessionFlow() {
     [user?.prefs]
   );
 
+  // XP is awarded one per minute of playback, so the session is worth its own
+  // length in minutes. The next bird is named only when this session actually
+  // covers the XP still needed to reach it.
+  const { width } = useWindowDimensions();
+  const { waypoints, frontierIndex, xpToNext } = useJourney(width);
+  const sessionXp = Math.floor(total / 60);
+  const reachableBird =
+    xpToNext > 0 && sessionXp >= xpToNext ? waypoints[frontierIndex + 1]?.bird.name : undefined;
+
   const goHome = React.useCallback(() => {
     go(1);
     setSelected([]);
@@ -179,8 +198,7 @@ export function VideoSessionFlow() {
   const missingPhases = React.useMemo(
     () =>
       PHASE_ORDER.filter(
-        (type) =>
-          videos.some((v) => v.type === type) && !selected.some((v) => v.type === type)
+        (type) => videos.some((v) => v.type === type) && !selected.some((v) => v.type === type)
       ),
     [videos, selected]
   );
@@ -225,23 +243,29 @@ export function VideoSessionFlow() {
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View className="pt-2">
-        <ImmersionHeader onHome={goHome} />
-      </View>
-
-      {step > 1 ? (
+      {/* Step 1 keeps the full page header; the later steps collapse it into a
+          single row so the grid and recap get the vertical space. */}
+      {step === 1 ? (
         <Animated.View
-          key="progress-bar"
-          className="pt-4"
-          entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}>
-          <StepProgressBar
+          key="header-1"
+          className="pt-2"
+          entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}
+          exiting={FadeOut.duration(STEP_DURATION)}>
+          <ImmersionHeader />
+        </Animated.View>
+      ) : (
+        <Animated.View
+          key="step-header"
+          className="pt-2"
+          entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}
+          exiting={FadeOut.duration(STEP_DURATION)}>
+          <StepHeader
             current={step}
             total={3}
-            sessionDuration={total}
             onBack={() => go((step === 3 ? 2 : 1) as Step)}
           />
         </Animated.View>
-      ) : null}
+      )}
 
       {/* Relative container so entering/exiting steps overlap during crossfade */}
       <View style={{ flex: 1, position: 'relative' }}>
@@ -312,6 +336,17 @@ export function VideoSessionFlow() {
             style={[FILL, { flexDirection: 'column' }]}
             entering={stepEntering}
             exiting={stepExiting}>
+            <View className="px-5 pb-1 pt-3.5">
+              <Text className="font-heading" style={{ fontSize: 27, lineHeight: 29 }}>
+                {t('teacherLibrary', { name: teacherFullName(teacher) })}
+              </Text>
+              <Text
+                className="mt-1 font-body text-muted-foreground"
+                style={{ fontSize: 13.5, lineHeight: 19 }}>
+                {t('libraryIntro', { count: videos.length })}
+              </Text>
+            </View>
+
             {videosLoading ? (
               <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size="large" color="#bf6e1a" />
@@ -319,7 +354,7 @@ export function VideoSessionFlow() {
             ) : (
               <ScrollView
                 style={{ flex: 1 }}
-                contentContainerStyle={{ padding: 20, paddingBottom: 8 }}>
+                contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 }}>
                 {PHASE_ORDER.map((type) => (
                   <PhaseSection
                     key={type}
@@ -331,16 +366,15 @@ export function VideoSessionFlow() {
                 ))}
               </ScrollView>
             )}
+
             <FooterBar insetBottom={dockSpace}>
-              <ActionButton
-                variant="secondary"
-                label={t('back')}
-                onPress={() => go(1)}
-                iconLeft={<ArrowLeftIcon size={18} color="#4a3826" />}
+              <FooterTally
+                caption={t('chosenCount', { count: selected.length })}
+                seconds={total}
               />
-              <ActionButton
+              <PillButton
                 className="flex-1"
-                label={t('nextStep')}
+                label={t('review')}
                 disabled={selected.length === 0}
                 onPress={handleNextStep}
                 iconRight={<ArrowRightIcon size={18} color="white" />}
@@ -356,26 +390,32 @@ export function VideoSessionFlow() {
             exiting={stepExiting}>
             <ScrollView
               style={{ flex: 1 }}
-              contentContainerStyle={{ padding: 20, paddingBottom: 8, gap: 16 }}>
-              <SessionSummaryCard
+              contentContainerStyle={{ padding: 20, paddingBottom: 8, gap: 18 }}>
+              <Text className="font-heading" style={{ fontSize: 34, lineHeight: 37 }}>
+                {t('readyWhenYouAre')}
+              </Text>
+
+              <SessionRecapCard
+                teacher={teacher}
                 teacherName={teacherFullName(teacher)}
-                totalDuration={total}
-                exerciseCount={selected.length}
+                videos={selected}
+                total={total}
               />
-              <SummaryExerciseList videos={selected} />
+
+              {sessionXp > 0 ? <XpRewardNote xp={sessionXp} nextBird={reachableBird} /> : null}
             </ScrollView>
-            <FooterBar insetBottom={dockSpace}>
-              <ActionButton
-                variant="secondary"
-                label={t('startNewSession')}
-                onPress={goHome}
-                iconLeft={<RotateCcwIcon size={16} color="#4a3826" />}
-              />
-              <ActionButton
-                className="flex-1"
+
+            <FooterBar insetBottom={dockSpace} stacked>
+              <PillButton
                 label={t('startSession')}
                 onPress={startSession}
                 iconLeft={<PlayIcon size={18} color="white" fill="white" />}
+              />
+              <PillButton
+                variant="outline"
+                label={t('startNewSession')}
+                onPress={goHome}
+                iconLeft={<RotateCcwIcon size={16} color="#4a3826" />}
               />
             </FooterBar>
           </Animated.View>
@@ -427,7 +467,10 @@ export function VideoSessionFlow() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => { setIncompleteVisible(false); go(3); }}
+                onPress={() => {
+                  setIncompleteVisible(false);
+                  go(3);
+                }}
                 activeOpacity={0.85}
                 className="flex-1 items-center justify-center rounded-2xl px-4 py-3"
                 style={{ backgroundColor: '#bf6e1a' }}>
@@ -456,13 +499,16 @@ export function VideoSessionFlow() {
 function FooterBar({
   children,
   insetBottom = 0,
+  stacked = false,
 }: {
   children: React.ReactNode;
   insetBottom?: number;
+  /** Step 3 stacks its two CTAs; step 2 sits the tally beside its button. */
+  stacked?: boolean;
 }) {
   return (
     <View
-      className="mb-3 flex-row gap-3 bg-background px-5 py-3"
+      className={`mb-3 bg-background px-5 py-3 ${stacked ? 'gap-2.5' : 'flex-row items-center gap-3.5'}`}
       style={{ paddingBottom: insetBottom + FOOTER_LIFT }}>
       {children}
     </View>

@@ -55,7 +55,7 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
                   style={{ borderWidth: 3, borderColor: '#bf6e1a' }}>
                   <Text style={{ fontSize: 48 }}>{bird.emoji}</Text>
                 </View>
-                <Text className="text-center text-3xl font-bold text-foreground">{bird.name}</Text>
+                <Text className="text-center font-heading text-3xl text-foreground">{bird.name}</Text>
                 <Text className="mt-1 text-center text-base italic text-muted-foreground">
                   {bird.scientificName}
                 </Text>
@@ -70,7 +70,7 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
               </View>
 
               <View className="mb-4 rounded-2xl bg-card p-5">
-                <Text className="mb-2 text-lg font-bold text-foreground">{t('aboutBird')}</Text>
+                <Text className="mb-2 font-heading text-lg text-foreground">{t('aboutBird')}</Text>
                 <Text className="text-base leading-7 text-muted-foreground">
                   {bird.description}
                 </Text>

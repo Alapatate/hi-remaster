@@ -38,7 +38,7 @@ export function ActionButton({
       {iconLeft}
       <Text
         className={cn(
-          'text-base font-bold',
+          'font-heading text-base',
           isPrimary ? 'text-primary-foreground' : 'text-secondary-foreground'
         )}>
         {label}
