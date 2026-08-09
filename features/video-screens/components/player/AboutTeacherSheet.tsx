@@ -1,10 +1,10 @@
 import { Text } from '@/components/ui/text';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { ClockIcon, UserIcon } from 'lucide-react-native';
+import { ClockIcon, InstagramIcon, UserIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Linking, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { teacherFlag, teacherFullName } from '../../lib/data';
+import { instagramUrl, teacherFlag, teacherFullName, teacherInstagram } from '../../lib/data';
 import { formatDuration } from '../../lib/format';
 import type { Teacher } from '../../lib/types';
 import { Pill } from '../Pill';
@@ -28,6 +28,7 @@ export const AboutTeacherSheet = React.forwardRef<
 >(function AboutTeacherSheet({ title, teacher, duration }, ref) {
   const { t } = useTranslation();
   const flag = teacherFlag(teacher);
+  const instagram = teacherInstagram(teacher);
 
   return (
     <BottomSheetModal
@@ -50,6 +51,16 @@ export const AboutTeacherSheet = React.forwardRef<
           ) : null}
           {flag ? <Pill label={flag} textClassName="text-lg" /> : null}
         </View>
+
+        {instagram ? (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(instagramUrl(instagram)).catch(() => {})}
+            activeOpacity={0.7}
+            className="mb-5 flex-row items-center gap-2 self-start rounded-full bg-card px-4 py-2.5">
+            <InstagramIcon size={17} color="#bf6e1a" />
+            <Text className="font-body-medium text-[15px] text-foreground">@{instagram}</Text>
+          </TouchableOpacity>
+        ) : null}
 
         {teacher?.presentation ? (
           <View className="rounded-2xl bg-card p-5">

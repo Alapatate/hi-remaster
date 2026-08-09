@@ -1,3 +1,4 @@
+export { ReminderQuickButton } from './components/ReminderQuickButton';
 export { RemindersSection } from './components/RemindersSection';
 export { useReminders } from './hooks/useReminders';
 export { ensureChannel, requestPermission } from './lib/notifications';

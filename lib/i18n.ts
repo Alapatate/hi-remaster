@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { NativeModules, Platform } from 'react-native';
 
 const resources = {
   en: {
@@ -120,6 +121,13 @@ const resources = {
       playbackError: 'Playback error.',
       exerciseOf: 'Exercise {{index}} of {{total}}',
       upNext: 'Up next',
+      headphonesTitle: 'Before you begin',
+      headphonesMessage: "Put your headphones on — listening closely helps you attune to your guide's voice.",
+      headphonesConfirm: "Let's begin",
+      leaveSessionTitle: 'Leave this session?',
+      leaveSessionMessage: 'Your progress is saved. You can pick it back up from the home screen whenever you like.',
+      leaveSessionConfirm: 'Leave',
+      leaveSessionCancel: 'Stay',
       teacherLibrary: "{{name}}'s library",
       libraryIntro: '{{count}} exercises, at the lengths they are taught.',
       chosenCount: '{{count}} chosen',
@@ -151,7 +159,7 @@ const resources = {
       levelLabel: 'Level {{level}}',
       minutesLabel: 'Minutes',
       birdsLabel: 'Birds',
-      xpToNextLabel: 'XP to next',
+      xpToNextLabel: 'Next milestone',
       deleteAccount: 'Delete account',
       deleteAccountDesc:
         'Permanently removes your account and all of its data. This cannot be undone.',
@@ -286,6 +294,13 @@ const resources = {
       playbackError: 'Erreur de lecture.',
       exerciseOf: 'Exercice {{index}} sur {{total}}',
       upNext: 'À suivre',
+      headphonesTitle: 'Avant de commencer',
+      headphonesMessage: "Mettez vos écouteurs : l'écoute attentive aide à s'harmoniser avec la voix de votre enseignant.",
+      headphonesConfirm: "C'est parti",
+      leaveSessionTitle: 'Quitter la séance ?',
+      leaveSessionMessage: "Votre progression est enregistrée. Vous pourrez la reprendre depuis l'accueil quand vous voulez.",
+      leaveSessionConfirm: 'Quitter',
+      leaveSessionCancel: 'Rester',
       teacherLibrary: 'La bibliothèque de {{name}}',
       libraryIntro: '{{count}} exercices, aux durées enseignées.',
       chosenCount: '{{count}} choisis',
@@ -317,7 +332,7 @@ const resources = {
       levelLabel: 'Niveau {{level}}',
       minutesLabel: 'Minutes',
       birdsLabel: 'Oiseaux',
-      xpToNextLabel: 'XP restant',
+      xpToNextLabel: 'Prochain palier',
       deleteAccount: 'Supprimer le compte',
       deleteAccountDesc:
         'Supprime définitivement votre compte et toutes ses données. Action irréversible.',
@@ -453,6 +468,13 @@ const resources = {
       playbackError: 'Error de reproducción.',
       exerciseOf: 'Ejercicio {{index}} de {{total}}',
       upNext: 'A continuación',
+      headphonesTitle: 'Antes de empezar',
+      headphonesMessage: 'Ponte los auriculares: escuchar con atención te ayuda a sintonizar con la voz de tu guía.',
+      headphonesConfirm: 'Empezar',
+      leaveSessionTitle: '¿Salir de la sesión?',
+      leaveSessionMessage: 'Tu progreso está guardado. Puedes retomarla desde el inicio cuando quieras.',
+      leaveSessionConfirm: 'Salir',
+      leaveSessionCancel: 'Quedarme',
       teacherLibrary: 'La biblioteca de {{name}}',
       libraryIntro: '{{count}} ejercicios, con las duraciones que enseña.',
       chosenCount: '{{count}} elegidos',
@@ -484,7 +506,7 @@ const resources = {
       levelLabel: 'Nivel {{level}}',
       minutesLabel: 'Minutos',
       birdsLabel: 'Aves',
-      xpToNextLabel: 'XP siguiente',
+      xpToNextLabel: 'Próximo nivel',
       deleteAccount: 'Eliminar la cuenta',
       deleteAccountDesc:
         'Elimina permanentemente tu cuenta y todos sus datos. No se puede deshacer.',
@@ -619,6 +641,13 @@ const resources = {
       playbackError: 'Wiedergabefehler.',
       exerciseOf: 'Übung {{index}} von {{total}}',
       upNext: 'Als Nächstes',
+      headphonesTitle: 'Bevor du beginnst',
+      headphonesMessage: 'Setz deine Kopfhörer auf – aufmerksames Hören hilft dir, dich auf die Stimme deines Guides einzustimmen.',
+      headphonesConfirm: "Los geht's",
+      leaveSessionTitle: 'Sitzung verlassen?',
+      leaveSessionMessage: 'Dein Fortschritt ist gespeichert. Du kannst jederzeit vom Startbildschirm aus weitermachen.',
+      leaveSessionConfirm: 'Verlassen',
+      leaveSessionCancel: 'Bleiben',
       teacherLibrary: '{{name}}s Bibliothek',
       libraryIntro: '{{count}} Übungen, in den gelehrten Längen.',
       chosenCount: '{{count}} gewählt',
@@ -650,7 +679,7 @@ const resources = {
       levelLabel: 'Level {{level}}',
       minutesLabel: 'Minuten',
       birdsLabel: 'Vögel',
-      xpToNextLabel: 'XP bis Level',
+      xpToNextLabel: 'Nächste Stufe',
       deleteAccount: 'Konto löschen',
       deleteAccountDesc:
         'Löscht dein Konto und alle Daten endgültig. Dies kann nicht rückgängig gemacht werden.',
@@ -785,6 +814,13 @@ const resources = {
       playbackError: 'Errore di riproduzione.',
       exerciseOf: 'Esercizio {{index}} di {{total}}',
       upNext: 'A seguire',
+      headphonesTitle: 'Prima di iniziare',
+      headphonesMessage: "Indossa le cuffie: l'ascolto attento aiuta a sintonizzarti con la voce della tua guida.",
+      headphonesConfirm: 'Iniziamo',
+      leaveSessionTitle: 'Uscire dalla sessione?',
+      leaveSessionMessage: 'I tuoi progressi sono salvati. Puoi riprenderla dalla home quando vuoi.',
+      leaveSessionConfirm: 'Esci',
+      leaveSessionCancel: 'Resta',
       teacherLibrary: 'La libreria di {{name}}',
       libraryIntro: '{{count}} esercizi, nelle durate insegnate.',
       chosenCount: '{{count}} scelti',
@@ -816,7 +852,7 @@ const resources = {
       levelLabel: 'Livello {{level}}',
       minutesLabel: 'Minuti',
       birdsLabel: 'Uccelli',
-      xpToNextLabel: 'XP al prossimo',
+      xpToNextLabel: 'Prossima tappa',
       deleteAccount: 'Elimina account',
       deleteAccountDesc:
         'Elimina definitivamente il tuo account e tutti i dati. Operazione irreversibile.',
@@ -950,6 +986,13 @@ const resources = {
       playbackError: 'Erro de reprodução.',
       exerciseOf: 'Exercício {{index}} de {{total}}',
       upNext: 'A seguir',
+      headphonesTitle: 'Antes de começar',
+      headphonesMessage: 'Coloque os fones: ouvir com atenção ajuda a sintonizar com a voz do seu guia.',
+      headphonesConfirm: 'Vamos lá',
+      leaveSessionTitle: 'Sair da sessão?',
+      leaveSessionMessage: 'Seu progresso está salvo. Você pode retomá-la pela tela inicial quando quiser.',
+      leaveSessionConfirm: 'Sair',
+      leaveSessionCancel: 'Ficar',
       teacherLibrary: 'A biblioteca de {{name}}',
       libraryIntro: '{{count}} exercícios, nas durações ensinadas.',
       chosenCount: '{{count}} escolhidos',
@@ -981,7 +1024,7 @@ const resources = {
       levelLabel: 'Nível {{level}}',
       minutesLabel: 'Minutos',
       birdsLabel: 'Aves',
-      xpToNextLabel: 'XP p/ próximo',
+      xpToNextLabel: 'Próximo nível',
       deleteAccount: 'Excluir conta',
       deleteAccountDesc:
         'Remove permanentemente sua conta e todos os dados. Não pode ser desfeito.',
@@ -1115,6 +1158,13 @@ const resources = {
       playbackError: 'خطأ في التشغيل.',
       exerciseOf: 'التمرين {{index}} من {{total}}',
       upNext: 'التالي',
+      headphonesTitle: 'قبل أن تبدأ',
+      headphonesMessage: 'ضع سماعاتك: الإنصات المتأنّي يساعدك على الانسجام مع صوت مرشدك.',
+      headphonesConfirm: 'لنبدأ',
+      leaveSessionTitle: 'مغادرة الجلسة؟',
+      leaveSessionMessage: 'تم حفظ تقدمك. يمكنك استئنافها من الشاشة الرئيسية متى شئت.',
+      leaveSessionConfirm: 'مغادرة',
+      leaveSessionCancel: 'البقاء',
       teacherLibrary: 'مكتبة {{name}}',
       libraryIntro: '{{count}} تمارين، بالمدد التي يُعلّمها.',
       chosenCount: 'تم اختيار {{count}}',
@@ -1146,7 +1196,7 @@ const resources = {
       levelLabel: 'المستوى {{level}}',
       minutesLabel: 'دقائق',
       birdsLabel: 'طيور',
-      xpToNextLabel: 'نقاط للتالي',
+      xpToNextLabel: 'المرحلة التالية',
       deleteAccount: 'حذف الحساب',
       deleteAccountDesc: 'يحذف حسابك وجميع بياناته نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
       listeningLanguage: 'لغة الاستماع',
@@ -1279,6 +1329,13 @@ const resources = {
       playbackError: '播放错误。',
       exerciseOf: '第 {{index}} / {{total}} 个练习',
       upNext: '接下来',
+      headphonesTitle: '开始之前',
+      headphonesMessage: '戴上耳机——专注聆听有助于与导师的声音同频。',
+      headphonesConfirm: '开始',
+      leaveSessionTitle: '结束本次练习？',
+      leaveSessionMessage: '进度已保存，你可以随时从首页继续。',
+      leaveSessionConfirm: '结束',
+      leaveSessionCancel: '继续练习',
       teacherLibrary: '{{name}} 的课程库',
       libraryIntro: '{{count}} 个练习，均为其教授的时长。',
       chosenCount: '已选 {{count}} 个',
@@ -1310,7 +1367,7 @@ const resources = {
       levelLabel: '等级 {{level}}',
       minutesLabel: '分钟',
       birdsLabel: '鸟类',
-      xpToNextLabel: '距下一级',
+      xpToNextLabel: '下一阶段',
       deleteAccount: '删除账号',
       deleteAccountDesc: '将永久删除你的账号及全部数据，此操作无法撤销。',
       listeningLanguage: '收听语言',
@@ -1443,6 +1500,13 @@ const resources = {
       playbackError: '再生エラー。',
       exerciseOf: 'エクササイズ {{index}} / {{total}}',
       upNext: '次は',
+      headphonesTitle: 'はじめる前に',
+      headphonesMessage: 'イヤホンを着けましょう。丁寧に聴くことで、ガイドの声と調和しやすくなります。',
+      headphonesConfirm: 'はじめる',
+      leaveSessionTitle: 'セッションを終了しますか？',
+      leaveSessionMessage: '進捗は保存されています。ホーム画面からいつでも再開できます。',
+      leaveSessionConfirm: '終了する',
+      leaveSessionCancel: '続ける',
       teacherLibrary: '{{name}}のライブラリ',
       libraryIntro: '{{count}} 個のエクササイズ、指導どおりの長さで。',
       chosenCount: '{{count}} 個選択中',
@@ -1474,7 +1538,7 @@ const resources = {
       levelLabel: 'レベル {{level}}',
       minutesLabel: '分',
       birdsLabel: '鳥',
-      xpToNextLabel: '次まで',
+      xpToNextLabel: '次の節目',
       deleteAccount: 'アカウントを削除',
       deleteAccountDesc: 'アカウントとすべてのデータを完全に削除します。元に戻せません。',
       listeningLanguage: '再生言語',
@@ -1607,6 +1671,13 @@ const resources = {
       playbackError: '재생 오류.',
       exerciseOf: '운동 {{index}} / {{total}}',
       upNext: '다음',
+      headphonesTitle: '시작하기 전에',
+      headphonesMessage: '이어폰을 착용하세요. 주의 깊게 들으면 가이드의 목소리와 더 잘 어우러집니다.',
+      headphonesConfirm: '시작하기',
+      leaveSessionTitle: '세션을 나갈까요?',
+      leaveSessionMessage: '진행 상황이 저장되었습니다. 홈 화면에서 언제든 이어서 할 수 있어요.',
+      leaveSessionConfirm: '나가기',
+      leaveSessionCancel: '계속하기',
       teacherLibrary: '{{name}}의 라이브러리',
       libraryIntro: '{{count}}개의 운동, 가르치는 길이 그대로.',
       chosenCount: '{{count}}개 선택됨',
@@ -1638,7 +1709,7 @@ const resources = {
       levelLabel: '레벨 {{level}}',
       minutesLabel: '분',
       birdsLabel: '새',
-      xpToNextLabel: '다음까지',
+      xpToNextLabel: '다음 단계',
       deleteAccount: '계정 삭제',
       deleteAccountDesc: '계정과 모든 데이터가 영구적으로 삭제됩니다. 되돌릴 수 없습니다.',
       listeningLanguage: '청취 언어',
@@ -1660,9 +1731,45 @@ const resources = {
   },
 };
 
+/**
+ * The device's language, when the app ships that language. Only the base tag is
+ * compared, so `fr-CA` and `pt-BR` land on `fr` and `pt`. This is the starting
+ * language — signing in replaces it with the account's saved preference, so it
+ * mainly governs the auth and registration screens.
+ */
+function deviceLocaleTags(): string[] {
+  const tags: (string | undefined)[] = [];
+
+  // Hermes ships Intl, which is the cleanest source and covers both platforms.
+  try {
+    tags.push(Intl.DateTimeFormat().resolvedOptions().locale);
+  } catch {
+    // Intl unavailable on this engine build — fall through to the RN modules.
+  }
+
+  if (Platform.OS === 'ios') {
+    const settings = NativeModules.SettingsManager?.settings;
+    tags.push(settings?.AppleLocale, settings?.AppleLanguages?.[0]);
+  } else {
+    tags.push(NativeModules.I18nManager?.localeIdentifier);
+  }
+
+  return tags.filter((tag): tag is string => typeof tag === 'string' && tag.length > 0);
+}
+
+function deviceLanguage(): string {
+  const supported = Object.keys(resources);
+  for (const tag of deviceLocaleTags()) {
+    // "fr-CA" / "pt_BR" -> "fr" / "pt"
+    const base = tag.split(/[-_]/)[0]?.toLowerCase();
+    if (base && supported.includes(base)) return base;
+  }
+  return 'en';
+}
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en',
+  lng: deviceLanguage(),
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,

@@ -1,30 +1,32 @@
-import { Text } from '@/components/ui/text';
-import { ChevronsLeftIcon, ChevronsRightIcon, PauseIcon, PlayIcon } from 'lucide-react-native';
+import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react-native';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { PLAYER } from './playerTheme';
 
-const SEEK_SECONDS = 15;
-
 /**
- * Centre transport: -15s, play/pause, +15s. Skipping to the next exercise lives
- * on the up-next card rather than here, matching the comp.
+ * Centre transport: previous exercise, play/pause, next exercise. The side
+ * controls move between the session's exercises rather than scrubbing within
+ * one — scrubbing is what the bar underneath is for.
  */
 export function PlayerControls({
   playing,
   loading,
   onPlayPause,
-  onSeekBack,
-  onSeekForward,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
 }: {
   playing: boolean;
   loading: boolean;
   onPlayPause: () => void;
-  onSeekBack: () => void;
-  onSeekForward: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  hasPrev: boolean;
+  hasNext: boolean;
 }) {
   return (
     <View className="w-full flex-row items-center justify-center" style={{ gap: 30 }}>
-      <SeekButton direction="back" onPress={onSeekBack} />
+      <SkipButton direction="prev" onPress={onPrev} enabled={hasPrev} />
 
       <TouchableOpacity
         onPress={onPlayPause}
@@ -53,31 +55,34 @@ export function PlayerControls({
         )}
       </TouchableOpacity>
 
-      <SeekButton direction="forward" onPress={onSeekForward} />
+      <SkipButton direction="next" onPress={onNext} enabled={hasNext} />
     </View>
   );
 }
 
-/** Unfilled seek control: a double chevron with the step size beneath it. */
-function SeekButton({
+/**
+ * Unfilled skip control. Kept mounted but dimmed at the ends of the session so
+ * the transport row does not reflow between exercises.
+ */
+function SkipButton({
   direction,
   onPress,
+  enabled,
 }: {
-  direction: 'back' | 'forward';
+  direction: 'prev' | 'next';
   onPress: () => void;
+  enabled: boolean;
 }) {
-  const Icon = direction === 'back' ? ChevronsLeftIcon : ChevronsRightIcon;
+  const Icon = direction === 'prev' ? SkipBackIcon : SkipForwardIcon;
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={!enabled}
       activeOpacity={0.7}
       hitSlop={10}
       className="items-center justify-center"
-      style={{ width: 52, height: 52 }}>
-      <Icon size={26} color={PLAYER.text} />
-      <Text className="font-body-bold" style={{ color: PLAYER.text, fontSize: 10 }}>
-        {SEEK_SECONDS}
-      </Text>
+      style={{ width: 52, height: 52, opacity: enabled ? 1 : 0.3 }}>
+      <Icon size={26} color={PLAYER.text} fill={PLAYER.text} />
     </TouchableOpacity>
   );
 }

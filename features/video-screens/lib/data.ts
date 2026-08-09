@@ -77,6 +77,31 @@ export function prefetchTeacherPhotos(teachers: Teacher[]) {
   }
 }
 
+/**
+ * Instagram handle for a teacher, without the leading "@".
+ *
+ * PLACEHOLDER: the Appwrite documents do not carry `instagram` yet, so this
+ * falls back to a handle derived from the name. Remove the fallback once the
+ * field is populated — until then every teacher shows a plausible-looking but
+ * unreal account.
+ */
+export function teacherInstagram(teacher?: Teacher): string | null {
+  if (!teacher) return null;
+  const stored = teacher.instagram?.trim().replace(/^@/, '');
+  if (stored) return stored;
+  const slug = `${teacher.firstname ?? ''}${teacher.lastname ?? ''}`
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+  return slug ? `${slug}.hi` : null;
+}
+
+/** Public profile URL for a handle. */
+export function instagramUrl(handle: string): string {
+  return `https://instagram.com/${handle}`;
+}
+
 /** Regional flag emoji derived from `lang`. */
 export function teacherFlag(teacher?: Teacher): string {
   return flagEmoji(teacher?.lang ?? '');
@@ -105,6 +130,8 @@ export type LastSession = {
   progress: number;
   /** Total session length in seconds. */
   totalSeconds: number;
+  /** Playback position within `videoId`, in seconds, so resuming picks up where it stopped. */
+  resumeAt: number;
 };
 
 export function readLastSession(prefs?: Record<string, unknown>): LastSession | null {
@@ -117,5 +144,6 @@ export function readLastSession(prefs?: Record<string, unknown>): LastSession | 
     teacherName: (prefs.lastSessionTeacher as string) ?? '',
     progress: Number(prefs.lastSessionProgress ?? 0),
     totalSeconds: Number(prefs.lastSessionTotal ?? 0),
+    resumeAt: Number(prefs.lastSessionSeconds ?? 0) || 0,
   };
 }

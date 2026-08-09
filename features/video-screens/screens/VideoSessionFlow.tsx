@@ -7,6 +7,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  HeadphonesIcon,
   PlayIcon,
   RotateCcwIcon,
   UsersIcon,
@@ -24,6 +25,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import Animated, { Easing, FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ActionButton } from '../components/ActionButton';
 import { ImmersionHeader } from '../components/ImmersionHeader';
 import { LastSessionCard } from '../components/LastSessionCard';
@@ -219,6 +221,10 @@ export function VideoSessionFlow() {
     );
   }, []);
 
+  // Both ways into the player pause on the headphones notice first; the route
+  // to open is held here until it is acknowledged.
+  const [pendingRoute, setPendingRoute] = React.useState<string | null>(null);
+
   const startSession = React.useCallback(() => {
     const ordered = orderByPhase(selected);
     if (ordered.length === 0) return;
@@ -226,14 +232,24 @@ export function VideoSessionFlow() {
     if (teacher) {
       updatePrefs({ lastTeacherId: teacher.$id }).catch(() => {});
     }
-    router.push(`/video/${ordered[0].$id}?session=${ids}`);
+    setPendingRoute(`/video/${ordered[0].$id}?session=${ids}`);
   }, [selected, teacher, updatePrefs]);
 
   const resumeLastSession = React.useCallback(() => {
     if (!lastSession) return;
-    const query = lastSession.sessionParam ? `?session=${lastSession.sessionParam}` : '';
-    router.push(`/video/${lastSession.videoId}${query}`);
+    const params = new URLSearchParams();
+    if (lastSession.sessionParam) params.set('session', lastSession.sessionParam);
+    // Hand the saved position to the player so it resumes where it stopped.
+    if (lastSession.resumeAt > 0) params.set('t', String(Math.floor(lastSession.resumeAt)));
+    const query = params.toString();
+    setPendingRoute(`/video/${lastSession.videoId}${query ? `?${query}` : ''}`);
   }, [lastSession]);
+
+  const confirmHeadphones = React.useCallback(() => {
+    const route = pendingRoute;
+    setPendingRoute(null);
+    if (route) router.push(route as never);
+  }, [pendingRoute]);
 
   if (!IS_CONFIGURED) return <SetupPlaceholder />;
 
@@ -492,6 +508,16 @@ export function VideoSessionFlow() {
       {teacher ? (
         <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
       ) : null}
+
+      <ConfirmDialog
+        visible={pendingRoute !== null}
+        icon={<HeadphonesIcon size={26} color="#bf6e1a" />}
+        title={t('headphonesTitle')}
+        message={t('headphonesMessage')}
+        confirmLabel={t('headphonesConfirm')}
+        onConfirm={confirmHeadphones}
+        onCancel={() => setPendingRoute(null)}
+      />
     </View>
   );
 }

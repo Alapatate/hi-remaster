@@ -1,11 +1,13 @@
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useEvent, useEventListener } from 'expo';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { LogOutIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Platform, Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,7 +25,6 @@ import { fetchVideo, teacherFullName, teacherLanguage } from '../lib/data';
 import { totalDuration } from '../lib/format';
 import type { Video } from '../lib/types';
 
-const SEEK = 15;
 const AUTO_HIDE_MS = 3500;
 
 function buildVideoSource(uri: string, title: string) {
@@ -35,7 +36,12 @@ function buildVideoSource(uri: string, title: string) {
 }
 
 export function PlayerScreen() {
-  const { id, session } = useLocalSearchParams<{ id: string; session?: string }>();
+  const { id, session, t: resumeParam } = useLocalSearchParams<{
+    id: string;
+    session?: string;
+    /** Seconds to resume `id` from, set by the continue-watching card. */
+    t?: string;
+  }>();
   const [video, setVideo] = React.useState<Video | null>(null);
   const [sessionVideos, setSessionVideos] = React.useState<Video[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -104,13 +110,17 @@ export function PlayerScreen() {
           video={video}
           sessionVideos={sessionVideos}
           sessionParam={sessionParam}
-          onProgress={(progress, total, teacherName) =>
+          resumeAt={Number(resumeParam ?? 0) || 0}
+          onProgress={(progress, total, teacherName, seconds) =>
             updatePrefs({
               lastVideoId: video.$id,
               lastSessionParam: sessionParam,
               lastSessionTeacher: teacherName,
               lastSessionProgress: progress,
               lastSessionTotal: total,
+              // Exact position, so resuming returns to the second it stopped on
+              // rather than the start of the video.
+              lastSessionSeconds: Math.floor(seconds),
             }).catch(() => {})
           }
           onXpEarned={handleXpEarned}
@@ -124,13 +134,16 @@ function PlayerView({
   video,
   sessionVideos,
   sessionParam,
+  resumeAt = 0,
   onProgress,
   onXpEarned,
 }: {
   video: Video;
   sessionVideos: Video[];
   sessionParam: string;
-  onProgress: (progress: number, total: number, teacherName: string) => void;
+  /** Seconds to jump to once the source is ready (resuming a session). */
+  resumeAt?: number;
+  onProgress: (progress: number, total: number, teacherName: string, seconds: number) => void;
   onXpEarned?: (minutes: number) => void;
 }) {
   const { t } = useTranslation();
@@ -141,7 +154,31 @@ function PlayerView({
   const variants = useHlsVariants(url);
   const [activeQuality, setActiveQuality] = React.useState<string | null>(null);
   const [viewKey, setViewKey] = React.useState(0);
-  const pendingSeek = React.useRef<number | null>(null);
+  // Reuses the seek-on-ready path already used by quality switches.
+  const pendingSeek = React.useRef<number | null>(resumeAt > 0 ? resumeAt : null);
+
+  const [leaveVisible, setLeaveVisible] = React.useState(false);
+
+  const leaveSession = React.useCallback(() => {
+    setLeaveVisible(false);
+    router.replace({
+      pathname: '/(protected)/videos',
+      params: { resetAt: String(Date.now()) },
+    });
+  }, []);
+
+  // Hardware back gets the same confirmation as the close button. Registered
+  // only while focused so it does not outlive the screen.
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS !== 'android') return;
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        setLeaveVisible(true);
+        return true; // handled — never pop straight out of a running session
+      });
+      return () => sub.remove();
+    }, [])
+  );
 
   const playlistRef = React.useRef<BottomSheetModal>(null);
   const aboutRef = React.useRef<BottomSheetModal>(null);
@@ -154,6 +191,7 @@ function PlayerView({
   );
   const nextVideo =
     hasSession && currentIndex < sessionVideos.length - 1 ? sessionVideos[currentIndex + 1] : null;
+  const prevVideo = hasSession && currentIndex > 0 ? sessionVideos[currentIndex - 1] : null;
 
   const sessionTotal = hasSession ? totalDuration(sessionVideos) : (video.duration ?? 0);
 
@@ -246,16 +284,35 @@ function PlayerView({
     }
   }, [status, player]);
 
+  /** Seconds of session that precede the current exercise. */
+  const elapsedBeforeCurrent = React.useMemo(
+    () =>
+      sessionVideos
+        .slice(0, currentIndex)
+        .reduce((sum, v) => sum + (v.duration ?? 0), 0),
+    [sessionVideos, currentIndex]
+  );
+
   // Persist progress for the "continue watching" card (throttled).
   const lastWrite = React.useRef(0);
   React.useEffect(() => {
-    if (duration <= 0) return;
+    if (duration <= 0 || sessionTotal <= 0) return;
     const now = Date.now();
     if (now - lastWrite.current < 5000) return;
     lastWrite.current = now;
-    const progress = Math.min(100, Math.round((currentTime / duration) * 100));
-    onProgress(progress, sessionTotal, teacherFullName(video.teacher));
-  }, [currentTime, duration, sessionTotal, onProgress, video.teacher]);
+    // Progress across the whole session, not just the current exercise: the
+    // exercises already played count toward it.
+    const elapsed = elapsedBeforeCurrent + currentTime;
+    const progress = Math.min(100, Math.round((elapsed / sessionTotal) * 100));
+    onProgress(progress, sessionTotal, teacherFullName(video.teacher), currentTime);
+  }, [
+    currentTime,
+    duration,
+    sessionTotal,
+    elapsedBeforeCurrent,
+    onProgress,
+    video.teacher,
+  ]);
 
   // XP: +1 per minute of actual playback (not scrubbed time).
   // Compares consecutive timeUpdate deltas while playing; >2 s delta = seek → skip.
@@ -345,12 +402,7 @@ function PlayerView({
           pointerEvents="box-none"
           style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 10 }}>
           <PlayerTopBar
-            onBack={() =>
-              router.replace({
-                pathname: '/(protected)/videos',
-                params: { resetAt: String(Date.now()) },
-              })
-            }
+            onBack={() => setLeaveVisible(true)}
             index={currentIndex}
             total={sessionVideos.length}
             hasSession={hasSession}
@@ -368,14 +420,10 @@ function PlayerView({
                 else player.play();
                 showControls();
               }}
-              onSeekBack={() => {
-                player.currentTime = Math.max(0, player.currentTime - SEEK);
-                showControls();
-              }}
-              onSeekForward={() => {
-                player.currentTime = player.currentTime + SEEK;
-                showControls();
-              }}
+              onPrev={() => prevVideo && goToVideo(prevVideo.$id)}
+              onNext={() => nextVideo && goToVideo(nextVideo.$id)}
+              hasPrev={!!prevVideo}
+              hasNext={!!nextVideo}
             />
           </View>
 
@@ -435,6 +483,17 @@ function PlayerView({
         title={title}
         teacher={video.teacher}
         duration={video.duration}
+      />
+
+      <ConfirmDialog
+        visible={leaveVisible}
+        icon={<LogOutIcon size={26} color="#bf6e1a" />}
+        title={t('leaveSessionTitle')}
+        message={t('leaveSessionMessage')}
+        confirmLabel={t('leaveSessionConfirm')}
+        cancelLabel={t('leaveSessionCancel')}
+        onConfirm={leaveSession}
+        onCancel={() => setLeaveVisible(false)}
       />
     </View>
   );

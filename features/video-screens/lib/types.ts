@@ -9,6 +9,8 @@ export type Teacher = Models.Document & {
   lang?: string;
   presentation?: string;
   profilepic?: string;
+  /** Instagram handle, with or without the leading "@". */
+  instagram?: string;
 };
 
 export type Video = Models.Document & {
