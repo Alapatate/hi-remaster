@@ -1,5 +1,4 @@
 import { Text } from '@/components/ui/text';
-import { SparklesIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +8,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
 import { useColorScheme } from 'nativewind';
 
 /** Top card: current XP, an animated bar toward the next waypoint, and a tally. */
@@ -32,6 +30,7 @@ export function JourneyHeader({
 }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const fill = useSharedValue(0);
 
   // Short follow so the bar tracks the reveal's animated XP closely (and softens
@@ -44,44 +43,59 @@ export function JourneyHeader({
     width: `${Math.max(4, fill.value * 100)}%`,
   }));
 
-  const cardBg = colorScheme === 'dark' ? 'rgba(40, 35, 31, 0.72)' : 'rgba(242, 232, 214, 0.72)';
+  const cardBg = isDark ? 'rgba(36, 30, 24, 0.78)' : 'rgba(250, 243, 228, 0.82)';
 
   return (
-    <BlurView
-      intensity={0}
-      tint={colorScheme === 'dark' ? 'dark' : 'light'}
-      className="flex-row gap-3 px-6 pb-2 pt-10">
+    <View className="px-5 pb-3 pt-10">
       <View
-        className="flex-1 rounded-2xl border border-border p-4"
-        style={{ backgroundColor: cardBg }}>
-        <View className="mb-3 flex-row items-center gap-2">
-          <View
-            className="h-9 w-9 items-center justify-center rounded-full"
-            style={{ backgroundColor: accent }}>
-            <SparklesIcon size={18} color="white" />
+        className="rounded-3xl px-4 pb-3.5 pt-3.5"
+        style={{
+          backgroundColor: cardBg,
+          borderWidth: 1,
+          borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(191, 166, 120, 0.28)',
+          shadowColor: isDark ? '#000' : '#8a6a3a',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: isDark ? 0.35 : 0.12,
+          shadowRadius: 14,
+        }}>
+        <Text className="mb-1 font-heading text-[15px] leading-5 text-foreground/70">
+          {t('journeyTitle')}
+        </Text>
+
+        <View className="mb-3 flex-row items-end gap-3">
+          <View className="flex-1 flex-row items-baseline gap-1.5">
+            <Text className="font-heading text-[34px] leading-9 text-foreground">{xp}</Text>
+            <Text className="font-heading text-base text-muted-foreground">XP</Text>
           </View>
-          <View className="flex-1">
-            <Text className="text-2xl font-bold leading-7 text-foreground">
-              {xp} <Text className="text-base font-semibold text-muted-foreground">XP</Text>
-            </Text>
-          </View>
-          <Text className="text-sm font-semibold text-muted-foreground">
-            {t('discovered', { count: unlockedCount, total })}
+
+          <Text className="mb-1 font-heading text-sm text-muted-foreground">
+            {unlockedCount}/{total}
           </Text>
         </View>
 
-        <View className="h-2.5 overflow-hidden rounded-full bg-muted">
+        <View
+          className="h-2 overflow-hidden rounded-full"
+          style={{
+            backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(191, 166, 120, 0.22)',
+          }}>
           <Animated.View
-            style={[{ height: '100%', borderRadius: 999, backgroundColor: accent }, fillStyle]}
+            style={[
+              {
+                height: '100%',
+                borderRadius: 999,
+                backgroundColor: accent,
+              },
+              fillStyle,
+            ]}
           />
         </View>
 
-        <Text className="mt-2 text-xs text-muted-foreground">
+        <Text className="mt-2.5 font-heading text-[13px] leading-4 text-muted-foreground">
           {nextBirdName
             ? t('xpToUnlock', { xp: xpToNext, name: nextBirdName })
             : t('allDiscovered')}
         </Text>
       </View>
-    </BlurView>
+    </View>
   );
 }

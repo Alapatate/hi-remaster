@@ -5,6 +5,7 @@ import {
   databases,
 } from '@/lib/appwrite';
 import { flagEmoji, languageName } from '@/lib/langFlags';
+import { Image } from 'react-native';
 import { Query } from 'react-native-appwrite';
 import type { Teacher, Video } from './types';
 
@@ -49,11 +50,31 @@ const LOCAL_TEACHER_PHOTOS: Record<string, ReturnType<typeof require>> = {
 
 const FALLBACK_PHOTO = require('@/assets/images/phi.png');
 
+/** Stable `{ uri }` objects — a fresh object each call makes Image remount/reload. */
+const REMOTE_PHOTO_CACHE = new Map<string, { uri: string }>();
+
 export function teacherPhotoSource(teacher?: Teacher) {
   const url = teacher?.profilepic;
-  if (url && /^https?:\/\//.test(url)) return { uri: url };
+  if (url && /^https?:\/\//.test(url)) {
+    let cached = REMOTE_PHOTO_CACHE.get(url);
+    if (!cached) {
+      cached = { uri: url };
+      REMOTE_PHOTO_CACHE.set(url, cached);
+    }
+    return cached;
+  }
   const key = teacher?.firstname?.toLowerCase().trim() ?? '';
   return LOCAL_TEACHER_PHOTOS[key] ?? FALLBACK_PHOTO;
+}
+
+/** Kick off network fetch for every remote profile pic (fire-and-forget). */
+export function prefetchTeacherPhotos(teachers: Teacher[]) {
+  for (const t of teachers) {
+    const src = teacherPhotoSource(t);
+    if (typeof src === 'object' && 'uri' in src && typeof src.uri === 'string') {
+      Image.prefetch(src.uri).catch(() => {});
+    }
+  }
 }
 
 /** Regional flag emoji derived from `lang`. */

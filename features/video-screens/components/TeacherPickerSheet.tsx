@@ -50,15 +50,14 @@ export const TeacherPickerSheet = React.forwardRef<
   return (
     <BottomSheetModal
       ref={ref}
-      enableDynamicSizing
+      snapPoints={['60%']}
+      enableDynamicSizing={false}
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
       backgroundStyle={{ backgroundColor: SHEET_BG }}
       handleIndicatorStyle={{ backgroundColor: HANDLE }}>
-      <BottomSheetScrollView
-        className="px-5 pt-3"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
-        {/* Language filter — only when there's more than one language to pick from. */}
+      <View className="rounded-3xl px-5">
+        <Text className="mb-2 font-heading text-2xl">Language</Text>
         {languages.length > 1 ? (
           <View className="mb-4 flex-row flex-wrap gap-2">
             <FilterChip
@@ -76,6 +75,11 @@ export const TeacherPickerSheet = React.forwardRef<
             ))}
           </View>
         ) : null}
+      </View>
+      <BottomSheetScrollView
+        className="px-5 pt-3"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
+        {/* Language filter — only when there's more than one language to pick from. */}
 
         {filtered.map((teacher) => {
           const isCurrent = teacher.$id === currentId;

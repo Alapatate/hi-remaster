@@ -115,9 +115,9 @@ export function VideoSessionFlow() {
   }, []);
 
   // Restore last teacher from prefs once the list has loaded.
-  const restoredRef = React.useRef(false);
+  const [teacherReady, setTeacherReady] = React.useState(false);
   React.useEffect(() => {
-    if (restoredRef.current || teachers.length === 0) return;
+    if (teachers.length === 0) return;
     const lastTeacherId = (user?.prefs as Record<string, unknown>)?.lastTeacherId as
       | string
       | undefined;
@@ -125,7 +125,7 @@ export function VideoSessionFlow() {
       const idx = teachers.findIndex((t) => t.$id === lastTeacherId);
       if (idx !== -1) setFeaturedIndex(idx);
     }
-    restoredRef.current = true;
+    setTeacherReady(true);
   }, [teachers, user?.prefs]);
 
   const aboutRef = React.useRef<BottomSheetModal>(null);
@@ -269,7 +269,7 @@ export function VideoSessionFlow() {
 
       {/* Relative container so entering/exiting steps overlap during crossfade */}
       <View style={{ flex: 1, position: 'relative' }}>
-        {loading ? (
+        {loading || !teacherReady ? (
           <Animated.View key="loading" style={FILL} entering={FadeIn} exiting={FadeOut}>
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color="#bf6e1a" />

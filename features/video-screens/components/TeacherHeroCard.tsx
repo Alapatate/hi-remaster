@@ -1,155 +1,366 @@
 import { Text } from '@/components/ui/text';
+import { languageBase } from '@/lib/langFlags';
 import { InfoIcon } from 'lucide-react-native';
 import * as React from 'react';
 import {
-  ImageBackground,
+  FlatList,
+  Image,
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  ScrollView,
   StyleProp,
   TouchableOpacity,
   View,
   ViewStyle,
+  ViewToken,
 } from 'react-native';
-import { teacherFlag, teacherFullName, teacherPhotoSource } from '../lib/data';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { teacherFlag, teacherFullName, teacherLanguage, teacherPhotoSource } from '../lib/data';
 import type { Teacher } from '../lib/types';
 
-/** Gap between adjacent cards so they read as separate cards while sliding. */
-const GAP = 16;
+/** Gap between adjacent cards. */
+const GAP = 14;
 
 /**
- * Horizontal pager of same-language teachers. Uses a native paging ScrollView so
- * the scroll position is owned by the OS (no JS/UI-thread races → no flash). All
- * cards — including the loop clones at each end — stay mounted, so every photo is
- * preloaded. Looping is a silent native jump from a clone to its identical real
- * card, which is invisible because they show the same teacher.
+ * Horizontal teacher carousel (finite, with a peek of the next card).
+ *
+ * The resting card matches the page content width (same left/right edges as
+ * the Practice / Change row). The next card peeks into the page's right gutter.
+ *
+ * Uses FlatList + getItemLayout so the restored/selected teacher is the one
+ * you land on, keeps every card mounted so photos stay warm, and snaps with
+ * normal momentum (no one-page-only locking) so swipes feel fluid.
  */
 export function TeacherHeroCard({
   teacher,
   langTeachers,
   onSelect,
   onInfo,
+  pagePadding = 20,
   style,
 }: {
   teacher: Teacher;
-  /** All same-language teachers, in a stable order; the pager loops within this. */
+  /** All same-language teachers, in a stable order. */
   langTeachers: Teacher[];
   /** Called when a swipe settles on a different teacher. */
   onSelect?: (t: Teacher) => void;
   onInfo?: () => void;
+  /** Horizontal padding of the page this sits in, so the bleed can undo it. */
+  pagePadding?: number;
   style?: StyleProp<ViewStyle>;
 }) {
-  const scrollRef = React.useRef<ScrollView>(null);
+  const listRef = React.useRef<FlatList<Teacher>>(null);
   const [size, setSize] = React.useState({ w: 0, h: 0 });
   const { w, h } = size;
-  const stride = w + GAP;
-  const canSwipe = langTeachers.length > 1;
-  const n = langTeachers.length;
 
-  // Clone the last teacher before the first and the first after the last so a
-  // swipe past either end has a real card to slide to before we silently jump.
-  const data = React.useMemo(() => {
-    if (!canSwipe) return langTeachers;
-    return [langTeachers[n - 1], ...langTeachers, langTeachers[0]];
-  }, [langTeachers, canSwipe, n]);
+  const count = langTeachers.length;
+  const canSwipe = count > 1;
+  // Full content width: aligns with the buttons below (pagePadding on each side).
+  const cardWidth = Math.max(0, w - pagePadding * 2);
+  const stride = cardWidth + GAP;
+  const ready = cardWidth > 0 && h > 0;
 
-  const realIndex = Math.max(
-    0,
-    langTeachers.findIndex((t) => t.$id === teacher.$id)
-  );
-  /** Scroll x for a real teacher index (leading clone shifts everything by one). */
-  const offsetFor = (ri: number) => (canSwipe ? ri + 1 : ri) * stride;
+  const index = React.useMemo(() => {
+    const i = langTeachers.findIndex((t) => t.$id === teacher.$id);
+    return i < 0 ? 0 : i;
+  }, [langTeachers, teacher.$id]);
+
+  // Remount only when the language set changes — not on every swipe.
+  const listKey = languageBase(teacher.lang ?? '') || 'teachers';
+
+  // Track what we last told the parent / scrolled to, so picker/prefs updates
+  // sync the list without fighting an in-progress user swipe.
+  const settledIdRef = React.useRef(teacher.$id);
+  const draggingRef = React.useRef(false);
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     if (width !== w || height !== h) setSize({ w: width, h: height });
   };
 
-  // Keep the scroll aligned with the current teacher for external changes
-  // (initial mount, picking from the sheet, restoring from prefs).
-  React.useEffect(() => {
-    if (w === 0) return;
-    scrollRef.current?.scrollTo({ x: offsetFor(realIndex), animated: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [w, realIndex]);
+  const scrollToIndex = React.useCallback(
+    (i: number, animated = false) => {
+      if (!ready || stride <= 0) return;
+      listRef.current?.scrollToOffset({ offset: i * stride, animated });
+    },
+    [ready, stride]
+  );
 
-  const onMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (!canSwipe || w === 0) return;
-    const page = Math.round(e.nativeEvent.contentOffset.x / stride); // 0..n+1
-    let ri = page - 1;
-    if (page === 0)
-      ri = n - 1; // leading clone (last)
-    else if (page === n + 1) ri = 0; // trailing clone (first)
-    // Silent jump from a clone to its real counterpart (same photo → invisible).
-    if (page === 0 || page === n + 1) {
-      scrollRef.current?.scrollTo({ x: offsetFor(ri), animated: false });
+  // FlatList's initialScrollIndex is unreliable on Android — re-assert after layout
+  // and whenever the language set remounts.
+  React.useEffect(() => {
+    if (!ready) return;
+    const frame = requestAnimationFrame(() => {
+      scrollToIndex(index, false);
+      settledIdRef.current = teacher.$id;
+    });
+    return () => cancelAnimationFrame(frame);
+    // Only when the list becomes measurable or remounts for a new language.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, listKey, scrollToIndex]);
+
+  // External selection (prefs restore, picker): jump without animation.
+  React.useEffect(() => {
+    if (!ready || draggingRef.current) return;
+    if (teacher.$id === settledIdRef.current) return;
+    settledIdRef.current = teacher.$id;
+    scrollToIndex(index, false);
+  }, [teacher.$id, index, ready, scrollToIndex]);
+
+  const settleFromOffset = React.useCallback(
+    (x: number) => {
+      if (!canSwipe || stride <= 0) return;
+      const next = Math.min(count - 1, Math.max(0, Math.round(x / stride)));
+      const settled = langTeachers[next];
+      if (!settled) return;
+      settledIdRef.current = settled.$id;
+      draggingRef.current = false;
+      if (settled.$id !== teacher.$id) onSelect?.(settled);
+    },
+    [canSwipe, stride, count, langTeachers, teacher.$id, onSelect]
+  );
+
+  const onScrollBeginDrag = React.useCallback(() => {
+    draggingRef.current = true;
+  }, []);
+
+  const onMomentumScrollEnd = React.useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      settleFromOffset(e.nativeEvent.contentOffset.x);
+    },
+    [settleFromOffset]
+  );
+
+  // Slow drag with no fling still needs to commit the snapped page.
+  const onScrollEndDrag = React.useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const vx = e.nativeEvent.velocity?.x ?? 0;
+      if (Math.abs(vx) < 0.15) settleFromOffset(e.nativeEvent.contentOffset.x);
+    },
+    [settleFromOffset]
+  );
+
+  const getItemLayout = React.useCallback(
+    (_: ArrayLike<Teacher> | null | undefined, i: number) => ({
+      length: i === count - 1 ? cardWidth : stride,
+      offset: i * stride,
+      index: i,
+    }),
+    [cardWidth, stride, count]
+  );
+
+  // Explicit offsets so snap never aims past the last card (which eats the end bounce).
+  const snapToOffsets = React.useMemo(
+    () => Array.from({ length: count }, (_, i) => i * stride),
+    [count, stride]
+  );
+
+  const renderItem = React.useCallback(
+    ({ item, index: i }: { item: Teacher; index: number }) => (
+      <View
+        style={{
+          width: cardWidth,
+          height: h,
+          marginRight: i === count - 1 ? 0 : GAP,
+        }}>
+        <TeacherCard
+          teacher={item}
+          active={item.$id === teacher.$id}
+          onInfo={item.$id === teacher.$id ? onInfo : undefined}
+        />
+      </View>
+    ),
+    [cardWidth, h, count, teacher.$id, onInfo]
+  );
+
+  // Keep dots in sync even mid-fling via viewability (optional polish).
+  const [dotIndex, setDotIndex] = React.useState(index);
+  React.useEffect(() => {
+    setDotIndex(index);
+  }, [index]);
+
+  const onViewableItemsChanged = React.useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const first = viewableItems.find((v) => v.isViewable && v.index != null);
+      if (first?.index != null) setDotIndex(first.index);
     }
-    const selected = langTeachers[ri];
-    if (selected && selected.$id !== teacher.$id) onSelect?.(selected);
-  };
+  ).current;
+
+  const viewabilityConfig = React.useRef({
+    itemVisiblePercentThreshold: 60,
+  }).current;
 
   return (
-    <View className="overflow-hidden" style={style} onLayout={onLayout}>
-      {w > 0 ? (
-        <ScrollView
-          ref={scrollRef}
-          horizontal
-          scrollEnabled={canSwipe}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={stride}
-          snapToAlignment="start"
-          disableIntervalMomentum
-          decelerationRate="fast"
-          contentOffset={{ x: offsetFor(realIndex), y: 0 }}
-          onMomentumScrollEnd={onMomentumEnd}>
-          {data.map((t, i) => (
-            <View key={`${t.$id}-${i}`} style={{ width: w, height: h, marginRight: GAP }}>
-              <TeacherCard teacher={t} />
-            </View>
-          ))}
-        </ScrollView>
-      ) : null}
+    <View style={[style, { marginHorizontal: -pagePadding }]}>
+      <View style={{ flex: 1 }} className="overflow-hidden" onLayout={onLayout}>
+        {ready ? (
+          <FlatList
+            key={listKey}
+            ref={listRef}
+            data={langTeachers}
+            horizontal
+            keyExtractor={(t) => t.$id}
+            renderItem={renderItem}
+            getItemLayout={getItemLayout}
+            initialScrollIndex={index}
+            // Soft snap onto each card; explicit offsets preserve end rubber-banding.
+            snapToOffsets={snapToOffsets}
+            decelerationRate="normal"
+            bounces
+            alwaysBounceHorizontal={canSwipe}
+            overScrollMode="always"
+            scrollEnabled={canSwipe}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingLeft: pagePadding, paddingRight: pagePadding }}
+            onScrollBeginDrag={onScrollBeginDrag}
+            onScrollEndDrag={onScrollEndDrag}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            // Small teacher lists — keep every photo mounted.
+            removeClippedSubviews={false}
+            initialNumToRender={count}
+            maxToRenderPerBatch={count}
+            windowSize={Math.max(count, 3)}
+          />
+        ) : null}
+      </View>
 
-      {/* Info button — fixed over the current card, outside the scroll. */}
-      {onInfo ? (
-        <TouchableOpacity
-          onPress={onInfo}
-          activeOpacity={0.8}
-          className="absolute bottom-4 left-4 h-12 w-12 items-center justify-center rounded-full"
-          style={{ backgroundColor: 'rgba(247,241,227,0.92)' }}>
-          <InfoIcon size={20} color="#bf6e1a" />
-        </TouchableOpacity>
-      ) : null}
+      {canSwipe ? <PageDots count={count} index={dotIndex} /> : null}
     </View>
   );
 }
 
-/** A single rounded teacher card: photo, name banner and flag. */
-function TeacherCard({ teacher }: { teacher: Teacher }) {
+function PageDots({ count, index }: { count: number; index: number }) {
+  return (
+    <View className="flex-row items-center justify-center pt-3" style={{ gap: 7 }}>
+      {Array.from({ length: count }, (_, i) => {
+        const active = i === index;
+        return (
+          <View
+            key={i}
+            className={active ? 'bg-primary' : 'bg-sand-dark'}
+            style={{ width: active ? 22 : 7, height: 7, borderRadius: 999 }}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
+/**
+ * Full-bleed photo with name / bio / language on a fading black scrim.
+ * Active ring is an overlay so selection never relayouts the image.
+ */
+const TeacherCard = React.memo(function TeacherCard({
+  teacher,
+  active,
+  onInfo,
+}: {
+  teacher: Teacher;
+  active: boolean;
+  onInfo?: () => void;
+}) {
   const flag = teacherFlag(teacher);
+  const language = teacherLanguage(teacher);
+  const source = teacherPhotoSource(teacher);
+  const subtitle = teacher.presentation?.trim();
+  const gradId = `teacherScrim-${teacher.$id}`;
+  const [scrimSize, setScrimSize] = React.useState({ w: 0, h: 0 });
+
   return (
     <View className="flex-1 overflow-hidden rounded-3xl bg-card">
-      <ImageBackground
-        source={teacherPhotoSource(teacher)}
-        style={{ flex: 1, minHeight: 180 }}
-        resizeMode="cover">
-        {/* Name banner */}
-        <View className="absolute left-4 right-4 top-4 items-center py-3">
-          <Text className="font-heading text-3xl uppercase tracking-wide text-white">
-            {teacherFullName(teacher)}
-          </Text>
-        </View>
+      <Image
+        source={source}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        resizeMode="cover"
+      />
 
-        {/* Country flag */}
-        {flag ? (
-          <View
-            className="absolute bottom-4 right-4 h-12 w-12 items-center justify-center rounded-full"
-            style={{ backgroundColor: 'rgba(247,241,227,0.92)' }}>
-            <Text style={{ fontSize: 24 }}>{flag}</Text>
-          </View>
+      {/* Bottom fade — transparent → black behind the copy. */}
+      <View
+        pointerEvents="none"
+        onLayout={(e) => {
+          const { width, height } = e.nativeEvent.layout;
+          if (width !== scrimSize.w || height !== scrimSize.h) {
+            setScrimSize({ w: width, h: height });
+          }
+        }}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '55%' }}>
+        {scrimSize.w > 0 && scrimSize.h > 0 ? (
+          <Svg width={scrimSize.w} height={scrimSize.h}>
+            <Defs>
+              <LinearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor="#000" stopOpacity={0} />
+                <Stop offset="0.45" stopColor="#000" stopOpacity={0.45} />
+                <Stop offset="1" stopColor="#000" stopOpacity={0.88} />
+              </LinearGradient>
+            </Defs>
+            <Rect x={0} y={0} width={scrimSize.w} height={scrimSize.h} fill={`url(#${gradId})`} />
+          </Svg>
         ) : null}
-      </ImageBackground>
+      </View>
+
+      {/* Name, subtitle, language + info */}
+      <View className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-8" style={{ gap: 6 }}>
+        <Text
+          className="font-heading text-white"
+          style={{ fontSize: 26, lineHeight: 28 }}
+          numberOfLines={1}>
+          {teacherFullName(teacher)}
+        </Text>
+
+        {subtitle ? (
+          <Text
+            className="font-body"
+            style={{ fontSize: 14, lineHeight: 19, color: 'rgba(255,255,255,0.82)' }}
+            numberOfLines={2}>
+            {subtitle}
+          </Text>
+        ) : null}
+
+        <View className="mt-0.5 min-h-11 flex-row items-center justify-between" style={{ gap: 12 }}>
+          <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 8 }}>
+            {flag ? <Text style={{ fontSize: 18 }}>{flag}</Text> : null}
+            {language ? (
+              <Text
+                className="font-body font-semibold text-white"
+                style={{ fontSize: 14, lineHeight: 18 }}
+                numberOfLines={1}>
+                {language}
+              </Text>
+            ) : null}
+          </View>
+
+          {onInfo ? (
+            <Animated.View entering={FadeIn.duration(280)} exiting={FadeOut.duration(160)}>
+              <TouchableOpacity
+                onPress={onInfo}
+                activeOpacity={0.8}
+                className="h-11 w-11 items-center justify-center rounded-full"
+                style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                <InfoIcon size={18} color="#fff" />
+              </TouchableOpacity>
+            </Animated.View>
+          ) : null}
+        </View>
+      </View>
+
+      {active ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 24,
+            borderWidth: 2,
+            borderColor: '#bf6e1a',
+          }}
+        />
+      ) : null}
     </View>
   );
-}
+});

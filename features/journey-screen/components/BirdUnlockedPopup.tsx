@@ -37,7 +37,7 @@ export function BirdUnlockedPopup({
             shadowRadius: 16,
             elevation: 8,
           }}>
-          <Text className="mb-3 text-sm font-bold uppercase tracking-wide" style={{ color: accent }}>
+          <Text className="mb-3 font-heading text-sm tracking-wide" style={{ color: accent }}>
             {t('birdDiscovered')}
           </Text>
 
@@ -47,7 +47,7 @@ export function BirdUnlockedPopup({
             <Text style={{ fontSize: 56 }}>{bird?.emoji ?? ''}</Text>
           </View>
 
-          <Text className="text-center text-2xl font-bold text-foreground">{bird?.name ?? ''}</Text>
+          <Text className="text-center font-heading text-3xl text-foreground">{bird?.name ?? ''}</Text>
           <Text className="mb-6 mt-1 text-center text-base italic text-muted-foreground">
             {bird?.scientificName ?? ''}
           </Text>
@@ -57,7 +57,7 @@ export function BirdUnlockedPopup({
             activeOpacity={0.85}
             className="w-full items-center justify-center rounded-2xl px-5 py-3"
             style={{ backgroundColor: accent }}>
-            <Text className="text-base font-bold text-white">{t('birdDiscoveredCta')}</Text>
+            <Text className="font-heading text-base text-white">{t('birdDiscoveredCta')}</Text>
           </TouchableOpacity>
         </Pressable>
       </Pressable>

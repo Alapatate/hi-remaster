@@ -106,7 +106,7 @@ export function WaypointNode({
 
       <Text
         numberOfLines={1}
-        className={`mt-1.5 text-center text-xs font-semibold ${
+        className={`mt-1.5 text-center font-heading text-[13px] ${
           unlocked ? 'text-foreground' : 'text-muted-foreground'
         }`}>
         {unlocked ? bird.name : '???'}

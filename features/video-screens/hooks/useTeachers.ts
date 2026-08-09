@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fetchTeachers } from '../lib/data';
+import { fetchTeachers, prefetchTeacherPhotos } from '../lib/data';
 import type { Teacher } from '../lib/types';
 
 type State = {
@@ -19,7 +19,10 @@ export function useTeachers(): State {
     setLoading(true);
     setError('');
     fetchTeachers()
-      .then(setTeachers)
+      .then((list) => {
+        setTeachers(list);
+        prefetchTeacherPhotos(list);
+      })
       .catch((e: any) => setError(e?.message ?? 'Could not load teachers.'))
       .finally(() => setLoading(false));
   }, []);
