@@ -10,11 +10,10 @@ import {
 } from '@/components/auth/AuthScaffold';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
-import { LANGUAGES } from '@/lib/languages';
 import i18n from '@/lib/i18n';
 import { router } from 'expo-router';
 import * as React from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -27,7 +26,6 @@ export default function SignUp() {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [language, setLanguage] = React.useState<string>(i18n.language ?? 'en');
   const [showPw, setShowPw] = React.useState(false);
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -45,9 +43,10 @@ export default function SignUp() {
     setLoading(true);
     try {
       await signUp(email, password, name);
-      // The chosen language is a normal preference, saved once the account
-      // exists. A failure here must not block a successful registration.
-      await updatePrefs({ language }).catch(() => {});
+      // Seed the account: the device language as a starting point, and the flag
+      // that routes the first launch through the language picker. A failure
+      // here must not block a successful registration.
+      await updatePrefs({ language: i18n.language ?? 'en', firstlogin: true }).catch(() => {});
       router.replace('/(protected)/dashboard');
     } catch (e: any) {
       setError(e?.message ?? t('fillAllFields'));
@@ -104,33 +103,6 @@ export default function SignUp() {
             right={<EyeToggle show={showPw} onToggle={() => setShowPw((v) => !v)} />}
           />
           <PasswordStrength password={password} />
-        </Animated.View>
-
-        <Animated.View entering={FadeInDown.delay(160).duration(260)}>
-          <Text className="mb-2 font-body-semibold text-[12px] uppercase tracking-widest text-muted-foreground">
-            {t('listeningLanguage')}
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {LANGUAGES.map((lang) => {
-              const active = lang.code === language;
-              return (
-                <TouchableOpacity
-                  key={lang.code}
-                  onPress={() => setLanguage(lang.code)}
-                  activeOpacity={0.75}
-                  className={`rounded-full px-4 py-2.5 ${
-                    active ? 'bg-primary' : 'border border-border bg-card'
-                  }`}>
-                  <Text
-                    className={`font-body-medium text-[14px] ${
-                      active ? 'text-primary-foreground' : 'text-foreground'
-                    }`}>
-                    {lang.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
         </Animated.View>
       </View>
 

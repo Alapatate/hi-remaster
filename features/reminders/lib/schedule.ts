@@ -2,6 +2,9 @@ import type { Reminder, ReminderId, Reminders } from './types';
 
 export const REMINDER_IDS: ReminderId[] = ['dailySit', 'windDown'];
 
+/** Account-prefs key the serialized reminders live under. */
+export const REMINDERS_PREF_KEY = 'reminders';
+
 /** Sunday-first, matching the weekday numbers expo-notifications expects. */
 export const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
 export const WEEKDAYS = [2, 3, 4, 5, 6];
@@ -22,7 +25,9 @@ function clamp(value: number, min: number, max: number, fallback: number): numbe
 
 function normalizeDays(days: unknown, fallback: number[]): number[] {
   if (!Array.isArray(days)) return fallback;
-  const kept = [...new Set(days.filter((d): d is number => Number.isInteger(d) && d >= 1 && d <= 7))];
+  const kept = [
+    ...new Set(days.filter((d): d is number => Number.isInteger(d) && d >= 1 && d <= 7)),
+  ];
   return kept.sort((a, b) => a - b);
 }
 

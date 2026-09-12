@@ -20,20 +20,12 @@ import { PlayerTopBar } from '../components/player/PlayerTopBar';
 import { QualitySheet, type QualityOption } from '../components/player/QualitySheet';
 import { SessionPlaylistSheet } from '../components/player/SessionPlaylistSheet';
 import { UpNextCard } from '../components/player/UpNextCard';
-import { useHlsVariants } from '../hooks/useHlsVariants';
 import { fetchVideo, teacherFullName, teacherLanguage } from '../lib/data';
 import { totalDuration } from '../lib/format';
+import { buildVideoSource, resolvePlayableVideo, type PlayableVideo } from '../lib/hls';
 import type { Video } from '../lib/types';
 
 const AUTO_HIDE_MS = 3500;
-
-function buildVideoSource(uri: string, title: string) {
-  return {
-    uri,
-    ...(uri.includes('.m3u8') ? { contentType: 'hls' as const } : {}),
-    metadata: { title },
-  };
-}
 
 export function PlayerScreen() {
   const { id, session, t: resumeParam } = useLocalSearchParams<{
@@ -146,12 +138,62 @@ function PlayerView({
   onProgress: (progress: number, total: number, teacherName: string, seconds: number) => void;
   onXpEarned?: (minutes: number) => void;
 }) {
+  // Follow redirects / normalise the URI on iOS before AVPlayer touches it.
+  const [playable, setPlayable] = React.useState<PlayableVideo | null>(null);
+  React.useEffect(() => {
+    let cancelled = false;
+    setPlayable(null);
+    resolvePlayableVideo(video.url!).then((resolved) => {
+      if (!cancelled) setPlayable(resolved);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [video.url]);
+
+  if (!playable) {
+    return (
+      <View className="flex-1 items-center justify-center bg-black">
+        <ActivityIndicator size="large" color="#bf6e1a" />
+      </View>
+    );
+  }
+
+  return (
+    <ActivePlayer
+      video={video}
+      sessionVideos={sessionVideos}
+      sessionParam={sessionParam}
+      resumeAt={resumeAt}
+      onProgress={onProgress}
+      onXpEarned={onXpEarned}
+      playable={playable}
+    />
+  );
+}
+
+function ActivePlayer({
+  video,
+  sessionVideos,
+  sessionParam,
+  resumeAt = 0,
+  onProgress,
+  onXpEarned,
+  playable,
+}: {
+  video: Video;
+  sessionVideos: Video[];
+  sessionParam: string;
+  resumeAt?: number;
+  onProgress: (progress: number, total: number, teacherName: string, seconds: number) => void;
+  onXpEarned?: (minutes: number) => void;
+  playable: PlayableVideo;
+}) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const url = video.url!;
   const title = video.title;
-
-  const variants = useHlsVariants(url);
+  const url = playable.uri;
+  const variants = playable.variants;
   const [activeQuality, setActiveQuality] = React.useState<string | null>(null);
   const [viewKey, setViewKey] = React.useState(0);
   // Reuses the seek-on-ready path already used by quality switches.
@@ -195,7 +237,7 @@ function PlayerView({
 
   const sessionTotal = hasSession ? totalDuration(sessionVideos) : (video.duration ?? 0);
 
-  const player = useVideoPlayer(buildVideoSource(url, title), (p) => {
+  const player = useVideoPlayer(buildVideoSource(url, title, playable.contentType), (p) => {
     p.timeUpdateEventInterval = 0.5;
     p.play();
   });
@@ -345,11 +387,11 @@ function PlayerView({
       if (label === activeQuality) return;
       pendingSeek.current = player.currentTime;
       const newUrl = label ? (variants.find((v) => v.label === label)?.url ?? url) : url;
-      player.replace(buildVideoSource(newUrl, title));
+      player.replace(buildVideoSource(newUrl, title, playable.contentType));
       setActiveQuality(label);
       setViewKey((k) => k + 1);
     },
-    [activeQuality, player, title, url, variants]
+    [activeQuality, player, title, url, variants, playable.contentType]
   );
 
   const goToVideo = React.useCallback(
