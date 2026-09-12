@@ -3,10 +3,14 @@ import * as Notifications from 'expo-notifications';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { syncReminder, requestPermission } from '../lib/notifications';
-import { DEFAULT_REMINDERS, parseReminders, REMINDER_IDS, serializeReminders } from '../lib/schedule';
+import {
+  DEFAULT_REMINDERS,
+  parseReminders,
+  REMINDER_IDS,
+  REMINDERS_PREF_KEY,
+  serializeReminders,
+} from '../lib/schedule';
 import type { Reminder, ReminderId, Reminders } from '../lib/types';
-
-const PREF_KEY = 'reminders';
 
 export type ReminderCopy = { title: string; body: string };
 
@@ -16,7 +20,7 @@ export function useReminders() {
   const [busy, setBusy] = React.useState<ReminderId | null>(null);
 
   const reminders: Reminders = React.useMemo(
-    () => parseReminders((user?.prefs as Record<string, unknown>)?.[PREF_KEY]),
+    () => parseReminders((user?.prefs as Record<string, unknown>)?.[REMINDERS_PREF_KEY]),
     [user?.prefs]
   );
 
@@ -74,7 +78,7 @@ export function useReminders() {
     async (id: ReminderId, next: Reminder) => {
       const updated: Reminders = { ...reminders, [id]: next };
       await syncReminder(id, next, copyFor(id));
-      await updatePrefs({ [PREF_KEY]: serializeReminders(updated) });
+      await updatePrefs({ [REMINDERS_PREF_KEY]: serializeReminders(updated) });
     },
     [reminders, copyFor, updatePrefs]
   );

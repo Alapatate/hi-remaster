@@ -1,3 +1,4 @@
+import { EditNameDialog } from '@/components/EditNameDialog';
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
@@ -8,6 +9,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   MoonIcon,
+  PencilIcon,
   SunIcon,
 } from 'lucide-react-native';
 import { useJourney } from '@/features/journey-screen/hooks/useJourney';
@@ -27,7 +29,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 
 export default function Profile() {
-  const { user, updatePrefs } = useAuth();
+  const { user, updatePrefs, updateName } = useAuth();
   const { t } = useTranslation();
   const { setColorScheme } = useColorScheme();
   const dockSpace = useBottomDockSpace();
@@ -37,6 +39,7 @@ export default function Profile() {
   const frontierBird = waypoints[frontierIndex]?.bird;
   const birdEmoji = frontierBird?.emoji ?? '🐦';
   const [langOpen, setLangOpen] = React.useState(false);
+  const [nameOpen, setNameOpen] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
   const [savingNewsletter, setSavingNewsletter] = React.useState(false);
@@ -106,9 +109,18 @@ export default function Profile() {
             <Text style={{ fontSize: 42, lineHeight: 50, textAlign: 'center' }}>{birdEmoji}</Text>
           </View>
           <View className="flex-1 gap-1">
-            <Text className="font-heading text-[26px] leading-tight" numberOfLines={1}>
-              {user?.name}
-            </Text>
+            {/* Tapping the name opens the rename dialog; the pencil is there so
+                the row reads as editable rather than as a plain heading. */}
+            <TouchableOpacity
+              onPress={() => setNameOpen(true)}
+              activeOpacity={0.7}
+              hitSlop={6}
+              className="flex-row items-center gap-2">
+              <Text className="shrink font-heading text-[26px] leading-tight" numberOfLines={1}>
+                {user?.name}
+              </Text>
+              <PencilIcon size={15} className="text-muted-foreground" />
+            </TouchableOpacity>
             <Text className="font-body text-sm text-muted-foreground" numberOfLines={1}>
               {memberSince ? t('memberSinceLabel') + ' ' + memberSince : user?.email}
             </Text>
@@ -251,6 +263,13 @@ export default function Profile() {
           </TouchableOpacity>
         </Card>
       </View>
+
+      <EditNameDialog
+        visible={nameOpen}
+        initialName={user?.name ?? ''}
+        onSave={updateName}
+        onClose={() => setNameOpen(false)}
+      />
     </ScrollView>
   );
 }

@@ -12,6 +12,8 @@ type AuthContextType = {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   updatePrefs: (prefs: Models.Preferences) => Promise<void>;
+  /** Rename the account. The name is what every screen greets the user with. */
+  updateName: (name: string) => Promise<void>;
   /** Re-fetch the account from the server and refresh context. Returns the fresh user. */
   refreshUser: () => Promise<User | null>;
 };
@@ -66,6 +68,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     applyLanguage(updated.prefs);
   };
 
+  const updateName = async (name: string) => {
+    const updated = await account.updateName(name);
+    setUser(updated);
+  };
+
   const refreshUser = async () => {
     try {
       const current = await account.get();
@@ -79,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signUp, signOut, updatePrefs, refreshUser }}>
+      value={{ user, loading, signIn, signUp, signOut, updatePrefs, updateName, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
