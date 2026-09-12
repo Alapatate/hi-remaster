@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { parseHlsVariants, type HlsVariant } from '../lib/hls';
+import { isHlsUrl, parseHlsVariants, type HlsVariant } from '../lib/hls';
 
 /** Loads the available HLS quality variants for a video URL (empty for non-HLS). */
 export function useHlsVariants(url?: string): HlsVariant[] {
   const [variants, setVariants] = React.useState<HlsVariant[]>([]);
 
   React.useEffect(() => {
-    if (!url || !url.includes('.m3u8')) {
+    if (!url || !isHlsUrl(url)) {
       setVariants([]);
       return;
     }

@@ -18,6 +18,12 @@ export type Video = Models.Document & {
   url?: string;
   duration?: number;
   type: VideoType;
+  /**
+   * The posture family this exercise belongs to, as stored in Appwrite
+   * (e.g. "shavasana"). Free text there, so never compare it raw — go through
+   * the helpers in `./tools`.
+   */
+  type_exercice?: string;
   teacher?: Teacher;
 };
 

@@ -32,6 +32,7 @@ import { LastSessionCard } from '../components/LastSessionCard';
 import { PhaseSection } from '../components/PhaseSection';
 import { FooterTally, PillButton } from '../components/PillButton';
 import { SessionRecapCard } from '../components/SessionRecapCard';
+import { SessionToolsDialog } from '../components/SessionToolsDialog';
 import { StepHeader } from '../components/StepHeader';
 import { TeacherHeroCard } from '../components/TeacherHeroCard';
 import { XpRewardNote } from '../components/XpRewardNote';
@@ -43,6 +44,7 @@ import { useJourney } from '@/features/journey-screen/hooks/useJourney';
 import { IS_CONFIGURED, readLastSession, teacherFullName } from '../lib/data';
 import { totalDuration } from '../lib/format';
 import { orderByPhase, PHASES, PHASE_ORDER } from '../lib/phases';
+import { hasShavasana } from '../lib/tools';
 import type { Video } from '../lib/types';
 
 const FOOTER_HEIGHT = 80;
@@ -112,7 +114,11 @@ export function VideoSessionFlow() {
   const stepRef = React.useRef<Step>(step);
   stepRef.current = step;
   const go = React.useCallback((next: Step) => {
-    setDirection(next >= stepRef.current ? 'forward' : 'back');
+    const back = next < stepRef.current;
+    setDirection(back ? 'back' : 'forward');
+    // Stepping backwards abandons the build: the chosen exercises are dropped so
+    // the next pass always starts from an empty list.
+    if (back) setSelected([]);
     setStep(next);
   }, []);
 
@@ -135,6 +141,20 @@ export function VideoSessionFlow() {
 
   const teacher = teachers[featuredIndex];
   const { videos, loading: videosLoading } = useTeacherVideos(step >= 2 ? teacher?.$id : undefined);
+
+  // Exercises belong to the teacher they were picked from, so any change of
+  // teacher empties the list. An effect rather than the two callbacks below, so
+  // every path is covered — the picker, a swipe on the hero carousel, and the
+  // restore-from-prefs effect above.
+  const lastTeacherIdRef = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    const id = teacher?.$id;
+    // Ignore the gap while the list reloads — only a move to a *different*
+    // teacher clears, not the momentary absence of one.
+    if (!id) return;
+    if (lastTeacherIdRef.current && lastTeacherIdRef.current !== id) setSelected([]);
+    lastTeacherIdRef.current = id;
+  }, [teacher?.$id]);
 
   const selectedIds = React.useMemo(() => new Set(selected.map((v) => v.$id)), [selected]);
   const total = React.useMemo(() => totalDuration(selected), [selected]);
@@ -170,7 +190,6 @@ export function VideoSessionFlow() {
     (t: (typeof teachers)[number]) => {
       const idx = teachers.findIndex((x) => x.$id === t.$id);
       if (idx !== -1) setFeaturedIndex(idx);
-      setSelected([]);
       pickerRef.current?.dismiss();
       updatePrefs({ lastTeacherId: t.$id }).catch(() => {});
     },
@@ -190,7 +209,6 @@ export function VideoSessionFlow() {
       const idx = teachers.findIndex((x) => x.$id === target.$id);
       if (idx === -1) return;
       setFeaturedIndex(idx);
-      setSelected([]);
       updatePrefs({ lastTeacherId: target.$id }).catch(() => {});
     },
     [teachers, updatePrefs]
@@ -221,9 +239,20 @@ export function VideoSessionFlow() {
     );
   }, []);
 
-  // Both ways into the player pause on the headphones notice first; the route
-  // to open is held here until it is acknowledged.
+  // Both ways into the player pause on two notices first — what to gather, then
+  // the headphones. The route to open is held here until both are acknowledged.
   const [pendingRoute, setPendingRoute] = React.useState<string | null>(null);
+  const [gate, setGate] = React.useState<'tools' | 'headphones'>('tools');
+
+  const openGate = React.useCallback((route: string) => {
+    setGate('tools');
+    setPendingRoute(route);
+  }, []);
+
+  const closeGate = React.useCallback(() => {
+    setPendingRoute(null);
+    setGate('tools');
+  }, []);
 
   const startSession = React.useCallback(() => {
     const ordered = orderByPhase(selected);
@@ -232,8 +261,8 @@ export function VideoSessionFlow() {
     if (teacher) {
       updatePrefs({ lastTeacherId: teacher.$id }).catch(() => {});
     }
-    setPendingRoute(`/video/${ordered[0].$id}?session=${ids}`);
-  }, [selected, teacher, updatePrefs]);
+    openGate(`/video/${ordered[0].$id}?session=${ids}`);
+  }, [selected, teacher, updatePrefs, openGate]);
 
   const resumeLastSession = React.useCallback(() => {
     if (!lastSession) return;
@@ -242,14 +271,18 @@ export function VideoSessionFlow() {
     // Hand the saved position to the player so it resumes where it stopped.
     if (lastSession.resumeAt > 0) params.set('t', String(Math.floor(lastSession.resumeAt)));
     const query = params.toString();
-    setPendingRoute(`/video/${lastSession.videoId}${query ? `?${query}` : ''}`);
-  }, [lastSession]);
+    openGate(`/video/${lastSession.videoId}${query ? `?${query}` : ''}`);
+  }, [lastSession, openGate]);
 
   const confirmHeadphones = React.useCallback(() => {
     const route = pendingRoute;
-    setPendingRoute(null);
+    closeGate();
     if (route) router.push(route as never);
-  }, [pendingRoute]);
+  }, [pendingRoute, closeGate]);
+
+  // Only the freshly built session knows its exercises, so a resumed one shows
+  // the checklist without the Shavasana line.
+  const sessionHasShavasana = React.useMemo(() => hasShavasana(selected), [selected]);
 
   if (!IS_CONFIGURED) return <SetupPlaceholder />;
 
@@ -275,11 +308,7 @@ export function VideoSessionFlow() {
           className="pt-2"
           entering={FadeIn.delay(STEP_ENTER_DELAY).duration(STEP_DURATION)}
           exiting={FadeOut.duration(STEP_DURATION)}>
-          <StepHeader
-            current={step}
-            total={3}
-            onBack={() => go((step === 3 ? 2 : 1) as Step)}
-          />
+          <StepHeader current={step} total={3} onBack={() => go((step === 3 ? 2 : 1) as Step)} />
         </Animated.View>
       )}
 
@@ -384,10 +413,7 @@ export function VideoSessionFlow() {
             )}
 
             <FooterBar insetBottom={dockSpace}>
-              <FooterTally
-                caption={t('chosenCount', { count: selected.length })}
-                seconds={total}
-              />
+              <FooterTally caption={t('chosenCount', { count: selected.length })} seconds={total} />
               <PillButton
                 className="flex-1"
                 label={t('review')}
@@ -509,14 +535,21 @@ export function VideoSessionFlow() {
         <AboutTeacherSheet ref={aboutRef} title={teacherFullName(teacher)} teacher={teacher} />
       ) : null}
 
+      <SessionToolsDialog
+        visible={pendingRoute !== null && gate === 'tools'}
+        shavasana={sessionHasShavasana}
+        onConfirm={() => setGate('headphones')}
+        onCancel={closeGate}
+      />
+
       <ConfirmDialog
-        visible={pendingRoute !== null}
+        visible={pendingRoute !== null && gate === 'headphones'}
         icon={<HeadphonesIcon size={26} color="#bf6e1a" />}
         title={t('headphonesTitle')}
         message={t('headphonesMessage')}
         confirmLabel={t('headphonesConfirm')}
         onConfirm={confirmHeadphones}
-        onCancel={() => setPendingRoute(null)}
+        onCancel={closeGate}
       />
     </View>
   );

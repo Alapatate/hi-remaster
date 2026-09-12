@@ -13,6 +13,11 @@ export default function ProtectedLayout() {
 
   if (loading) return null;
   if (!user) return <Redirect href="/(auth)/sign-in" />;
+  // A freshly created account has not picked its language yet — the one-time
+  // chooser runs before the tabs mount, and clears the flag on its way out.
+  if ((user.prefs as Record<string, unknown>)?.firstlogin === true) {
+    return <Redirect href="/choose-language" />;
+  }
 
   return (
     <Tabs tabBar={(props) => <FloatingTabBar {...props} />}>
