@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Svg, { Circle, G, Path } from 'react-native-svg';
+import { SvgLayer } from './SvgLayer';
 import { pathSegments, type Point } from '../lib/layout';
 import { scatterPebbles } from '../lib/scenery';
 
@@ -30,38 +31,40 @@ export function JourneyPath({
   const pebbles = React.useMemo(() => scatterPebbles(points), [points]);
 
   return (
-    <Svg
-      width={width}
-      height={height}
-      style={{ position: 'absolute', top: 0, left: 0 }}
-      pointerEvents="none">
-      {/* Dirt band — darker edge then lighter fill; vivid on the discovered side. */}
-      <G strokeLinecap="round" strokeLinejoin="round" fill="none">
-        {segments.map((d, i) => {
-          const done = i + 1 <= frontierIndex;
-          const c = done ? dirt : dirtMuted;
-          return <Path key={`e${i}`} d={d} stroke={c.edge} strokeWidth={30} />;
-        })}
-        {segments.map((d, i) => {
-          const done = i + 1 <= frontierIndex;
-          const c = done ? dirt : dirtMuted;
-          return <Path key={`f${i}`} d={d} stroke={c.fill} strokeWidth={24} />;
-        })}
-      </G>
+    <SvgLayer>
+      <Svg
+        width={width}
+        height={height}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        pointerEvents="none">
+        {/* Dirt band — darker edge then lighter fill; vivid on the discovered side. */}
+        <G strokeLinecap="round" strokeLinejoin="round" fill="none">
+          {segments.map((d, i) => {
+            const done = i + 1 <= frontierIndex;
+            const c = done ? dirt : dirtMuted;
+            return <Path key={`e${i}`} d={d} stroke={c.edge} strokeWidth={30} />;
+          })}
+          {segments.map((d, i) => {
+            const done = i + 1 <= frontierIndex;
+            const c = done ? dirt : dirtMuted;
+            return <Path key={`f${i}`} d={d} stroke={c.fill} strokeWidth={24} />;
+          })}
+        </G>
 
-      {/* Pebbles, coloured by whether they sit in the discovered region. */}
-      {pebbles.map((pb, i) => {
-        const c = pb.y <= cutoffY ? dirt : dirtMuted;
-        return (
-          <Circle
-            key={`p${i}`}
-            cx={pb.x}
-            cy={pb.y}
-            r={pb.r}
-            fill={pb.dark ? c.pebbleDark : c.pebbleLight}
-          />
-        );
-      })}
-    </Svg>
+        {/* Pebbles, coloured by whether they sit in the discovered region. */}
+        {pebbles.map((pb, i) => {
+          const c = pb.y <= cutoffY ? dirt : dirtMuted;
+          return (
+            <Circle
+              key={`p${i}`}
+              cx={pb.x}
+              cy={pb.y}
+              r={pb.r}
+              fill={pb.dark ? c.pebbleDark : c.pebbleLight}
+            />
+          );
+        })}
+      </Svg>
+    </SvgLayer>
   );
 }

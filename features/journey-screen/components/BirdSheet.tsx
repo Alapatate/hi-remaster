@@ -9,11 +9,10 @@ import { LightbulbIcon, MapPinIcon, SparklesIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSheetChrome } from '@/lib/sheetChrome';
 import type { Bird } from '../lib/types';
 
 const SHEET_BG = '#e9e0ce';
-const HANDLE = '#c9bfa6';
-const CHIP_ICON = '#7a6a52';
 
 function renderBackdrop(props: BottomSheetBackdropProps) {
   return (
@@ -31,6 +30,7 @@ function renderBackdrop(props: BottomSheetBackdropProps) {
 export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null }>(
   function BirdSheet({ bird }, ref) {
     const { t } = useTranslation();
+    const chrome = useSheetChrome(SHEET_BG);
 
     return (
       <BottomSheetModal
@@ -44,8 +44,7 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
           shadowRadius: 16,
           elevation: 10,
         }}
-        backgroundStyle={{ backgroundColor: SHEET_BG }}
-        handleIndicatorStyle={{ backgroundColor: HANDLE }}>
+        {...chrome}>
         <BottomSheetScrollView className="px-5 pb-12 pt-2">
           {bird ? (
             <>
@@ -55,16 +54,21 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
                   style={{ borderWidth: 3, borderColor: '#bf6e1a' }}>
                   <Text style={{ fontSize: 48 }}>{bird.emoji}</Text>
                 </View>
-                <Text className="text-center font-heading text-3xl text-foreground">{bird.name}</Text>
+                <Text className="text-center font-heading text-3xl text-foreground">
+                  {bird.name}
+                </Text>
                 <Text className="mt-1 text-center text-base italic text-muted-foreground">
                   {bird.scientificName}
                 </Text>
               </View>
 
               <View className="mb-5 flex-row flex-wrap justify-center gap-2">
-                <Chip icon={<MapPinIcon size={15} color={CHIP_ICON} />} label={bird.habitat} />
                 <Chip
-                  icon={<SparklesIcon size={15} color={CHIP_ICON} />}
+                  icon={<MapPinIcon size={15} className="text-muted-foreground" />}
+                  label={bird.habitat}
+                />
+                <Chip
+                  icon={<SparklesIcon size={15} className="text-muted-foreground" />}
                   label={`${bird.xpRequired} XP`}
                 />
               </View>

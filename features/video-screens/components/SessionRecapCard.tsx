@@ -1,9 +1,10 @@
 import { Text } from '@/components/ui/text';
+import { useColorScheme } from 'nativewind';
 import { Image, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { teacherPhotoSource } from '../lib/data';
 import { formatDuration } from '../lib/format';
-import { orderByPhase, PHASES } from '../lib/phases';
+import { orderByPhase, phasePalette } from '../lib/phases';
 import type { Teacher, Video } from '../lib/types';
 
 /**
@@ -22,6 +23,8 @@ export function SessionRecapCard({
   total: number;
 }) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const ordered = orderByPhase(videos);
 
   return (
@@ -48,7 +51,7 @@ export function SessionRecapCard({
       {/* Exercises, in the order they will play */}
       <View className="px-4">
         {ordered.map((video, index) => {
-          const color = PHASES[video.type]?.color ?? '#bf6e1a';
+          const { color } = phasePalette(video.type, isDark);
           const isLast = index === ordered.length - 1;
           return (
             <View

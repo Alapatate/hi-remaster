@@ -1,7 +1,9 @@
 import { Text } from '@/components/ui/text';
 import { BackpackIcon, MoonStarIcon } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { phasePalette } from '../lib/phases';
 import { SESSION_TOOLS } from '../lib/tools';
 
 /**
@@ -22,6 +24,11 @@ export function SessionToolsDialog({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  // Shavasana closes the session, so the note wears the relaxation phase's
+  // colours — and follows them into the dark scheme.
+  const relaxation = phasePalette('end', isDark);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
@@ -69,11 +76,11 @@ export function SessionToolsDialog({
           {shavasana ? (
             <View
               className="mb-5 w-full flex-row items-start gap-3 rounded-2xl px-4 py-3"
-              style={{ backgroundColor: '#ebe5f1' }}>
-              <MoonStarIcon size={18} color="#8a6cae" style={{ marginTop: 2 }} />
+              style={{ backgroundColor: relaxation.tint }}>
+              <MoonStarIcon size={18} color={relaxation.color} style={{ marginTop: 2 }} />
               <Text
                 className="flex-1 font-body text-[13.5px] leading-5"
-                style={{ color: '#4a3a5e' }}>
+                style={{ color: isDark ? '#e9e2f3' : '#4a3a5e' }}>
                 {t('shavasanaNotice')}
               </Text>
             </View>

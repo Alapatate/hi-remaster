@@ -92,10 +92,14 @@ export function AuthScreen({
  */
 export function BrandMark({ variant = 'stacked' }: { variant?: 'stacked' | 'inline' }) {
   const stacked = variant === 'stacked';
+  // The mark takes a solid fill rather than a class, so it has to follow the
+  // scheme by hand — pinned to black it vanishes into the dark background.
+  const { colorScheme } = useColorScheme();
+  const markColor = colorScheme === 'dark' ? '#f0e7d8' : '#000';
 
   return (
     <View className="flex-row items-center" style={{ gap: stacked ? 12 : 8 }}>
-      <HiLogo height={stacked ? 46 : 26} color="#000" />
+      <HiLogo height={stacked ? 46 : 26} color={markColor} />
       <Text className={`font-heading ${stacked ? 'text-[22px] leading-tight' : 'text-[14.5px]'}`}>
         {stacked ? BRAND.replace(' ', '\n') : BRAND}
       </Text>

@@ -1,5 +1,5 @@
 import { account } from '@/lib/appwrite';
-import i18n from '@/lib/i18n';
+import i18n, { catLanguageFor, DEFAULT_LANGUAGE } from '@/lib/i18n';
 import * as React from 'react';
 import { ID, type Models } from 'react-native-appwrite';
 
@@ -21,8 +21,12 @@ type AuthContextType = {
 const AuthContext = React.createContext<AuthContextType | null>(null);
 
 function applyLanguage(prefs: Models.Preferences) {
-  const lang = (prefs as Record<string, string>)?.language;
-  if (lang) i18n.changeLanguage(lang);
+  const stored = prefs as Record<string, unknown>;
+  // Cat mode overrides the account's language without overwriting it, so
+  // switching the easter egg back off lands on the real language again — and
+  // the meow it swaps in is the one that language's cats actually make.
+  const lang = (stored?.language as string) || DEFAULT_LANGUAGE;
+  i18n.changeLanguage(stored?.catMode === true ? catLanguageFor(lang) : lang);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

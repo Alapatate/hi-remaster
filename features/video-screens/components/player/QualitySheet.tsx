@@ -4,6 +4,7 @@ import { CheckIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSheetChrome } from '@/lib/sheetChrome';
 import { renderBackdrop, SHEET_SHADOW } from './sheetHelpers';
 
 export type QualityOption = {
@@ -13,7 +14,6 @@ export type QualityOption = {
 };
 
 const SHEET_BG = '#f4eddd';
-const HANDLE = '#c9bfa6';
 
 export const QualitySheet = React.forwardRef<
   BottomSheetModal,
@@ -24,6 +24,7 @@ export const QualitySheet = React.forwardRef<
   }
 >(function QualitySheet({ options, active, onSelect }, ref) {
   const { t } = useTranslation();
+  const chrome = useSheetChrome(SHEET_BG);
 
   return (
     <BottomSheetModal
@@ -31,8 +32,7 @@ export const QualitySheet = React.forwardRef<
       enableDynamicSizing
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
-      backgroundStyle={{ backgroundColor: SHEET_BG }}
-      handleIndicatorStyle={{ backgroundColor: HANDLE }}>
+      {...chrome}>
       <BottomSheetView className="px-6 pb-10 pt-3">
         <Text className="mb-3 font-heading text-xl text-foreground">{t('quality')}</Text>
         {options.map((option) => (

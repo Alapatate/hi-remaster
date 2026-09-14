@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { teacherFullName } from '../../lib/data';
 import { formatDuration } from '../../lib/format';
 import type { Video } from '../../lib/types';
+import { useSheetChrome } from '@/lib/sheetChrome';
 import { renderBackdrop, SHEET_SHADOW } from './sheetHelpers';
 
 const SHEET_BG = '#f4eddd';
-const HANDLE = '#c9bfa6';
 
 /** Cream bottom sheet listing the videos of the current session. */
 export const SessionPlaylistSheet = React.forwardRef<
@@ -23,6 +23,7 @@ export const SessionPlaylistSheet = React.forwardRef<
   }
 >(function SessionPlaylistSheet({ videos, currentId, onSelect }, ref) {
   const { t } = useTranslation();
+  const chrome = useSheetChrome(SHEET_BG);
 
   return (
     <BottomSheetModal
@@ -30,12 +31,11 @@ export const SessionPlaylistSheet = React.forwardRef<
       enableDynamicSizing
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
-      backgroundStyle={{ backgroundColor: SHEET_BG }}
-      handleIndicatorStyle={{ backgroundColor: HANDLE }}>
+      {...chrome}>
       <BottomSheetScrollView className="px-5 pb-10 pt-2">
         <View className="mb-4 flex-row items-center justify-between">
           <Text className="font-heading text-2xl text-foreground">{t('sessionPlaylist')}</Text>
-          <View className="rounded-full px-3 py-1.5" style={{ backgroundColor: '#f3e0c2' }}>
+          <View className="rounded-full bg-primary/15 px-3 py-1.5">
             <Text className="text-sm font-semibold text-primary">
               {t('videosCount', { count: videos.length })}
             </Text>
