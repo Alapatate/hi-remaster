@@ -136,6 +136,13 @@ export function VideoSessionFlow() {
     setTeacherReady(true);
   }, [teachers, user?.prefs]);
 
+  // Cat mode adds and removes a teacher under us, so the featured index can end
+  // up past the end of the roster — land back on the first teacher rather than
+  // on nothing at all.
+  React.useEffect(() => {
+    setFeaturedIndex((current) => (current > teachers.length - 1 ? 0 : current));
+  }, [teachers.length]);
+
   const aboutRef = React.useRef<BottomSheetModal>(null);
   const pickerRef = React.useRef<BottomSheetModal>(null);
 
@@ -361,7 +368,7 @@ export function VideoSessionFlow() {
                   variant="secondary"
                   label={t('change')}
                   onPress={() => pickerRef.current?.present()}
-                  iconLeft={<UsersIcon size={16} color="#4a3826" />}
+                  iconLeft={<UsersIcon size={16} className="text-secondary-foreground" />}
                 />
               </View>
               {lastSession ? (
@@ -457,7 +464,7 @@ export function VideoSessionFlow() {
                 variant="outline"
                 label={t('startNewSession')}
                 onPress={goHome}
-                iconLeft={<RotateCcwIcon size={16} color="#4a3826" />}
+                iconLeft={<RotateCcwIcon size={16} className="text-foreground" />}
               />
             </FooterBar>
           </Animated.View>

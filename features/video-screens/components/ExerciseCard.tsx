@@ -1,10 +1,11 @@
 import { Text } from '@/components/ui/text';
 import { CheckIcon } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { formatDuration } from '../lib/format';
 import { CARD_WIDTH } from '../lib/layout';
-import { PHASES } from '../lib/phases';
+import { phasePalette } from '../lib/phases';
 import type { Video } from '../lib/types';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -26,9 +27,9 @@ export function ExerciseCard({
   onToggle: () => void;
   index?: number;
 }) {
-  const phase = PHASES[video.type];
-  const color = phase?.color ?? '#bf6e1a';
-  const tint = phase?.tint ?? '#f3e9d2';
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const { color, tint } = phasePalette(video.type, isDark);
 
   return (
     <AnimatedTouchable
@@ -76,7 +77,7 @@ export function ExerciseCard({
               borderRadius: 10,
               backgroundColor: color,
             }}>
-            <CheckIcon size={12} color="#fff" strokeWidth={3} />
+            <CheckIcon size={12} color={isDark ? tint : '#fff'} strokeWidth={3} />
           </View>
         ) : null}
       </View>

@@ -1,13 +1,9 @@
 import * as React from 'react';
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Rect } from 'react-native-svg';
+import { SvgLayer } from './SvgLayer';
 import type { SceneryPalette } from '../lib/colors';
 import type { Point } from '../lib/layout';
-import {
-  scatterScenery,
-  scatterZones,
-  type SceneryItem,
-  type ZoneItem,
-} from '../lib/scenery';
+import { scatterScenery, scatterZones, type SceneryItem, type ZoneItem } from '../lib/scenery';
 
 /**
  * Flat-design nature layer drawn behind the trail: conifers, leafy trees,
@@ -45,26 +41,28 @@ export function JourneyScenery({
   const palFor = (y: number) => (y <= cutoffY ? palette : mutedPalette);
 
   return (
-    <Svg
-      width={width}
-      height={height}
-      style={{ position: 'absolute', top: 0, left: 0 }}
-      pointerEvents="none">
-      {/* Background regions (lakes, grassy clearings) sit behind everything. */}
-      {zones.map((zone, i) => (
-        <G key={`z${i}`} transform={`translate(${zone.x} ${zone.y})`}>
-          <Zone zone={zone} p={palFor(zone.y)} />
-        </G>
-      ))}
+    <SvgLayer>
+      <Svg
+        width={width}
+        height={height}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        pointerEvents="none">
+        {/* Background regions (lakes, grassy clearings) sit behind everything. */}
+        {zones.map((zone, i) => (
+          <G key={`z${i}`} transform={`translate(${zone.x} ${zone.y})`}>
+            <Zone zone={zone} p={palFor(zone.y)} />
+          </G>
+        ))}
 
-      {items.map((item, i) => (
-        <G
-          key={i}
-          transform={`translate(${item.x} ${item.y}) scale(${item.flip ? -item.scale : item.scale} ${item.scale})`}>
-          <Sprite item={item} p={palFor(item.y)} />
-        </G>
-      ))}
-    </Svg>
+        {items.map((item, i) => (
+          <G
+            key={i}
+            transform={`translate(${item.x} ${item.y}) scale(${item.flip ? -item.scale : item.scale} ${item.scale})`}>
+            <Sprite item={item} p={palFor(item.y)} />
+          </G>
+        ))}
+      </Svg>
+    </SvgLayer>
   );
 }
 

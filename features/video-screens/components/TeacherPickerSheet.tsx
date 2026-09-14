@@ -2,15 +2,16 @@ import { Text } from '@/components/ui/text';
 import { languageBase } from '@/lib/langFlags';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as React from 'react';
+import { useColorScheme } from 'nativewind';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { teacherFlag, teacherFullName, teacherLanguage, teacherPhotoSource } from '../lib/data';
 import type { Teacher } from '../lib/types';
+import { useSheetChrome } from '@/lib/sheetChrome';
 import { renderBackdrop, SHEET_SHADOW } from './player/sheetHelpers';
 
 const SHEET_BG = '#f4eddd';
-const HANDLE = '#c9bfa6';
 const ACTIVE = 'rgba(191,110,26,0.12)';
 
 /** A language filter option derived from the teachers list. */
@@ -25,6 +26,7 @@ export const TeacherPickerSheet = React.forwardRef<
   }
 >(function TeacherPickerSheet({ teachers, currentId, onSelect }, ref) {
   const { t } = useTranslation();
+  const chrome = useSheetChrome(SHEET_BG);
   const insets = useSafeAreaInsets();
   const [langFilter, setLangFilter] = React.useState<string>('all');
 
@@ -54,8 +56,7 @@ export const TeacherPickerSheet = React.forwardRef<
       enableDynamicSizing={false}
       backdropComponent={renderBackdrop}
       style={SHEET_SHADOW}
-      backgroundStyle={{ backgroundColor: SHEET_BG }}
-      handleIndicatorStyle={{ backgroundColor: HANDLE }}>
+      {...chrome}>
       <View className="rounded-3xl px-5">
         <Text className="mb-2 font-heading text-2xl">Language</Text>
         {languages.length > 1 ? (
@@ -133,19 +134,24 @@ function FilterChip({
   active: boolean;
   onPress: () => void;
 }) {
+  // The resting chip is a tint of the sheet's own ink, so it has to flip with
+  // the scheme — a brown wash is invisible on a dark sheet.
+  const { colorScheme } = useColorScheme();
+  const ink = colorScheme === 'dark' ? '255,255,255' : '74,56,38';
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
       className="rounded-full px-3.5 py-2"
       style={{
-        backgroundColor: active ? '#bf6e1a' : 'rgba(74,56,38,0.06)',
+        backgroundColor: active ? '#bf6e1a' : `rgba(${ink},0.06)`,
         borderWidth: 1,
-        borderColor: active ? '#bf6e1a' : 'rgba(74,56,38,0.12)',
+        borderColor: active ? '#bf6e1a' : `rgba(${ink},0.12)`,
       }}>
       <Text
-        className="text-sm font-semibold"
-        style={{ color: active ? '#fff' : '#7a6a52' }}
+        className={`text-sm font-semibold ${active ? '' : 'text-muted-foreground'}`}
+        style={active ? { color: '#fff' } : undefined}
         numberOfLines={1}>
         {label}
       </Text>

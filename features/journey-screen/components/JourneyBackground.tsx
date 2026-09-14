@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Svg, { G, Path } from 'react-native-svg';
+import { SvgLayer } from './SvgLayer';
 import { scatterMeadow } from '../lib/scenery';
 
 /**
@@ -23,19 +24,21 @@ export function JourneyBackground({
   );
 
   return (
-    <Svg
-      width={width}
-      height={height}
-      style={{ position: 'absolute', top: 0, left: 0 }}
-      pointerEvents="none">
-      {splotches.map((s, i) => (
-        <G key={i} transform={`translate(${s.x} ${s.y})`}>
-          <Path d={s.d} fill={blobs[s.tone]} opacity={0.22} />
-          <G scale={0.6}>
+    <SvgLayer>
+      <Svg
+        width={width}
+        height={height}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        pointerEvents="none">
+        {splotches.map((s, i) => (
+          <G key={i} transform={`translate(${s.x} ${s.y})`}>
             <Path d={s.d} fill={blobs[s.tone]} opacity={0.22} />
+            <G scale={0.6}>
+              <Path d={s.d} fill={blobs[s.tone]} opacity={0.22} />
+            </G>
           </G>
-        </G>
-      ))}
-    </Svg>
+        ))}
+      </Svg>
+    </SvgLayer>
   );
 }

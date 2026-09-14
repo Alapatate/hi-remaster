@@ -1,8 +1,9 @@
 import { Text } from '@/components/ui/text';
+import { useColorScheme } from 'nativewind';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GRID_GAP } from '../lib/layout';
-import { PHASES } from '../lib/phases';
+import { PHASES, phasePalette } from '../lib/phases';
 import type { Video } from '../lib/types';
 import { ExerciseCard } from './ExerciseCard';
 
@@ -22,13 +23,15 @@ export function PhaseSection({
   onToggle: (video: Video) => void;
 }) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
   const phase = PHASES[type];
+  const { color } = phasePalette(type, colorScheme === 'dark');
   if (videos.length === 0) return null;
 
   return (
     <View className="mb-5">
       <View className="mb-2.5 flex-row items-center gap-2">
-        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: phase.color }} />
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: color }} />
         <Text
           className="font-body-bold uppercase tracking-widest text-muted-foreground"
           style={{ fontSize: 11 }}>

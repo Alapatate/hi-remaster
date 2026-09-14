@@ -1,3 +1,4 @@
+import { languageBase } from '@/lib/langFlags';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { NativeModules, Platform } from 'react-native';
@@ -193,6 +194,9 @@ const resources = {
       chooseLanguageTitle: 'Choose your language',
       chooseLanguageSubtitle: 'You can change it any time from your profile.',
       chooseLanguageConfirm: 'Continue',
+      // Cat mode (easter egg)
+      catMode: 'Cat mode',
+      catModeDesc: 'Every word becomes miau. Seven taps on your avatar again to turn it off.',
       dayShort1: 'Sun',
       dayShort2: 'Mon',
       dayShort3: 'Tue',
@@ -390,6 +394,9 @@ const resources = {
       chooseLanguageTitle: 'Choisis ta langue',
       chooseLanguageSubtitle: 'Tu pourras la changer à tout moment depuis ton profil.',
       chooseLanguageConfirm: 'Continuer',
+      // Cat mode (easter egg)
+      catMode: 'Mode chat',
+      catModeDesc: 'Tous les mots deviennent miau. Sept appuis sur ton avatar pour désactiver.',
       dayShort1: 'Dim',
       dayShort2: 'Lun',
       dayShort3: 'Mar',
@@ -585,6 +592,10 @@ const resources = {
       chooseLanguageTitle: 'Elige tu idioma',
       chooseLanguageSubtitle: 'Puedes cambiarlo cuando quieras desde tu perfil.',
       chooseLanguageConfirm: 'Continuar',
+      // Cat mode (easter egg)
+      catMode: 'Modo gato',
+      catModeDesc:
+        'Cada palabra se convierte en miau. Siete toques en tu avatar para desactivarlo.',
       dayShort1: 'Dom',
       dayShort2: 'Lun',
       dayShort3: 'Mar',
@@ -780,6 +791,9 @@ const resources = {
       chooseLanguageTitle: 'Wähle deine Sprache',
       chooseLanguageSubtitle: 'Du kannst sie jederzeit in deinem Profil ändern.',
       chooseLanguageConfirm: 'Weiter',
+      // Cat mode (easter egg)
+      catMode: 'Katzenmodus',
+      catModeDesc: 'Jedes Wort wird zu miau. Zum Ausschalten sieben Mal auf den Avatar tippen.',
       dayShort1: 'So',
       dayShort2: 'Mo',
       dayShort3: 'Di',
@@ -974,6 +988,9 @@ const resources = {
       chooseLanguageTitle: 'Scegli la tua lingua',
       chooseLanguageSubtitle: 'Potrai cambiarla quando vuoi dal tuo profilo.',
       chooseLanguageConfirm: 'Continua',
+      // Cat mode (easter egg)
+      catMode: 'Modalità gatto',
+      catModeDesc: 'Ogni parola diventa miau. Sette tocchi sull’avatar per disattivarla.',
       dayShort1: 'Dom',
       dayShort2: 'Lun',
       dayShort3: 'Mar',
@@ -1168,6 +1185,9 @@ const resources = {
       chooseLanguageTitle: 'Escolha o seu idioma',
       chooseLanguageSubtitle: 'Pode alterá-lo quando quiser no seu perfil.',
       chooseLanguageConfirm: 'Continuar',
+      // Cat mode (easter egg)
+      catMode: 'Modo gato',
+      catModeDesc: 'Cada palavra vira miau. Sete toques no seu avatar para desativar.',
       dayShort1: 'Dom',
       dayShort2: 'Seg',
       dayShort3: 'Ter',
@@ -1359,6 +1379,9 @@ const resources = {
       chooseLanguageTitle: 'اختر لغتك',
       chooseLanguageSubtitle: 'يمكنك تغييرها في أي وقت من ملفك الشخصي.',
       chooseLanguageConfirm: 'متابعة',
+      // Cat mode (easter egg)
+      catMode: 'وضع القطة',
+      catModeDesc: 'كل كلمة تصبح مياو. اضغط سبع مرات على صورتك للإيقاف.',
       dayShort1: 'ح',
       dayShort2: 'ن',
       dayShort3: 'ث',
@@ -1550,6 +1573,9 @@ const resources = {
       chooseLanguageTitle: '选择你的语言',
       chooseLanguageSubtitle: '你可以随时在个人资料中更改。',
       chooseLanguageConfirm: '继续',
+      // Cat mode (easter egg)
+      catMode: '猫咪模式',
+      catModeDesc: '所有文字都变成喵。再连点头像七次即可关闭。',
       dayShort1: '日',
       dayShort2: '一',
       dayShort3: '二',
@@ -1742,6 +1768,9 @@ const resources = {
       chooseLanguageTitle: '言語を選択',
       chooseLanguageSubtitle: 'プロフィールからいつでも変更できます。',
       chooseLanguageConfirm: '続ける',
+      // Cat mode (easter egg)
+      catMode: 'ねこモード',
+      catModeDesc: 'すべての言葉がミャウになります。アバターを7回タップで解除。',
       dayShort1: '日',
       dayShort2: '月',
       dayShort3: '火',
@@ -1934,6 +1963,9 @@ const resources = {
       chooseLanguageTitle: '언어 선택',
       chooseLanguageSubtitle: '프로필에서 언제든지 변경할 수 있습니다.',
       chooseLanguageConfirm: '계속',
+      // Cat mode (easter egg)
+      catMode: '고양이 모드',
+      catModeDesc: '모든 단어가 미아우로 바뀝니다. 아바타를 일곱 번 누르면 해제됩니다.',
       dayShort1: '일',
       dayShort2: '월',
       dayShort3: '화',
@@ -1981,14 +2013,109 @@ function deviceLanguage(): string {
   return 'en';
 }
 
+/** The language the app starts in, before an account's preference replaces it. */
+export const DEFAULT_LANGUAGE = deviceLanguage();
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: deviceLanguage(),
+  lng: DEFAULT_LANGUAGE,
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,
   },
   compatibilityJSON: 'v4',
 });
+
+// ─────────────────────────────────────────────────────────────
+// Cat mode (easter egg)
+//
+// An extra language where the whole app speaks cat. Registered after init
+// rather than sitting in `resources`, so it stays out of `deviceLanguage`'s
+// supported list and out of the pickers, which read `LANGUAGES` instead — it
+// is reachable only from the seven-tap gesture on the profile avatar.
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * A cat says something different in every language, so the bundle a user gets
+ * is built from their own onomatopoeia: a French account hears "miaou", a
+ * Japanese one "にゃー".
+ */
+const MEOWS: Record<string, string> = {
+  en: 'meow',
+  fr: 'miaou',
+  es: 'miau',
+  de: 'miau',
+  it: 'miao',
+  pt: 'miau',
+  ar: 'مياو',
+  zh: '喵',
+  ja: 'にゃー',
+  ko: '야옹',
+};
+
+/** The base code whose meow `lang` should use — cat tags included. */
+function meowBase(lang?: string): string {
+  const base = languageBase((lang ?? '').replace(/^cat_/, ''));
+  return MEOWS[base] ? base : 'en';
+}
+
+/** The cat sound for a language, in that language. Falls back to English. */
+export function meowWord(lang?: string): string {
+  return MEOWS[meowBase(lang)];
+}
+
+/**
+ * Rewrites an English string into cat. Every word becomes the meow, but the
+ * shape of the sentence survives: casing is kept so sentences still open with a
+ * capital, punctuation is untouched, and `{{interpolations}}` are stepped over
+ * so counts, names and times still land where they belong.
+ */
+function meowify(value: string, meow: string): string {
+  const capitalised = `${meow[0].toUpperCase()}${meow.slice(1)}`;
+  return value
+    .split(/(\{\{[^}]*\}\})/g)
+    .map((chunk) =>
+      chunk.startsWith('{{')
+        ? chunk
+        : chunk.replace(/[A-Za-z][A-Za-z'\u2019]*/g, (word) => {
+            if (word.length > 1 && word === word.toUpperCase()) return meow.toUpperCase();
+            if (word[0] !== word[0].toLowerCase()) return capitalised;
+            return meow;
+          })
+    )
+    .join('');
+}
+
+const catBundles = new Set<string>();
+
+/**
+ * The language tag carrying the cat bundle for `lang`, registering it on first
+ * use so only the languages actually visited cost anything.
+ *
+ * The tag separates with an underscore on purpose: i18next normalises a
+ * hyphenated `cat-fr` into `cat-FR`, fails to match the bundle, and silently
+ * serves English instead — which would hand every non-English account the
+ * wrong meow.
+ */
+export function catLanguageFor(lang?: string): string {
+  const base = meowBase(lang);
+  const tag = `cat_${base}`;
+  if (!catBundles.has(tag)) {
+    catBundles.add(tag);
+    // Derived from English rather than hand-written, so every key the app gains
+    // later is translated into cat for free.
+    i18n.addResourceBundle(
+      tag,
+      'translation',
+      Object.fromEntries(
+        Object.entries(resources.en.translation).map(([key, value]) => [
+          key,
+          meowify(value, MEOWS[base]),
+        ])
+      )
+    );
+  }
+  return tag;
+}
 
 export default i18n;

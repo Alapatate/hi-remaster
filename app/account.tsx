@@ -81,7 +81,7 @@ export default function AccountScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           className="flex-row items-center justify-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/10 py-4">
-          <Trash2Icon size={16} color="#b3261e" />
+          <Trash2Icon size={16} className="text-destructive" />
           <Text className="font-body-semibold text-[15px] text-destructive">
             {t('deleteAccount')}
           </Text>

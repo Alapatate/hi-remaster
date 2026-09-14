@@ -1,9 +1,11 @@
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EditNameDialog } from '@/components/EditNameDialog';
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import { router } from 'expo-router';
 import {
+  CatIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -28,6 +30,18 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 
+/**
+ * Cat mode is an easter egg, so it has no visible control: seven taps on the
+ * profile avatar toggle it, the way a build number unlocks developer options.
+ * A toggle rather than a switch-on, because once the mode is live every label
+ * in the app reads "miau" — this gesture is the only way back out.
+ */
+const CAT_TAPS = 7;
+/** Taps have to come in a run; a pause this long abandons the attempt. */
+const CAT_TAP_WINDOW = 2000;
+/** From this tap on, a nudge appears so the run can be finished on purpose. */
+const CAT_HINT_AT = 5;
+
 export default function Profile() {
   const { user, updatePrefs, updateName } = useAuth();
   const { t } = useTranslation();
@@ -40,6 +54,8 @@ export default function Profile() {
   const birdEmoji = frontierBird?.emoji ?? '🐦';
   const [langOpen, setLangOpen] = React.useState(false);
   const [nameOpen, setNameOpen] = React.useState(false);
+  const [catTaps, setCatTaps] = React.useState(0);
+  const [catNotice, setCatNotice] = React.useState(false);
   const [savingLang, setSavingLang] = React.useState(false);
   const [savingTheme, setSavingTheme] = React.useState(false);
   const [savingNewsletter, setSavingNewsletter] = React.useState(false);
@@ -85,6 +101,31 @@ export default function Profile() {
     }
   };
 
+  const catMode = (user?.prefs as Record<string, unknown>)?.catMode === true;
+  const catTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(
+    () => () => {
+      if (catTimer.current) clearTimeout(catTimer.current);
+    },
+    []
+  );
+
+  const handleAvatarTap = () => {
+    if (catTimer.current) clearTimeout(catTimer.current);
+    const next = catTaps + 1;
+    if (next < CAT_TAPS) {
+      setCatTaps(next);
+      catTimer.current = setTimeout(() => setCatTaps(0), CAT_TAP_WINDOW);
+      return;
+    }
+    setCatTaps(0);
+    // A plain preference, so the mode follows the account around and survives a
+    // restart like any other. `applyLanguage` swaps the language from there.
+    updatePrefs({ catMode: !catMode })
+      .then(() => setCatNotice(true))
+      .catch(() => {});
+  };
+
   const memberSince = user?.$createdAt ? new Date(user.$createdAt).getFullYear() : null;
 
   return (
@@ -105,9 +146,12 @@ export default function Profile() {
           be cut by the screen edge, not squared off by its own container. */}
       <View className="-mx-6 mb-6 px-6 pb-2 pt-5">
         <View className="flex-row items-center gap-4">
-          <View className="h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
+          <TouchableOpacity
+            onPress={handleAvatarTap}
+            activeOpacity={1}
+            className="h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
             <Text style={{ fontSize: 42, lineHeight: 50, textAlign: 'center' }}>{birdEmoji}</Text>
-          </View>
+          </TouchableOpacity>
           <View className="flex-1 gap-1">
             {/* Tapping the name opens the rename dialog; the pencil is there so
                 the row reads as editable rather than as a plain heading. */}
@@ -130,6 +174,9 @@ export default function Profile() {
                   {t('levelLabel', { level: frontierIndex + 1 })} — {frontierBird.name}
                 </Text>
               </View>
+            ) : null}
+            {catTaps >= CAT_HINT_AT ? (
+              <Text className="font-body text-xs text-muted-foreground">miau…</Text>
             ) : null}
           </View>
         </View>
@@ -211,13 +258,11 @@ export default function Profile() {
                     className={`flex-row items-center gap-1 rounded-full px-3 py-1.5 ${isSelected ? 'bg-primary' : 'bg-secondary'}`}>
                     {mode === 'light' ? (
                       <SunIcon
-                        color={isSelected ? 'white' : 'black'}
                         size={13}
                         className={isSelected ? 'text-primary-foreground' : 'text-foreground'}
                       />
                     ) : (
                       <MoonIcon
-                        color="black"
                         size={13}
                         className={isSelected ? 'text-primary-foreground' : 'text-foreground'}
                       />
@@ -263,6 +308,16 @@ export default function Profile() {
           </TouchableOpacity>
         </Card>
       </View>
+
+      <ConfirmDialog
+        visible={catNotice}
+        icon={<CatIcon size={26} color="#bf6e1a" />}
+        title={t('catMode')}
+        message={t('catModeDesc')}
+        confirmLabel="Miau"
+        onConfirm={() => setCatNotice(false)}
+        onCancel={() => setCatNotice(false)}
+      />
 
       <EditNameDialog
         visible={nameOpen}

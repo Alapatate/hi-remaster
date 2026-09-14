@@ -1,9 +1,21 @@
 /**
+ * The easter-egg language. A teacher tagged with it only exists while cat mode
+ * is on, and flies a cat instead of a flag.
+ */
+export const CAT_LANG = 'miau';
+
+/** Whether a teacher `lang` code is the easter-egg one. */
+export function isCatLanguage(lang?: string): boolean {
+  return languageBase(lang ?? '') === CAT_LANG;
+}
+
+/**
  * Map teacher `lang` (e.g. pt_PT, fr, en_GB) to a regional flag emoji.
  */
 export function flagEmoji(lang: string): string {
   const normalized = (lang ?? '').replace('-', '_').trim();
   if (!normalized) return '';
+  if (isCatLanguage(normalized)) return '🐱';
 
   const parts = normalized.split('_').filter(Boolean);
   const regionFromSuffix = (parts[1] ?? '').toUpperCase();
@@ -51,6 +63,7 @@ export function flagEmoji(lang: string): string {
 
 /** Native (autonym) name for a language, keyed by its base code. */
 const LANGUAGE_NAMES: Record<string, string> = {
+  [CAT_LANG]: 'Miau',
   en: 'English',
   fr: 'Français',
   es: 'Español',
