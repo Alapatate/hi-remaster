@@ -5,12 +5,13 @@ import {
   BottomSheetModal,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import { LightbulbIcon, MapPinIcon, SparklesIcon } from 'lucide-react-native';
+import { SparklesIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSheetChrome } from '@/lib/sheetChrome';
 import type { Bird } from '../lib/types';
+import { BirdArt } from './BirdArt';
 
 const SHEET_BG = '#e9e0ce';
 
@@ -52,10 +53,10 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
                 <View
                   className="mb-3 h-24 w-24 items-center justify-center rounded-full bg-card"
                   style={{ borderWidth: 3, borderColor: '#bf6e1a' }}>
-                  <Text style={{ fontSize: 48 }}>{bird.emoji}</Text>
+                  <BirdArt id={bird.id} size={72} />
                 </View>
                 <Text className="text-center font-heading text-3xl text-foreground">
-                  {bird.name}
+                  {t(bird.nameKey)}
                 </Text>
                 <Text className="mt-1 text-center text-base italic text-muted-foreground">
                   {bird.scientificName}
@@ -63,10 +64,6 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
               </View>
 
               <View className="mb-5 flex-row flex-wrap justify-center gap-2">
-                <Chip
-                  icon={<MapPinIcon size={15} className="text-muted-foreground" />}
-                  label={bird.habitat}
-                />
                 <Chip
                   icon={<SparklesIcon size={15} className="text-muted-foreground" />}
                   label={`${bird.xpRequired} XP`}
@@ -76,18 +73,8 @@ export const BirdSheet = React.forwardRef<BottomSheetModal, { bird: Bird | null 
               <View className="mb-4 rounded-2xl bg-card p-5">
                 <Text className="mb-2 font-heading text-lg text-foreground">{t('aboutBird')}</Text>
                 <Text className="text-base leading-7 text-muted-foreground">
-                  {bird.description}
+                  {t(bird.descriptionKey)}
                 </Text>
-              </View>
-
-              <View className="flex-row items-start gap-3 rounded-2xl bg-card p-5">
-                <LightbulbIcon size={20} color="#bf6e1a" style={{ marginTop: 2 }} />
-                <View className="flex-1">
-                  <Text className="mb-1 text-sm font-bold uppercase tracking-wide text-foreground">
-                    {t('funFact')}
-                  </Text>
-                  <Text className="text-base leading-7 text-muted-foreground">{bird.funFact}</Text>
-                </View>
               </View>
             </>
           ) : null}

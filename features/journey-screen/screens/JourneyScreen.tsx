@@ -109,7 +109,7 @@ export function JourneyScreen() {
           total={waypoints.length}
           progressToNext={headerJourney.progressToNext}
           xpToNext={headerJourney.xpToNext}
-          nextBirdName={headerNextBird?.name ?? null}
+          nextBirdNameKey={headerNextBird?.nameKey ?? null}
           accent={palette.accent}
         />
       </View>
