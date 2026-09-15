@@ -2,6 +2,7 @@ import { Text } from '@/components/ui/text';
 import { LockIcon } from 'lucide-react-native';
 import * as React from 'react';
 import { Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -13,11 +14,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { NODE_R } from '../lib/layout';
 import type { Waypoint } from '../lib/types';
+import { BirdArt } from './BirdArt';
 
 const LABEL_W = 132;
 
 /**
- * A single bird stop on the trail. Unlocked nodes show the bird emoji and are
+ * A single bird stop on the trail. Unlocked nodes show the bird artwork and are
  * tappable to open its detail sheet; locked nodes are dimmed with a padlock.
  * The frontier (latest unlocked) node gently pulses to draw the eye.
  */
@@ -33,6 +35,7 @@ export function WaypointNode({
   onPress: (w: Waypoint) => void;
 }) {
   const { x, y, unlocked, bird } = waypoint;
+  const { t } = useTranslation();
 
   const pulse = useSharedValue(0);
   React.useEffect(() => {
@@ -95,9 +98,10 @@ export function WaypointNode({
             justifyContent: 'center',
             borderWidth: 3,
             borderColor: unlocked ? accent : 'transparent',
+            overflow: 'hidden',
           }}>
           {unlocked ? (
-            <Text style={{ fontSize: 30 }}>{bird.emoji}</Text>
+            <BirdArt id={bird.id} size={NODE_R * 2 - 16} />
           ) : (
             <LockIcon size={24} color="#9a8470" />
           )}
@@ -109,7 +113,7 @@ export function WaypointNode({
         className={`mt-1.5 text-center font-heading text-[13px] ${
           unlocked ? 'text-foreground' : 'text-muted-foreground'
         }`}>
-        {unlocked ? bird.name : '???'}
+        {unlocked ? t(bird.nameKey) : '???'}
       </Text>
     </View>
   );

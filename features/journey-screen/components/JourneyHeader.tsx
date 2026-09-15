@@ -17,7 +17,7 @@ export function JourneyHeader({
   total,
   progressToNext,
   xpToNext,
-  nextBirdName,
+  nextBirdNameKey,
   accent,
 }: {
   xp: number;
@@ -25,7 +25,8 @@ export function JourneyHeader({
   total: number;
   progressToNext: number;
   xpToNext: number;
-  nextBirdName: string | null;
+  /** i18n key of the next bird to unlock, or null once every bird is found. */
+  nextBirdNameKey: string | null;
   accent: string;
 }) {
   const { t } = useTranslation();
@@ -91,8 +92,8 @@ export function JourneyHeader({
         </View>
 
         <Text className="mt-2.5 font-heading text-[13px] leading-4 text-muted-foreground">
-          {nextBirdName
-            ? t('xpToUnlock', { xp: xpToNext, name: nextBirdName })
+          {nextBirdNameKey
+            ? t('xpToUnlock', { xp: xpToNext, name: t(nextBirdNameKey) })
             : t('allDiscovered')}
         </Text>
       </View>
