@@ -1,19 +1,15 @@
-/** A bird tied to a waypoint on the journey. Content is placeholder for now
- *  and will be sourced from Appwrite in a later iteration. */
+/**
+ * A bird tied to a waypoint on the journey. Text lives in `lib/i18n.ts` and is
+ * referenced by key, so it follows the account's language (and cat mode).
+ */
 export type Bird = {
   id: string;
-  /** Display name. */
-  name: string;
-  /** Latin / scientific name, shown as a subtitle. */
+  /** i18n key of the display name. */
+  nameKey: string;
+  /** i18n key of the description shown in the bird's detail sheet. */
+  descriptionKey: string;
+  /** Latin / scientific name, shown as a subtitle. The same in every language. */
   scientificName: string;
-  /** Emoji used as the node glyph until real artwork is wired in. */
-  emoji: string;
-  /** Short habitat label (one or two words). */
-  habitat: string;
-  /** A couple of sentences describing the bird. */
-  description: string;
-  /** A single light "did you know" line. */
-  funFact: string;
   /** Total XP the user must reach for this waypoint to unlock. */
   xpRequired: number;
 };

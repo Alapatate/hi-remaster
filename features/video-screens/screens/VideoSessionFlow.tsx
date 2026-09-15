@@ -177,7 +177,9 @@ export function VideoSessionFlow() {
   const { waypoints, frontierIndex, xpToNext } = useJourney(width);
   const sessionXp = Math.floor(total / 60);
   const reachableBird =
-    xpToNext > 0 && sessionXp >= xpToNext ? waypoints[frontierIndex + 1]?.bird.name : undefined;
+    xpToNext > 0 && sessionXp >= xpToNext && waypoints[frontierIndex + 1]
+      ? t(waypoints[frontierIndex + 1].bird.nameKey)
+      : undefined;
 
   const goHome = React.useCallback(() => {
     go(1);

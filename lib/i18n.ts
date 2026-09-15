@@ -204,6 +204,27 @@ const resources = {
       dayShort5: 'Thu',
       dayShort6: 'Fri',
       dayShort7: 'Sat',
+      birdBlackGrouse: 'Black Grouse',
+      birdBlackGrouseDesc:
+        'If you want to truly feel the Vishuddha chakra, listen to the song of the black grouse during its mating display. Its sounds will leave you in no doubt about the existence of this chakra — the one responsible for perceiving beauty.',
+      birdRobin: 'Robin',
+      birdRobinDesc:
+        'The song of the robin is one of the most refined bird songs there is. You can attune yourself to it by placing it right into the Anahata chakra. Like a tuning fork, it will set the chakra to a sattvic subtlety.',
+      birdBlackbird: 'Blackbird',
+      birdBlackbirdDesc:
+        'The rich, full-bodied song of the blackbird resonates beautifully with the Svadhisthana chakra.',
+      birdWoodcock: 'Woodcock',
+      birdWoodcockDesc:
+        "The woodcock's call will help you trace the path of the front (anterior) channel. Its delicate vibrations will roll gently along its trajectory. Give it a try!",
+      birdRaven: 'Raven',
+      birdRavenDesc:
+        'The melodious, gentle cooing of the raven also resonates perfectly with the front (anterior) channel, tuning it to tenderness.',
+      birdCurlew: 'Great Curlew',
+      birdCurlewDesc:
+        'Listen to the gentle "kuri-li" of the great curlew during its courtship display. Its song deserves to be called a tuning fork for the soul, attuning it to subtlety and beauty. It resonates through the front (anterior) channel, carrying the very essence of spring.',
+      birdGardenWarbler: 'Garden Warbler',
+      birdGardenWarblerDesc:
+        'The gentle sounds of a spring brook and the garden warbler also attune us to tenderness and refinement.',
     },
   },
   fr: {
@@ -404,6 +425,27 @@ const resources = {
       dayShort5: 'Jeu',
       dayShort6: 'Ven',
       dayShort7: 'Sam',
+      birdBlackGrouse: 'Tétras lyre',
+      birdBlackGrouseDesc:
+        "Si vous voulez vraiment ressentir le chakra Vishuddha, écoutez le chant du tétras lyre pendant sa parade nuptiale. Ses sons ne laisseront aucun doute sur l'existence de ce chakra — celui qui permet de percevoir la beauté.",
+      birdRobin: 'Rougegorge',
+      birdRobinDesc:
+        "Le chant du rougegorge est l'un des plus raffinés qui soient. Vous pouvez vous accorder à lui en le plaçant directement dans le chakra Anahata. Tel un diapason, il accordera le chakra sur une subtilité sattvique.",
+      birdBlackbird: 'Merle noir',
+      birdBlackbirdDesc:
+        'Le chant riche et plein du merle noir résonne magnifiquement avec le chakra Svadhisthana.',
+      birdWoodcock: 'Bécasse des bois',
+      birdWoodcockDesc:
+        'Le chant de la bécasse vous aidera à suivre le tracé du canal avant. Ses vibrations délicates roulent doucement le long de sa trajectoire. Essayez !',
+      birdRaven: 'Grand corbeau',
+      birdRavenDesc:
+        "Le roucoulement mélodieux et doux du grand corbeau résonne lui aussi parfaitement avec le canal avant, et l'accorde à la tendresse.",
+      birdCurlew: 'Courlis cendré',
+      birdCurlewDesc:
+        "Écoutez le doux « kouri-li » du courlis cendré pendant sa parade. Son chant mérite d'être appelé un diapason de l'âme, qui l'accorde à la subtilité et à la beauté. Il résonne dans le canal avant et porte toute l'essence du printemps.",
+      birdGardenWarbler: 'Fauvette des jardins',
+      birdGardenWarblerDesc:
+        "Les sons doux d'un ruisseau printanier et de la fauvette des jardins nous accordent eux aussi à la tendresse et au raffinement.",
     },
   },
   es: {
@@ -603,6 +645,27 @@ const resources = {
       dayShort5: 'Jue',
       dayShort6: 'Vie',
       dayShort7: 'Sáb',
+      birdBlackGrouse: 'Gallo lira',
+      birdBlackGrouseDesc:
+        'Si quieres sentir de verdad el chakra Vishuddha, escucha el canto del gallo lira durante su cortejo. Sus sonidos no te dejarán ninguna duda sobre la existencia de este chakra, el responsable de percibir la belleza.',
+      birdRobin: 'Petirrojo',
+      birdRobinDesc:
+        'El canto del petirrojo es uno de los más refinados que existen. Puedes sintonizar con él situándolo directamente en el chakra Anahata. Como un diapasón, afinará el chakra hacia una sutileza sáttvica.',
+      birdBlackbird: 'Mirlo común',
+      birdBlackbirdDesc:
+        'El canto rico y pleno del mirlo común resuena maravillosamente con el chakra Svadhisthana.',
+      birdWoodcock: 'Chocha perdiz',
+      birdWoodcockDesc:
+        'El canto de la chocha perdiz te ayudará a seguir el recorrido del canal frontal. Sus delicadas vibraciones ruedan suavemente a lo largo de su trayectoria. ¡Pruébalo!',
+      birdRaven: 'Cuervo grande',
+      birdRavenDesc:
+        'El arrullo melodioso y suave del cuervo también resuena perfectamente con el canal frontal y lo afina hacia la ternura.',
+      birdCurlew: 'Zarapito real',
+      birdCurlewDesc:
+        'Escucha el suave «curi-li» del zarapito real durante su cortejo. Su canto merece llamarse un diapasón del alma, que la afina hacia la sutileza y la belleza. Resuena a través del canal frontal y transmite la esencia misma de la primavera.',
+      birdGardenWarbler: 'Curruca mosquitera',
+      birdGardenWarblerDesc:
+        'Los suaves sonidos de un arroyo primaveral y de la curruca mosquitera también nos afinan hacia la ternura y el refinamiento.',
     },
   },
   de: {
@@ -801,6 +864,27 @@ const resources = {
       dayShort5: 'Do',
       dayShort6: 'Fr',
       dayShort7: 'Sa',
+      birdBlackGrouse: 'Birkhuhn',
+      birdBlackGrouseDesc:
+        'Wenn du das Vishuddha-Chakra wirklich spüren möchtest, lausche dem Gesang des Birkhuhns während der Balz. Seine Laute lassen keinen Zweifel an der Existenz dieses Chakras – des Chakras, das für die Wahrnehmung von Schönheit zuständig ist.',
+      birdRobin: 'Rotkehlchen',
+      birdRobinDesc:
+        'Der Gesang des Rotkehlchens gehört zu den feinsten Vogelgesängen überhaupt. Du kannst dich darauf einstimmen, indem du ihn direkt ins Anahata-Chakra legst. Wie eine Stimmgabel stimmt er das Chakra auf eine sattvische Feinheit ein.',
+      birdBlackbird: 'Amsel',
+      birdBlackbirdDesc:
+        'Der satte, volle Gesang der Amsel schwingt wunderbar mit dem Svadhisthana-Chakra.',
+      birdWoodcock: 'Waldschnepfe',
+      birdWoodcockDesc:
+        'Der Ruf der Waldschnepfe hilft dir, den Verlauf des vorderen Kanals nachzuspüren. Seine zarten Schwingungen rollen sanft entlang seiner Bahn. Probier es aus!',
+      birdRaven: 'Kolkrabe',
+      birdRavenDesc:
+        'Das melodische, sanfte Gurren des Kolkraben schwingt ebenfalls vollkommen mit dem vorderen Kanal und stimmt ihn auf Zärtlichkeit ein.',
+      birdCurlew: 'Großer Brachvogel',
+      birdCurlewDesc:
+        'Lausche dem sanften „kuri-li“ des Großen Brachvogels während der Balz. Sein Gesang verdient es, Stimmgabel der Seele genannt zu werden – er stimmt sie auf Feinheit und Schönheit ein. Er schwingt durch den vorderen Kanal und trägt das Wesen des Frühlings in sich.',
+      birdGardenWarbler: 'Gartengrasmücke',
+      birdGardenWarblerDesc:
+        'Die sanften Klänge eines Frühlingsbachs und der Gartengrasmücke stimmen uns ebenfalls auf Zärtlichkeit und Feinheit ein.',
     },
   },
   it: {
@@ -998,6 +1082,27 @@ const resources = {
       dayShort5: 'Gio',
       dayShort6: 'Ven',
       dayShort7: 'Sab',
+      birdBlackGrouse: 'Fagiano di monte',
+      birdBlackGrouseDesc:
+        "Se vuoi percepire davvero il chakra Vishuddha, ascolta il canto del fagiano di monte durante la parata nuziale. I suoi suoni non ti lasceranno alcun dubbio sull'esistenza di questo chakra, quello responsabile della percezione della bellezza.",
+      birdRobin: 'Pettirosso',
+      birdRobinDesc:
+        'Il canto del pettirosso è uno dei più raffinati in assoluto. Puoi sintonizzarti con esso collocandolo direttamente nel chakra Anahata. Come un diapason, accorderà il chakra su una sottigliezza sattvica.',
+      birdBlackbird: 'Merlo',
+      birdBlackbirdDesc:
+        'Il canto ricco e pieno del merlo risuona magnificamente con il chakra Svadhisthana.',
+      birdWoodcock: 'Beccaccia',
+      birdWoodcockDesc:
+        'Il canto della beccaccia ti aiuterà a seguire il percorso del canale anteriore. Le sue delicate vibrazioni scorrono dolcemente lungo la sua traiettoria. Provaci!',
+      birdRaven: 'Corvo imperiale',
+      birdRavenDesc:
+        "Il gorgoglio melodioso e dolce del corvo imperiale risuona anch'esso perfettamente con il canale anteriore, accordandolo alla tenerezza.",
+      birdCurlew: 'Chiurlo maggiore',
+      birdCurlewDesc:
+        "Ascolta il dolce «curi-li» del chiurlo maggiore durante la parata. Il suo canto merita di essere chiamato un diapason dell'anima, che la accorda alla sottigliezza e alla bellezza. Risuona nel canale anteriore e porta con sé l'essenza stessa della primavera.",
+      birdGardenWarbler: 'Beccafico',
+      birdGardenWarblerDesc:
+        "I suoni dolci di un ruscello primaverile e del beccafico ci accordano anch'essi alla tenerezza e alla raffinatezza.",
     },
   },
   pt: {
@@ -1195,6 +1300,27 @@ const resources = {
       dayShort5: 'Qui',
       dayShort6: 'Sex',
       dayShort7: 'Sáb',
+      birdBlackGrouse: 'Galo-lira',
+      birdBlackGrouseDesc:
+        'Se você quer sentir de verdade o chakra Vishuddha, ouça o canto do galo-lira durante a exibição de acasalamento. Seus sons não deixarão dúvidas sobre a existência desse chakra — o responsável pela percepção da beleza.',
+      birdRobin: 'Pisco-de-peito-ruivo',
+      birdRobinDesc:
+        'O canto do pisco-de-peito-ruivo é um dos mais refinados que existem. Você pode se sintonizar com ele colocando-o diretamente no chakra Anahata. Como um diapasão, ele afinará o chakra para uma sutileza sáttvica.',
+      birdBlackbird: 'Melro-preto',
+      birdBlackbirdDesc:
+        'O canto rico e cheio do melro-preto ressoa lindamente com o chakra Svadhisthana.',
+      birdWoodcock: 'Galinhola',
+      birdWoodcockDesc:
+        'O canto da galinhola vai ajudar você a seguir o trajeto do canal frontal. Suas delicadas vibrações rolam suavemente ao longo da sua trajetória. Experimente!',
+      birdRaven: 'Corvo',
+      birdRavenDesc:
+        'O arrulho melodioso e suave do corvo também ressoa perfeitamente com o canal frontal, afinando-o para a ternura.',
+      birdCurlew: 'Maçarico-real',
+      birdCurlewDesc:
+        'Ouça o suave “curi-li” do maçarico-real durante sua exibição de corte. Seu canto merece ser chamado de diapasão da alma, afinando-a para a sutileza e a beleza. Ele ressoa pelo canal frontal e traz a própria essência da primavera.',
+      birdGardenWarbler: 'Felosa-das-figueiras',
+      birdGardenWarblerDesc:
+        'Os sons suaves de um riacho na primavera e da felosa-das-figueiras também nos afinam para a ternura e o refinamento.',
     },
   },
   ar: {
@@ -1389,6 +1515,26 @@ const resources = {
       dayShort5: 'خ',
       dayShort6: 'ج',
       dayShort7: 'س',
+      birdBlackGrouse: 'الطيهوج الأسود',
+      birdBlackGrouseDesc:
+        'إن أردت أن تشعر حقًّا بشاكرا فيشوددا، فاستمع إلى تغريد الطيهوج الأسود خلال عرض التزاوج. لن تترك أصواته لديك أي شك في وجود هذه الشاكرا — الشاكرا المسؤولة عن إدراك الجمال.',
+      birdRobin: 'أبو الحناء',
+      birdRobinDesc:
+        'تغريد أبي الحناء من أرقى تغاريد الطيور على الإطلاق. يمكنك أن تتناغم معه بوضعه مباشرة في شاكرا أناهاتا. وكالشوكة الرنانة، سيضبط الشاكرا على رهافة ساتفية.',
+      birdBlackbird: 'الشحرور',
+      birdBlackbirdDesc: 'يتردد تغريد الشحرور الغني والممتلئ بشكل رائع مع شاكرا سفاديشتانا.',
+      birdWoodcock: 'دجاجة الأرض',
+      birdWoodcockDesc:
+        'سيساعدك نداء دجاجة الأرض على تتبّع مسار القناة الأمامية. تتدحرج اهتزازاته الرقيقة بلطف على طول مسارها. جرّب ذلك!',
+      birdRaven: 'الغراب',
+      birdRavenDesc:
+        'كما يتردد نداء الغراب العذب الرقيق تمامًا مع القناة الأمامية، فيضبطها على الحنان.',
+      birdCurlew: 'الكروان الكبير',
+      birdCurlewDesc:
+        'استمع إلى نداء «كوري-لي» الرقيق للكروان الكبير خلال عرض التودد. يستحق تغريده أن يُسمّى شوكة رنانة للروح، تضبطها على الرهافة والجمال. إنه يتردد عبر القناة الأمامية ويحمل جوهر الربيع ذاته.',
+      birdGardenWarbler: 'هازجة الحدائق',
+      birdGardenWarblerDesc:
+        'وأصوات جدول الربيع الرقيقة وهازجة الحدائق تضبطنا أيضًا على الحنان والرقة.',
     },
   },
   zh: {
@@ -1583,6 +1729,24 @@ const resources = {
       dayShort5: '四',
       dayShort6: '五',
       dayShort7: '六',
+      birdBlackGrouse: '黑琴鸡',
+      birdBlackGrouseDesc:
+        '若想真切地感受喉轮（Vishuddha），就去听听黑琴鸡求偶时的歌声。它的声音会让你毫不怀疑这个脉轮的存在——正是它负责感知美。',
+      birdRobin: '欧亚鸲',
+      birdRobinDesc:
+        '欧亚鸲的歌声是鸟鸣中最精致的之一。你可以把它直接安放在心轮（Anahata）中，与之同频。它如同音叉，会把脉轮调校到悦性（sattva）的细腻之中。',
+      birdBlackbird: '乌鸫',
+      birdBlackbirdDesc: '乌鸫醇厚饱满的歌声与本我轮（Svadhisthana）美妙地共鸣。',
+      birdWoodcock: '丘鹬',
+      birdWoodcockDesc:
+        '丘鹬的鸣叫能帮助你追寻前脉的走向。它细腻的振动会沿着这条轨迹轻柔地滚动。试试看吧！',
+      birdRaven: '渡鸦',
+      birdRavenDesc: '渡鸦悠扬柔和的鸣声同样与前脉完美共鸣，将它调向温柔。',
+      birdCurlew: '白腰杓鹬',
+      birdCurlewDesc:
+        '在求偶时节聆听白腰杓鹬轻柔的“库里-里”声。它的歌声配得上被称为灵魂的音叉，把灵魂调向细腻与美。它在前脉中回响，承载着春天的本质。',
+      birdGardenWarbler: '庭园林莺',
+      birdGardenWarblerDesc: '春日溪流与庭园林莺的轻柔声响，同样把我们调向温柔与精致。',
     },
   },
   ja: {
@@ -1778,6 +1942,27 @@ const resources = {
       dayShort5: '木',
       dayShort6: '金',
       dayShort7: '土',
+      birdBlackGrouse: 'クロライチョウ',
+      birdBlackGrouseDesc:
+        'ヴィシュッダ・チャクラを本当に感じたいなら、求愛の最中のクロライチョウの歌に耳を傾けてください。その声を聴けば、美を感じ取るこのチャクラの存在を疑う余地はなくなるでしょう。',
+      birdRobin: 'ヨーロッパコマドリ',
+      birdRobinDesc:
+        'ヨーロッパコマドリのさえずりは、鳥の歌の中でも最も繊細なもののひとつです。アナーハタ・チャクラに直接置くようにして、その歌に調和させてみましょう。音叉のように、チャクラをサットヴァの繊細さへと調律してくれます。',
+      birdBlackbird: 'クロウタドリ',
+      birdBlackbirdDesc:
+        'クロウタドリの豊かで深みのある歌は、スワディシュターナ・チャクラと美しく共鳴します。',
+      birdWoodcock: 'ヤマシギ',
+      birdWoodcockDesc:
+        'ヤマシギの声は、前のチャネルの道筋をたどる助けになります。その繊細な振動が、道筋に沿ってやさしく転がっていきます。ぜひ試してみてください！',
+      birdRaven: 'ワタリガラス',
+      birdRavenDesc:
+        'ワタリガラスの旋律的でやさしい鳴き声もまた、前のチャネルと見事に共鳴し、それを優しさへと調律します。',
+      birdCurlew: 'ダイシャクシギ',
+      birdCurlewDesc:
+        '求愛の時期に聞こえるダイシャクシギのやさしい「クーリーリ」という声に耳を澄ませてください。その歌は、魂を繊細さと美へと調律する「魂の音叉」と呼ぶにふさわしいものです。前のチャネルに響き、春そのものの気配を運んできます。',
+      birdGardenWarbler: 'ニワムシクイ',
+      birdGardenWarblerDesc:
+        '春の小川のやさしい音と、ニワムシクイの声もまた、私たちを優しさと洗練へと調律してくれます。',
     },
   },
   ko: {
@@ -1973,6 +2158,236 @@ const resources = {
       dayShort5: '목',
       dayShort6: '금',
       dayShort7: '토',
+      birdBlackGrouse: '멧닭',
+      birdBlackGrouseDesc:
+        '비슈다 차크라를 제대로 느끼고 싶다면, 짝짓기 과시 중인 멧닭의 노래를 들어 보세요. 그 소리를 들으면 아름다움을 지각하는 이 차크라의 존재를 의심할 수 없을 거예요.',
+      birdRobin: '유럽울새',
+      birdRobinDesc:
+        '유럽울새의 노래는 새소리 중에서도 가장 섬세한 노래 중 하나입니다. 아나하타 차크라에 곧바로 담아 그 노래와 조율해 보세요. 소리굽쇠처럼 차크라를 사트바의 섬세함으로 맞춰 줄 거예요.',
+      birdBlackbird: '대륙검은지빠귀',
+      birdBlackbirdDesc:
+        '대륙검은지빠귀의 풍성하고 깊은 노래는 스와디스타나 차크라와 아름답게 공명합니다.',
+      birdWoodcock: '멧도요',
+      birdWoodcockDesc:
+        '멧도요의 소리는 앞쪽 채널의 흐름을 따라가는 데 도움을 줍니다. 섬세한 진동이 그 궤적을 따라 부드럽게 굴러갑니다. 한번 해 보세요!',
+      birdRaven: '큰까마귀',
+      birdRavenDesc:
+        '큰까마귀의 선율 있고 부드러운 울음소리 또한 앞쪽 채널과 완벽하게 공명하며, 그 채널을 다정함으로 조율합니다.',
+      birdCurlew: '마도요',
+      birdCurlewDesc:
+        '짝짓기 과시 중인 마도요의 부드러운 “쿠리-리” 소리를 들어 보세요. 그 노래는 영혼을 섬세함과 아름다움으로 조율하는 “영혼의 소리굽쇠”라 불릴 만합니다. 앞쪽 채널을 통해 울리며 봄의 정수를 전해 줍니다.',
+      birdGardenWarbler: '정원솔새',
+      birdGardenWarblerDesc:
+        '봄 시냇물의 부드러운 소리와 정원솔새의 소리 또한 우리를 다정함과 세련됨으로 조율해 줍니다.',
+    },
+  },
+  ru: {
+    translation: {
+      welcomeBack: 'С возвращением',
+      signInSubtitle: 'Ваш путь и ваша серия ждут вас там, где вы остановились.',
+      email: 'Эл. почта',
+      password: 'Пароль',
+      signIn: 'Войти',
+      noAccount: 'Нет аккаунта?',
+      signUp: 'Регистрация',
+      createAccount: 'Создать аккаунт',
+      signUpSubtitle: 'Зарегистрируйтесь, чтобы начать.',
+      fullName: 'Имя и фамилия',
+      passwordHint: 'Пароль (не менее 8 символов)',
+      createAccountBtn: 'Создать аккаунт',
+      alreadyAccount: 'Уже есть аккаунт?',
+      fillAllFields: 'Пожалуйста, заполните все поля.',
+      passwordTooShort: 'Пароль должен содержать не менее 8 символов.',
+      hello: 'Здравствуйте, {{name}}',
+      dashboard: 'Главная',
+      overview: 'Обзор',
+      overviewDesc: 'Ваш аккаунт активен и готов к работе.',
+      security: 'Безопасность',
+      emailVerifiedDesc: 'Ваша почта подтверждена.',
+      emailNotVerifiedDesc: 'Ваша почта ещё не подтверждена.',
+      activity: 'Активность',
+      activityDesc: 'Участник с {{date}}.',
+      profile: 'Профиль',
+      account: 'Аккаунт',
+      userId: 'ID пользователя',
+      emailVerifiedLabel: 'Почта подтверждена',
+      yes: 'Да',
+      no: 'Нет',
+      memberSinceLabel: 'Участник с',
+      preferences: 'Настройки',
+      preferredLanguage: 'Язык интерфейса',
+      appearance: 'Оформление',
+      lightTheme: 'Светлая',
+      darkTheme: 'Тёмная',
+      saving: 'Сохранение…',
+      signOut: 'Выйти',
+      videos: 'Видео',
+      noVideos: 'Пока нет доступных видео.',
+      errorVideos: 'Не удалось загрузить видео.',
+      retry: 'Повторить',
+      continueWatching: 'Продолжить просмотр',
+      step: 'Шаг',
+      selectTeacher: 'Выберите учителя',
+      selectVideos: 'Выберите видео',
+      noTeachers: 'Нет доступных учителей.',
+      errorTeachers: 'Не удалось загрузить учителей.',
+      back: 'Назад',
+      videoTypeStart: 'Начало',
+      videoTypeCore: 'Основная часть',
+      videoTypeEnd: 'Завершение',
+      sessionTime: 'Длительность сессии',
+      validateSession: 'Подтвердить сессию',
+      sessionSummary: 'Сводка сессии',
+      teacher: 'Учитель',
+      exercises: 'упражнений',
+      totalDuration: 'Общая длительность',
+      startNewSession: 'Новая сессия',
+      selected: 'выбрано',
+      noExercisesSelected: 'Выберите хотя бы одно упражнение.',
+      startSession: 'Начать сессию',
+      sessionPlaylist: 'Плейлист сессии',
+      nowPlaying: 'Сейчас играет',
+      nextVideo: 'Далее',
+      immersionTitle: 'Погружение Гармония',
+      practice: 'Практика',
+      change: 'Сменить',
+      changeTeacher: 'Сменить учителя',
+      allLanguages: 'Все',
+      lastSession: 'Последняя сессия',
+      percentComplete: 'Выполнено {{percent}}%',
+      stepProgress: 'Шаг {{current}} из {{total}}',
+      nextStep: 'Следующий шаг',
+      incompleteSessionTitle: 'Неполная сессия',
+      incompleteSessionMessage: 'Вы выбрали упражнения не во всех фазах. Не хватает:',
+      incompleteSessionContinue: 'Всё равно продолжить',
+      incompleteSessionBack: 'Вернуться',
+      phasePreparation: 'Подготовка',
+      phasePreparationSub: 'Центрирование и дыхание',
+      phasePractice: 'Практика',
+      phasePracticeSub: 'Глубокая практика',
+      phaseRelaxation: 'Расслабление',
+      phaseRelaxationSub: 'Заземление и благодарность',
+      enseignant: 'Учитель',
+      exercisesCount: 'Упражнений: {{count}}',
+      newsletter: 'Рассылка',
+      newsletterDesc: 'Получать новости и советы по почте',
+      sessionsTab: 'Сессии',
+      journeyTab: 'Путь',
+      journeyTitle: 'Мой путь',
+      journeySubtitle: 'Получайте XP и открывайте птиц на своём пути.',
+      discovered: 'Открыто {{count}} из {{total}}',
+      xpToUnlock: 'Ещё {{xp}} XP — и откроется: {{name}}',
+      allDiscovered: 'Все птицы открыты!',
+      aboutBird: 'О птице',
+      funFact: 'А вы знали?',
+      birdDiscovered: 'Новая птица открыта!',
+      birdDiscoveredCta: 'Чудесно!',
+      aboutTeacher: 'Об учителе',
+      videosCount: 'Видео: {{count}}',
+      quality: 'Качество',
+      noVideoUrl: 'Для этой записи нет ссылки на видео.',
+      playbackError: 'Ошибка воспроизведения.',
+      exerciseOf: 'Упражнение {{index}} из {{total}}',
+      upNext: 'Далее',
+      headphonesTitle: 'Прежде чем начать',
+      headphonesMessage:
+        'Наденьте наушники — внимательное слушание помогает настроиться на голос вашего учителя.',
+      headphonesConfirm: 'Начнём',
+      leaveSessionTitle: 'Выйти из сессии?',
+      leaveSessionMessage:
+        'Ваш прогресс сохранён. Вы сможете продолжить с главного экрана в любое время.',
+      leaveSessionConfirm: 'Выйти',
+      leaveSessionCancel: 'Остаться',
+      teacherLibrary: 'Библиотека: {{name}}',
+      libraryIntro: 'Упражнений: {{count}}. Каждое — той длительности, в которой его преподают.',
+      chosenCount: 'Выбрано: {{count}}',
+      review: 'Обзор',
+      readyWhenYouAre: 'Когда будете готовы',
+      yourGuide: 'Ваш наставник',
+      totalLabel: 'Итого',
+      xpEarnNote: 'Эта сессия принесёт {{xp}} XP.',
+      xpReachNote: 'Эта сессия принесёт {{xp}} XP — этого хватит, чтобы открыть: {{name}}.',
+      quitTitle: 'Выйти из приложения?',
+      quitMessage: 'Вы уверены, что хотите закрыть приложение?',
+      quitConfirm: 'Выйти',
+      quitCancel: 'Отмена',
+      reminders: 'Напоминания',
+      reminderDailySit: 'Ежедневная практика',
+      reminderWindDown: 'Вечернее напоминание',
+      reminderDailySitBody: 'Время для погружения. Достаточно нескольких минут.',
+      reminderWindDownBody: 'Расслабьтесь перед сном с короткой сессией.',
+      reminderOff: 'Выкл.',
+      reminderEveryDay: 'Каждый день',
+      reminderWeekdays: 'По будням',
+      reminderWeekends: 'По выходным',
+      reminderNoDays: 'Дни не выбраны',
+      reminderNext: 'Следующее',
+      reminderToday: 'Сегодня',
+      reminderTomorrow: 'Завтра',
+      levelLabel: 'Уровень {{level}}',
+      minutesLabel: 'Минуты',
+      birdsLabel: 'Птицы',
+      xpToNextLabel: 'Следующий этап',
+      deleteAccount: 'Удалить аккаунт',
+      deleteAccountDesc:
+        'Аккаунт и все его данные будут удалены навсегда. Это действие нельзя отменить.',
+      listeningLanguage: 'Язык прослушивания',
+      termsNotice: 'Продолжая, вы принимаете Условия использования и Политику конфиденциальности.',
+      reminderTime: 'Время',
+      reminderDays: 'Дни',
+      reminderDone: 'Готово',
+      reminderPermissionTitle: 'Уведомления выключены',
+      reminderPermissionBody:
+        'Разрешите уведомления в настройках системы, чтобы получать напоминания.',
+      reminderOpenSettings: 'Открыть настройки',
+      toolsTitle: 'Подготовьте всё необходимое',
+      toolsMessage: 'Держите это под рукой перед началом.',
+      toolsConfirm: 'Всё готово',
+      toolMat: 'Коврик для йоги',
+      toolBlanket: 'Одеяло или плед',
+      toolChair: 'Стул',
+      toolCushion: 'Подушка или болстер',
+      shavasanaNotice:
+        'Ваша сессия включает шавасану — неподвижное лежание. С пледом и в тихом месте она проходит гораздо лучше.',
+      editNameTitle: 'Ваше имя',
+      editNameHint: 'Это имя отображается во всём приложении.',
+      nameRequired: 'Пожалуйста, введите имя.',
+      save: 'Сохранить',
+      cancel: 'Отмена',
+      chooseLanguageTitle: 'Выберите язык',
+      chooseLanguageSubtitle: 'Его можно изменить в любое время в профиле.',
+      chooseLanguageConfirm: 'Продолжить',
+      catMode: 'Кошачий режим',
+      catModeDesc:
+        'Каждое слово превращается в мяу. Чтобы выключить, снова семь раз нажмите на аватар.',
+      dayShort1: 'Вс',
+      dayShort2: 'Пн',
+      dayShort3: 'Вт',
+      dayShort4: 'Ср',
+      dayShort5: 'Чт',
+      dayShort6: 'Пт',
+      dayShort7: 'Сб',
+      birdBlackGrouse: 'Тетерев-косач',
+      birdBlackGrouseDesc:
+        'Если хотите хорошо прочувствовать чакру вишудха, послушайте песню тетерева-косача. Звуки его песни не оставят сомнений в существовании этой чакры, чакры, которая ответственна за восприятие красоты.',
+      birdRobin: 'Зарянка',
+      birdRobinDesc:
+        'Песня зарянки – одна из самых утончённых по звучанию песенок среди птиц. С этой песенкой можно сонастраиваться, разместив её прямо в чакре анахата. Она подобно камертону настроит чакру на саттвичную тонкость.',
+      birdBlackbird: 'Чёрный дрозд',
+      birdBlackbirdDesc:
+        'Сочная, насыщенная песня чёрного дрозда прекрасно резонирует с чакрой свадхистана.',
+      birdWoodcock: 'Вальдшнеп',
+      birdWoodcockDesc:
+        'Песня вальдшнепа поможет проследить путь пролегания переднего канала. Его песенка нежной вибрацией прокатится вдоль его траектории. Попробуйте!',
+      birdRaven: 'Ворон',
+      birdRavenDesc:
+        'Мелодичное нежное курлыканье во́рона также прекрасно резонирует с передним каналом и настраивает его на нежность.',
+      birdCurlew: 'Большой кроншнеп',
+      birdCurlewDesc:
+        'Послушайте нежное «кури-ли» большого кроншнепа во время токования. Его песенка заслуживает быть названной камертоном для настройки души на тонкость и красоту. Резонирует передний канал, передаёт весеннее настроение.',
+      birdGardenWarbler: 'Садовая славка',
+      birdGardenWarblerDesc:
+        'Нежные звуки весеннего ручейка, садовой славки также настраивают на нежность и тонкость.',
     },
   },
 };
@@ -2051,6 +2466,7 @@ const MEOWS: Record<string, string> = {
   zh: '喵',
   ja: 'にゃー',
   ko: '야옹',
+  ru: 'мяу',
 };
 
 /** The base code whose meow `lang` should use — cat tags included. */
@@ -2062,6 +2478,34 @@ function meowBase(lang?: string): string {
 /** The cat sound for a language, in that language. Falls back to English. */
 export function meowWord(lang?: string): string {
   return MEOWS[meowBase(lang)];
+}
+
+/** A drawn-out meow, for when cat mode actually flips. */
+const LONG_MEOWS: Record<string, string> = {
+  en: 'meowwwwww',
+  fr: 'miaouuuuuu',
+  es: 'miauuuuuu',
+  de: 'miauuuuuu',
+  it: 'miaoooooo',
+  pt: 'miauuuuuu',
+  ar: 'مياوووووو',
+  zh: '喵喵喵～',
+  ja: 'にゃーーーーー',
+  ko: '야옹옹옹옹',
+  ru: 'мяуууууу',
+};
+
+/** The questioning meow of the cat-mode nudge, with the language's own "?". */
+export function meowQuestion(lang?: string): string {
+  const base = meowBase(lang);
+  const mark =
+    base === 'fr' ? ' ?' : base === 'zh' || base === 'ja' ? '？' : base === 'ar' ? '؟' : '?';
+  return `${MEOWS[base]}${mark}`;
+}
+
+/** The long meow announcing that cat mode was switched. */
+export function longMeow(lang?: string): string {
+  return LONG_MEOWS[meowBase(lang)];
 }
 
 /**

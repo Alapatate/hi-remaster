@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Bird } from '../lib/types';
+import { BirdArt } from './BirdArt';
 
 /**
  * Celebratory popup shown when the user crosses a bird's XP threshold while the
@@ -44,10 +45,12 @@ export function BirdUnlockedPopup({
           <View
             className="mb-4 h-28 w-28 items-center justify-center rounded-full bg-background"
             style={{ borderWidth: 3, borderColor: accent }}>
-            <Text style={{ fontSize: 56 }}>{bird?.emoji ?? ''}</Text>
+            {bird ? <BirdArt id={bird.id} size={84} /> : null}
           </View>
 
-          <Text className="text-center font-heading text-3xl text-foreground">{bird?.name ?? ''}</Text>
+          <Text className="text-center font-heading text-3xl text-foreground">
+            {bird ? t(bird.nameKey) : ''}
+          </Text>
           <Text className="mb-6 mt-1 text-center text-base italic text-muted-foreground">
             {bird?.scientificName ?? ''}
           </Text>
