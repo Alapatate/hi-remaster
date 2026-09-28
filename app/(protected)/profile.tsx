@@ -308,6 +308,17 @@ export default function Profile() {
               <Text className="flex-1 font-body-medium text-[15px]">{t('account')}</Text>
               <ChevronRightIcon size={18} className="text-muted-foreground" />
             </TouchableOpacity>
+
+            <Divider />
+
+            {/* Legal row — Terms of Use, Privacy Policy and legal notice */}
+            <TouchableOpacity
+              onPress={() => router.push('/legal' as never)}
+              activeOpacity={0.7}
+              className="flex-row items-center justify-between px-4 py-4">
+              <Text className="flex-1 font-body-medium text-[15px]">{t('legalInfo')}</Text>
+              <ChevronRightIcon size={18} className="text-muted-foreground" />
+            </TouchableOpacity>
           </Card>
         </View>
 

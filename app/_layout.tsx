@@ -116,6 +116,10 @@ function ThemedLayout() {
               name="video/[id]"
               options={{ animation: 'fade', animationDuration: 280 }}
             />
+            <Stack.Screen
+              name="session-complete"
+              options={{ animation: 'fade', gestureEnabled: false }}
+            />
           </Stack>
           <ConfirmDialog
             visible={notificationsBlocked && !onSplash}
