@@ -1,5 +1,5 @@
 import { Text } from '@/components/ui/text';
-import { BackpackIcon, MoonStarIcon } from 'lucide-react-native';
+import { BackpackIcon, MoonStarIcon, PersonStandingIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +8,10 @@ import { SESSION_TOOLS } from '../lib/tools';
 
 /**
  * The "gather your things" notice, shown on the way into the player before the
- * headphones reminder. The checklist is fixed (see `SESSION_TOOLS`); the
- * Shavasana line only appears when the built session actually contains one.
+ * headphones reminder. It opens with the reminder that every exercise can be
+ * done standing, seated or on a chair. The checklist is fixed (see
+ * `SESSION_TOOLS`); the Shavasana line only appears when the built session
+ * actually contains one.
  */
 export function SessionToolsDialog({
   visible,
@@ -59,6 +61,17 @@ export function SessionToolsDialog({
           <Text className="mb-5 text-center text-base leading-6 text-muted-foreground">
             {t('toolsMessage')}
           </Text>
+
+          <View
+            className="mb-3 w-full flex-row items-start gap-3 rounded-2xl px-4 py-3"
+            style={{ backgroundColor: 'rgba(191,110,26,0.12)' }}>
+            <PersonStandingIcon size={18} color="#bf6e1a" style={{ marginTop: 2 }} />
+            <Text
+              className="flex-1 font-body text-foreground"
+              style={{ fontSize: 13.5, lineHeight: 20 }}>
+              {t('postureNotice')}
+            </Text>
+          </View>
 
           <View className="mb-5 w-full gap-2.5">
             {SESSION_TOOLS.map((tool) => (

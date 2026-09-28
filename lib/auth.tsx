@@ -9,8 +9,16 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  /** `prefs` seed the new account before it is exposed, so guards see them at once. */
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+    prefs?: Models.Preferences
+  ) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Close the account (right to erasure): blocks it and flags it for the server-side purge. */
+  deleteAccount: () => Promise<void>;
   updatePrefs: (prefs: Models.Preferences) => Promise<void>;
   /** Rename the account. The name is what every screen greets the user with. */
   updateName: (name: string) => Promise<void>;
@@ -51,9 +59,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     applyLanguage(current.prefs);
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    prefs?: Models.Preferences
+  ) => {
     await account.create(ID.unique(), email, password, name);
     await account.createEmailPasswordSession(email, password);
+    // Written before `setUser`: the layouts redirect the moment a user appears,
+    // and must already see the consent record and the first-login flag. A
+    // failure must not block a successful registration — the consent gate asks
+    // again if the record is missing.
+    if (prefs) await account.updatePrefs(prefs).catch(() => {});
     const current = await account.get();
     setUser(current);
     applyLanguage(current.prefs);
@@ -61,6 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await account.deleteSession('current');
+    setUser(null);
+    i18n.changeLanguage('en');
+  };
+
+  const deleteAccount = async () => {
+    // The client SDK cannot erase a user. Blocking the account closes it at once
+    // and ends every session; the date flags it for the server-side job that
+    // erases blocked accounts within the delay stated in the privacy policy.
+    const current = await account.getPrefs();
+    await account.updatePrefs({ ...current, deletionRequestedAt: new Date().toISOString() });
+    await account.updateStatus();
     setUser(null);
     i18n.changeLanguage('en');
   };
@@ -90,7 +119,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signUp, signOut, updatePrefs, updateName, refreshUser }}>
+      value={{
+        user,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        deleteAccount,
+        updatePrefs,
+        updateName,
+        refreshUser,
+      }}>
       {children}
     </AuthContext.Provider>
   );
