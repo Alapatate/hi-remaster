@@ -8,9 +8,11 @@ import {
   BrandMark,
   EyeToggle,
 } from '@/components/auth/AuthScaffold';
+import { ConsentChecks } from '@/components/legal/ConsentChecks';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
 import i18n from '@/lib/i18n';
+import { consentPrefs } from '@/lib/legal/config';
 import { router } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -18,15 +20,27 @@ import { useTranslation } from 'react-i18next';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const MIN_PASSWORD = 8;
+/**
+ * Character classes a password must mix. With 8 characters, the CNIL's password
+ * recommendation asks for 3 of the 4 classes on top of Appwrite's rate-limited
+ * sign-in.
+ */
+const MIN_PASSWORD_CLASSES = 3;
+
+function passwordClasses(password: string): number {
+  return [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((re) => re.test(password)).length;
+}
 
 export default function SignUp() {
-  const { signUp, updatePrefs } = useAuth();
+  const { signUp } = useAuth();
   const { t } = useTranslation();
 
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [showPw, setShowPw] = React.useState(false);
+  const [ageConfirmed, setAgeConfirmed] = React.useState(false);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
@@ -39,14 +53,29 @@ export default function SignUp() {
       setError(t('passwordTooShort'));
       return;
     }
+    if (passwordClasses(password) < MIN_PASSWORD_CLASSES) {
+      setError(t('passwordTooWeak'));
+      return;
+    }
+    if (!ageConfirmed) {
+      setError(t('ageRequired'));
+      return;
+    }
+    if (!termsAccepted) {
+      setError(t('termsRequired'));
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      await signUp(email, password, name);
-      // Seed the account: the device language as a starting point, and the flag
-      // that routes the first launch through the language picker. A failure
-      // here must not block a successful registration.
-      await updatePrefs({ language: i18n.language ?? 'en', firstlogin: true }).catch(() => {});
+      // Seed the account: the device language as a starting point, the flag
+      // that routes the first launch through the language picker, and the dated
+      // record of the age attestation and of the accepted documents.
+      await signUp(email, password, name, {
+        language: i18n.language ?? 'en',
+        firstlogin: true,
+        ...consentPrefs(),
+      });
       router.replace('/(protected)/dashboard');
     } catch (e: any) {
       setError(e?.message ?? t('fillAllFields'));
@@ -104,6 +133,14 @@ export default function SignUp() {
           />
           <PasswordStrength password={password} />
         </Animated.View>
+        <Animated.View entering={FadeInDown.delay(160).duration(260)} className="mt-2 px-1">
+          <ConsentChecks
+            age={ageConfirmed}
+            terms={termsAccepted}
+            onToggleAge={() => setAgeConfirmed((v) => !v)}
+            onToggleTerms={() => setTermsAccepted((v) => !v)}
+          />
+        </Animated.View>
       </View>
 
       {error ? <AuthError message={error} /> : null}
@@ -115,9 +152,6 @@ export default function SignUp() {
           loading={loading}
           onPress={handleSignUp}
         />
-        <Text className="mt-3 px-2 text-center font-body text-[12.5px] leading-relaxed text-muted-foreground">
-          {t('termsNotice')}
-        </Text>
       </View>
     </AuthScreen>
   );

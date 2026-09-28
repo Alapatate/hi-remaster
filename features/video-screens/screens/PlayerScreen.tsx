@@ -28,7 +28,11 @@ import type { Video } from '../lib/types';
 const AUTO_HIDE_MS = 3500;
 
 export function PlayerScreen() {
-  const { id, session, t: resumeParam } = useLocalSearchParams<{
+  const {
+    id,
+    session,
+    t: resumeParam,
+  } = useLocalSearchParams<{
     id: string;
     session?: string;
     /** Seconds to resume `id` from, set by the continue-watching card. */
@@ -256,6 +260,12 @@ function ActivePlayer({
   const statusEvent = useEvent(player, 'statusChange', { status: player.status });
   const status = statusEvent?.status ?? player.status;
 
+  // The last exercise playing to its end closes the session on the wrap-up
+  // screen. Earlier exercises keep waiting on the up-next card.
+  useEventListener(player, 'playToEnd', () => {
+    if (!nextVideo) router.replace('/session-complete' as never);
+  });
+
   // Adaptive HLS can swap rendition mid-playback. A pure resolution change needs
   // nothing, but if the *aspect ratio* changes the Android surface can keep the
   // old one and render the frame distorted. Remount only in that case, so the
@@ -328,10 +338,7 @@ function ActivePlayer({
 
   /** Seconds of session that precede the current exercise. */
   const elapsedBeforeCurrent = React.useMemo(
-    () =>
-      sessionVideos
-        .slice(0, currentIndex)
-        .reduce((sum, v) => sum + (v.duration ?? 0), 0),
+    () => sessionVideos.slice(0, currentIndex).reduce((sum, v) => sum + (v.duration ?? 0), 0),
     [sessionVideos, currentIndex]
   );
 
@@ -347,14 +354,7 @@ function ActivePlayer({
     const elapsed = elapsedBeforeCurrent + currentTime;
     const progress = Math.min(100, Math.round((elapsed / sessionTotal) * 100));
     onProgress(progress, sessionTotal, teacherFullName(video.teacher), currentTime);
-  }, [
-    currentTime,
-    duration,
-    sessionTotal,
-    elapsedBeforeCurrent,
-    onProgress,
-    video.teacher,
-  ]);
+  }, [currentTime, duration, sessionTotal, elapsedBeforeCurrent, onProgress, video.teacher]);
 
   // XP: +1 per minute of actual playback (not scrubbed time).
   // Compares consecutive timeUpdate deltas while playing; >2 s delta = seek → skip.
