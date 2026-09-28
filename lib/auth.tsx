@@ -1,5 +1,5 @@
 import { account } from '@/lib/appwrite';
-import i18n, { catLanguageFor, DEFAULT_LANGUAGE } from '@/lib/i18n';
+import i18n, { catLanguageFor, DEFAULT_LANGUAGE, signedOutLanguage } from '@/lib/i18n';
 import * as React from 'react';
 import { ID, type Models } from 'react-native-appwrite';
 
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await account.deleteSession('current');
     setUser(null);
-    i18n.changeLanguage('en');
+    i18n.changeLanguage(signedOutLanguage());
   };
 
   const deleteAccount = async () => {
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await account.updatePrefs({ ...current, deletionRequestedAt: new Date().toISOString() });
     await account.updateStatus();
     setUser(null);
-    i18n.changeLanguage('en');
+    i18n.changeLanguage(signedOutLanguage());
   };
 
   const updatePrefs = async (prefs: Models.Preferences) => {

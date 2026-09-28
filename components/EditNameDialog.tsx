@@ -1,4 +1,5 @@
 import { Text } from '@/components/ui/text';
+import { errorMessage } from '@/lib/errors';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import {
@@ -54,8 +55,8 @@ export function EditNameDialog({
     try {
       await onSave(name);
       onClose();
-    } catch (e: any) {
-      setError(e?.message ?? t('nameRequired'));
+    } catch (e: unknown) {
+      setError(errorMessage(e));
     } finally {
       setSaving(false);
     }

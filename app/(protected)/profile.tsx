@@ -1,3 +1,4 @@
+import { EdgeFade } from '@/components/EdgeFade';
 import { EditNameDialog } from '@/components/EditNameDialog';
 import { useBottomDockSpace } from '@/components/navigation/FloatingTabBar';
 import { Toast } from '@/components/Toast';
@@ -43,6 +44,8 @@ const CAT_TAPS = 7;
 const CAT_TAP_WINDOW = 2000;
 /** From this tap on, a nudge appears so the run can be finished on purpose. */
 const CAT_HINT_AT = 5;
+/** Length of the fades that keep the content off the status bar and the dock. */
+const FADE = 32;
 
 export default function Profile() {
   const { user, updatePrefs, updateName } = useAuth();
@@ -140,8 +143,8 @@ export default function Profile() {
         // flexGrow + centre so the page sits balanced between the status bar and
         // the dock when it is shorter than the viewport, and still scrolls when not.
         contentContainerStyle={{
-          paddingTop: insets.top,
-          paddingBottom: dockSpace,
+          paddingTop: insets.top + FADE,
+          paddingBottom: dockSpace + FADE + 16,
           flexGrow: 1,
           justifyContent: 'center',
         }}>
@@ -311,6 +314,16 @@ export default function Profile() {
 
             <Divider />
 
+            <TouchableOpacity
+              onPress={() => router.push('/contact' as never)}
+              activeOpacity={0.7}
+              className="flex-row items-center justify-between px-4 py-4">
+              <Text className="flex-1 font-body-medium text-[15px]">{t('contactUs')}</Text>
+              <ChevronRightIcon size={18} className="text-muted-foreground" />
+            </TouchableOpacity>
+
+            <Divider />
+
             {/* Legal row — Terms of Use, Privacy Policy and legal notice */}
             <TouchableOpacity
               onPress={() => router.push('/legal' as never)}
@@ -329,6 +342,9 @@ export default function Profile() {
           onClose={() => setNameOpen(false)}
         />
       </ScrollView>
+
+      <EdgeFade edge="top" height={insets.top + FADE} solid={insets.top} />
+      <EdgeFade edge="bottom" height={dockSpace + FADE} solid={dockSpace - 16} />
 
       <Toast
         visible={catToast !== null}

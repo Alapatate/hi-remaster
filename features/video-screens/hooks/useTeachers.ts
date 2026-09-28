@@ -1,4 +1,5 @@
 import { useAuth } from '@/lib/auth';
+import { errorMessage } from '@/lib/errors';
 import * as React from 'react';
 import { fetchTeachers, isCatTeacher, prefetchTeacherPhotos } from '../lib/data';
 import type { Teacher } from '../lib/types';
@@ -32,7 +33,7 @@ export function useTeachers(): State {
         setTeachers(list);
         prefetchTeacherPhotos(list);
       })
-      .catch((e: any) => setError(e?.message ?? 'Could not load teachers.'))
+      .catch((e: unknown) => setError(errorMessage(e, 'errorTeachers')))
       .finally(() => setLoading(false));
   }, []);
 

@@ -8,8 +8,10 @@ import {
   BrandMark,
   EyeToggle,
 } from '@/components/auth/AuthScaffold';
+import { LanguagePicker } from '@/components/auth/LanguagePicker';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
+import { errorMessage } from '@/lib/errors';
 import { router } from 'expo-router';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -37,7 +39,7 @@ export default function SignIn() {
       await signIn(email, password);
       router.replace('/(protected)/dashboard');
     } catch (e: any) {
-      setError(e?.message ?? t('fillAllFields'));
+      setError(errorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -45,8 +47,11 @@ export default function SignIn() {
 
   return (
     <AuthScreen discs="signIn">
-      <Animated.View entering={FadeInDown.duration(260)}>
+      <Animated.View
+        entering={FadeInDown.duration(260)}
+        className="flex-row items-start justify-between">
         <BrandMark />
+        <LanguagePicker />
       </Animated.View>
 
       {/* Headline, form and CTA share the space below the wordmark, so the
