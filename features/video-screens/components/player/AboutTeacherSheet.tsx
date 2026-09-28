@@ -24,8 +24,10 @@ export const AboutTeacherSheet = React.forwardRef<
     teacher?: Teacher;
     /** Optional duration chip (player context). */
     duration?: number;
+    /** What the exercise is about (player context). */
+    description?: string;
   }
->(function AboutTeacherSheet({ title, teacher, duration }, ref) {
+>(function AboutTeacherSheet({ title, teacher, duration, description }, ref) {
   const { t } = useTranslation();
   const chrome = useSheetChrome(SHEET_BG);
   const flag = teacherFlag(teacher);
@@ -66,6 +68,13 @@ export const AboutTeacherSheet = React.forwardRef<
             <InstagramIcon size={17} color="#bf6e1a" />
             <Text className="font-body-medium text-[15px] text-foreground">@{instagram}</Text>
           </TouchableOpacity>
+        ) : null}
+
+        {description ? (
+          <View className="mb-4 rounded-2xl bg-card p-5">
+            <Text className="mb-3 font-heading text-lg text-foreground">{t('aboutExercise')}</Text>
+            <Text className="text-base leading-7 text-muted-foreground">{description}</Text>
+          </View>
         ) : null}
 
         {teacher?.presentation ? (

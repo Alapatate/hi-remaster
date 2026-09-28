@@ -7,6 +7,7 @@ export const LANGUAGES = [
   { code: 'it', label: 'Italiano' },
   { code: 'pt', label: 'Português' },
   { code: 'ru', label: 'Русский' },
+  { code: 'uk', label: 'Українська' },
   { code: 'ar', label: 'العربية' },
   { code: 'zh', label: '中文' },
   { code: 'ja', label: '日本語' },
