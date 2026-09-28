@@ -11,7 +11,8 @@ import {
 import { ConsentChecks } from '@/components/legal/ConsentChecks';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
-import i18n from '@/lib/i18n';
+import { errorMessage } from '@/lib/errors';
+import i18n, { languageChosenSignedOut } from '@/lib/i18n';
 import { consentPrefs } from '@/lib/legal/config';
 import { router } from 'expo-router';
 import * as React from 'react';
@@ -68,17 +69,18 @@ export default function SignUp() {
     setError('');
     setLoading(true);
     try {
-      // Seed the account: the device language as a starting point, the flag
-      // that routes the first launch through the language picker, and the dated
-      // record of the age attestation and of the accepted documents.
+      // Seed the account: the current language, the flag that routes the first
+      // launch through the language picker (skipped when the language was
+      // already picked on the sign-in screen), and the dated record of the age
+      // attestation and of the accepted documents.
       await signUp(email, password, name, {
         language: i18n.language ?? 'en',
-        firstlogin: true,
+        firstlogin: !languageChosenSignedOut(),
         ...consentPrefs(),
       });
       router.replace('/(protected)/dashboard');
     } catch (e: any) {
-      setError(e?.message ?? t('fillAllFields'));
+      setError(errorMessage(e));
     } finally {
       setLoading(false);
     }

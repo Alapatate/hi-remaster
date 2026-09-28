@@ -7,7 +7,7 @@ import type { Bird } from './types';
  * `bird*` keys in `lib/i18n.ts`.
  *
  * Order matters: `xpRequired` must be strictly increasing. The first waypoint
- * sits at 1 XP so a brand-new account starts with nothing unlocked, and the
+ * sits at 0 XP so a brand-new account starts with its first bird, and the
  * last stays at 1800 XP so the length of the whole journey is unchanged.
  */
 export const BIRDS: Bird[] = [
@@ -16,7 +16,7 @@ export const BIRDS: Bird[] = [
     nameKey: 'birdBlackGrouse',
     descriptionKey: 'birdBlackGrouseDesc',
     scientificName: 'Lyrurus tetrix',
-    xpRequired: 1,
+    xpRequired: 0,
   },
   {
     id: 'robin',

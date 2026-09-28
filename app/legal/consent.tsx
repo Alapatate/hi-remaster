@@ -2,6 +2,7 @@ import { AuthButton, AuthError, AuthScreen, BrandMark } from '@/components/auth/
 import { ConsentChecks } from '@/components/legal/ConsentChecks';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
+import { errorMessage } from '@/lib/errors';
 import { consentPrefs, hasCurrentConsent } from '@/lib/legal/config';
 import { Redirect } from 'expo-router';
 import { ShieldCheckIcon } from 'lucide-react-native';
@@ -42,8 +43,8 @@ export default function ConsentScreen() {
     setSaving(true);
     try {
       await updatePrefs(consentPrefs());
-    } catch (e: any) {
-      setError(e?.message ?? t('termsRequired'));
+    } catch (e: unknown) {
+      setError(errorMessage(e));
     } finally {
       setSaving(false);
     }

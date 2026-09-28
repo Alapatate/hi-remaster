@@ -35,3 +35,22 @@ export function isShavasana(video: Pick<Video, 'type_exercice'>): boolean {
 export function hasShavasana(videos: Pick<Video, 'type_exercice'>[]): boolean {
   return videos.some(isShavasana);
 }
+
+/** Translation key of the description for each `type_exercice`, normalised. */
+const EXERCISE_DESCRIPTIONS: Record<string, string> = {
+  warmup: 'exerciseWarmupDesc',
+  centering: 'exerciseCenteringDesc',
+  awakening: 'exerciseAwakeningDesc',
+  latihan: 'exerciseLatihanDesc',
+  giving: 'exerciseGivingDesc',
+  reconciliation: 'exerciseReconciliationDesc',
+  cross: 'exerciseCrossDesc',
+  shavasana: 'exerciseShavasanaDesc',
+  savasana: 'exerciseShavasanaDesc',
+  sittedrelax: 'exerciseSittedRelaxDesc',
+};
+
+/** Translation key describing an exercise, from its type. */
+export function exerciseDescriptionKey(video: Pick<Video, 'type_exercice'>): string {
+  return EXERCISE_DESCRIPTIONS[normalize(video.type_exercice)] ?? 'exerciseDescFallback';
+}

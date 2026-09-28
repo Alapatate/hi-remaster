@@ -1,6 +1,7 @@
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/lib/auth';
+import { errorMessage } from '@/lib/errors';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useEvent, useEventListener } from 'expo';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -23,6 +24,7 @@ import { UpNextCard } from '../components/player/UpNextCard';
 import { fetchVideo, teacherFullName, teacherLanguage } from '../lib/data';
 import { totalDuration } from '../lib/format';
 import { buildVideoSource, resolvePlayableVideo, type PlayableVideo } from '../lib/hls';
+import { exerciseDescriptionKey } from '../lib/tools';
 import type { Video } from '../lib/types';
 
 const AUTO_HIDE_MS = 3500;
@@ -44,6 +46,7 @@ export function PlayerScreen() {
   const [error, setError] = React.useState('');
   const [focused, setFocused] = React.useState(true);
   const { user, updatePrefs } = useAuth();
+  const { t } = useTranslation();
   // Keep a ref so the XP callback always reads the latest user without being
   // recreated on every prefs update (which would restart the accumulator effect).
   const userRef = React.useRef(user);
@@ -72,7 +75,7 @@ export function PlayerScreen() {
     setLoading(true);
     fetchVideo(id)
       .then((doc) => setVideo(doc))
-      .catch((e: any) => setError(e?.message ?? 'Failed to load video.'))
+      .catch((e: unknown) => setError(errorMessage(e, 'errorVideos')))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -100,7 +103,7 @@ export function PlayerScreen() {
       ) : error ? (
         <CenteredMessage message={error} />
       ) : !video?.url ? (
-        <CenteredMessage message="No video URL available for this entry." />
+        <CenteredMessage message={t('noVideoUrl')} />
       ) : focused ? (
         <PlayerView
           video={video}
@@ -278,7 +281,6 @@ function ActivePlayer({
     if (changed) setViewKey((k) => k + 1);
   });
 
-  const statusError = (statusEvent as { error?: { message?: string } } | undefined)?.error;
   const duration = player.duration ?? 0;
   const isBuffering = status === 'loading';
 
@@ -498,9 +500,7 @@ function ActivePlayer({
       {/* Playback error (always on top, not tied to controls) */}
       {status === 'error' ? (
         <View pointerEvents="none" className="absolute inset-0 items-center justify-center px-6">
-          <Text className="text-center text-white">
-            {statusError?.message ?? t('playbackError')}
-          </Text>
+          <Text className="text-center text-white">{t('playbackError')}</Text>
         </View>
       ) : null}
 
@@ -525,6 +525,7 @@ function ActivePlayer({
         title={title}
         teacher={video.teacher}
         duration={video.duration}
+        description={t(exerciseDescriptionKey(video))}
       />
 
       <ConfirmDialog

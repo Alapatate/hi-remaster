@@ -1,3 +1,4 @@
+import { errorMessage } from '@/lib/errors';
 import * as React from 'react';
 import { fetchVideosByTeacher } from '../lib/data';
 import type { Video } from '../lib/types';
@@ -24,7 +25,7 @@ export function useTeacherVideos(teacherId?: string): State {
     setError('');
     fetchVideosByTeacher(teacherId)
       .then(setVideos)
-      .catch((e: any) => setError(e?.message ?? 'Could not load videos.'))
+      .catch((e: unknown) => setError(errorMessage(e, 'errorVideos')))
       .finally(() => setLoading(false));
   }, [teacherId]);
 
